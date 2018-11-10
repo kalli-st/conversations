@@ -522,8 +522,8 @@ missatges.\n\nAra se us demanarà que desactiveu-las.</string>
  utilitzar aquest client amb el servidor de Jabber que trieu.\nPerò 
 per a la seva comoditat hem facilitat crear un compte a converses.im¹; un proveïdor especialment indicat per a l\'ús amb Conversations.</string>
   <string name="welcome_text_quicksy"><![CDATA[Quicksy és un spin off de les populars Converses client Jabber/XMPP amb detecció automàtica de contactes. <br> <br> Vostè es registra amb el seu número de telèfon i Quicksy es basarà automàticament en els números de telèfon de la seva llibreta d\'adreces per suggerir-li possibles contactes. <br> <br> En registrar-se vostè accepta la nostra <a href="https://quicksy.im/#privacy"> política de privadesa </a>. ]]></string>
-  <string name="magic_create_text">Us guiarem pel procés de creació d\'un compte a conversations.im.¹\nQuan 
-trieu conversations.im com a proveïdor, podreu comunicar-vos amb els usuaris 
+  <string name="magic_create_text">Us guiarem pel procés de creació d\'un compte a chat.sum7.eu.\nQuan
+trieu chat.sum7.eu com a proveïdor, podreu comunicar-vos amb els usuaris
 d\'altres proveïdors donant-los la vostra ID Jabber completa.</string>
   <string name="your_full_jid_will_be">La vostra Jabber ID completa serà: %s</string>
   <string name="create_account">Crear compte</string>
@@ -556,8 +556,6 @@ d\'altres proveïdors donant-los la vostra ID Jabber completa.</string>
   <string name="pref_theme_options_summary">Seleccioneu la paleta de colors</string>
   <string name="pref_theme_light">Tema clar</string>
   <string name="pref_theme_dark">Tema fosc</string>
-  <string name="pref_use_green_background">Fons verd</string>
-  <string name="pref_use_green_background_summary">Utilitzeu fons verd per als missatges rebuts</string>
   <string name="unable_to_connect_to_keychain">No es pot connectar a OpenKeychain</string>
   <string name="this_device_is_no_longer_in_use">Aquest dispositiu ja no està en ús</string>
   <string name="type_pc">Ordinador</string>

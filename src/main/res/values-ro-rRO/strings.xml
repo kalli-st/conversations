@@ -520,10 +520,10 @@ sau chiar pierderea mesajelor.\nÎn continuare veți fi rugați să dezactivați
   <string name="security_error_invalid_file_access">Eroare de securitate.: Acces fișier invalid</string>
   <string name="no_application_to_share_uri">Nu s-a găsit nici o aplicație care să partajeze adresa</string>
   <string name="share_uri_with">Partajează adresa cu...</string>
-  <string name="welcome_text">Jabber este o rețea de mesagerie instant ce nu depinde de un anumit furnizor. Aveți posibilitatea să utilizați acest client cu orice server Jabber doriți.\nTotuși, pentru confortul dumneavoastră, am facilitat crearea unui cont pe conversations.im¹; un furnizor potrivit pentru utilizarea cu aplicația Conversations.</string>
+  <string name="welcome_text">Jabber este o rețea de mesagerie instant ce nu depinde de un anumit furnizor. Aveți posibilitatea să utilizați acest client cu orice server Jabber doriți.\nTotuși, pentru confortul dumneavoastră, am facilitat crearea unui cont pe chat.sum7.eu; un furnizor potrivit pentru utilizarea cu aplicația Conversations.</string>
   <string name="welcome_text_quicksy"><![CDATA[Quicksy este o versiune a popularului client Jabber/XMPP Conversations cu descoperire automată a contactelor.<br><br>Vă înscrieți cu numărul de telefon și Quicksy—pe baza numerelor de telefon din agenda dumneavoastră—vă va sugera automat posibile contacte.<br><br>Înscriindu-vă sunteți de acord cu <a href="https://quicksy.im/#privacy">politica noastră de confidențialitate</a>.]]></string>
   <string name="agree_and_continue">De acord &amp; continuă</string>
-  <string name="magic_create_text">Vă vom ghida prin procesul de creare al unui cont pe conversations.im.¹\nCând alegeți conversations.im ca furnizor veți putea comunica cu utilizatorii altor furnizori oferindu-le ID-ul dumneavoastră Jabber.</string>
+  <string name="magic_create_text">Vă vom ghida prin procesul de creare al unui cont pe chat.sum7.eu.\nCând alegeți chat.sum7.eu ca furnizor veți putea comunica cu utilizatorii altor furnizori oferindu-le ID-ul dumneavoastră Jabber.</string>
   <string name="your_full_jid_will_be">ID-ul Jabber va fi: %s</string>
   <string name="create_account">Creează cont</string>
   <string name="use_own_provider">Folosește furnizorul meu</string>
@@ -555,8 +555,6 @@ sau chiar pierderea mesajelor.\nÎn continuare veți fi rugați să dezactivați
   <string name="pref_theme_options_summary">Selecție paletă culori interfață</string>
   <string name="pref_theme_light">Tema luminoasă</string>
   <string name="pref_theme_dark">Tema întunecată</string>
-  <string name="pref_use_green_background">Fundal verde</string>
-  <string name="pref_use_green_background_summary">Pentru mesajele primite</string>
   <string name="unable_to_connect_to_keychain">Nu s-a putut contacta OpenKeychain</string>
   <string name="this_device_is_no_longer_in_use">Acest dispozitiv nu mai este in uz</string>
   <string name="type_pc">PC</string>

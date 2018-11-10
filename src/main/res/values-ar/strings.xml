@@ -467,8 +467,6 @@
   <string name="pref_theme_options_summary">إختر اللون المناسب</string>
   <string name="pref_theme_light">سمة فاتحة</string>
   <string name="pref_theme_dark">سمة مظلمة</string>
-  <string name="pref_use_green_background">خلفية خضراء</string>
-  <string name="pref_use_green_background_summary">إستخدم خلفية خضراء للرسائل المُستَلَمة</string>
   <string name="unable_to_connect_to_keychain">تعذر الربط بأوبن كي تشاين</string>
   <string name="this_device_is_no_longer_in_use">لم يعُد هذا الجهاز مُستعمَلًا</string>
   <string name="type_pc">كمبيوتر</string>

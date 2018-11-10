@@ -516,10 +516,10 @@
   <string name="security_error_invalid_file_access">Грешка в сигурността: неправилен достъп до файл</string>
   <string name="no_application_to_share_uri">Няма намерено приложение за споделяне на адреса</string>
   <string name="share_uri_with">Споделяне на адреса с…</string>
-  <string name="welcome_text">Jabber е мрежа за общуване чрез мигновени съобщения, която не е обвързана с конкретен доставчик. Можете да използвате клиента с всеки сървър, който работи с Jabber.\nЗа Ваше удобство, ние предоставяме лесен начин да си създадете профил в conversations.im¹ — сървър, пригоден да работи добре с Conversations.</string>
+  <string name="welcome_text">Jabber е мрежа за общуване чрез мигновени съобщения, която не е обвързана с конкретен доставчик. Можете да използвате клиента с всеки сървър, който работи с Jabber.\nЗа Ваше удобство, ние предоставяме лесен начин да си създадете профил в chat.sum7.eu — сървър, пригоден да работи добре с Conversations.</string>
   <string name="welcome_text_quicksy"><![CDATA[Quicksy е леко променен вариант на популярния клиент за Jabber/XMPP – Conversations, като включва функционалност за автоматично откриване на контактите.<br><br>След като се впишете чрез телефонния си номер, Quicksy ще използва телефонните номера в адресния Ви указател, за да Ви предложи възможни контакти.<br><br>Регистрирайки се, Вие се съгласявате с нашата <a href="https://quicksy.im/#privacy">декларация за поверителност</a>.]]></string>
   <string name="agree_and_continue">Съгласяване и продължаване</string>
-  <string name="magic_create_text">Ще преминем заедно с Вас през процеса за създаване на профил в conversations.im.¹\nАко изберете да използвате conversations.im, ще можете да общувате с потребители, използващи други сървъри, като им дадете своя пълен Jabber идентификатор.</string>
+  <string name="magic_create_text">Ще преминем заедно с Вас през процеса за създаване на профил в chat.sum7.eu.\nАко изберете да използвате chat.sum7.eu, ще можете да общувате с потребители, използващи други сървъри, като им дадете своя пълен Jabber идентификатор.</string>
   <string name="your_full_jid_will_be">Вашият пълен Jabber идентификатор ще бъде: %s</string>
   <string name="create_account">Създаване на профил</string>
   <string name="use_own_provider">Използване на собствен сървър</string>
@@ -551,8 +551,6 @@
   <string name="pref_theme_options_summary">Изберете цветовата схема</string>
   <string name="pref_theme_light">Светла тема</string>
   <string name="pref_theme_dark">Тъмна тема</string>
-  <string name="pref_use_green_background">Зелен фон</string>
-  <string name="pref_use_green_background_summary">Получените съобщения ще бъдат на зелен фон</string>
   <string name="unable_to_connect_to_keychain">Неуспешно свързване с OpenKeychain</string>
   <string name="this_device_is_no_longer_in_use">Това устройство вече не се използва</string>
   <string name="type_pc">Компютър</string>

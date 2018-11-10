@@ -522,11 +522,11 @@
     <string name="no_application_to_share_uri">No application found to share URI</string>
     <string name="share_uri_with">Share URI with…</string>
     <string name="welcome_header" translatable="false">Join the Conversation</string>
-    <string name="welcome_text">Jabber is a provider independent instant messaging network. You can use this client with what ever Jabber server you choose.\nHowever for your convenience we made it easy to create an account on conversations.im¹; a provider specially suited for the use with Conversations.</string>
+    <string name="welcome_text">Jabber is a provider independent instant messaging network. You can use this client with what ever Jabber server you choose.\nHowever for your convenience we made it easy to create an account on chat.sum7.eu; a provider specially suited for the use with Conversations.</string>
     <string name="welcome_header_quicksy" translatable="false">Have some Quick Conversations</string>
     <string name="welcome_text_quicksy"><![CDATA[Quicksy is a spin off of the popular Jabber/XMPP client Conversations with automatic contact discovery.<br><br>You sign up with your phone number and Quicksy will automatically—based on the phone numbers in your address book—suggest possible contacts to you.<br><br>By signing up you agree to our <a href="https://quicksy.im/#privacy">privacy policy</a>.]]></string>
     <string name="agree_and_continue">Agree &amp; continue</string>
-    <string name="magic_create_text">We will guide you through the process of creating an account on conversations.im.¹\nWhen picking conversations.im as a provider you will be able to communicate with users of other providers by giving them your full Jabber ID.</string>
+    <string name="magic_create_text">We will guide you through the process of creating an account on chat.sum7.eu.\nWhen picking chat.sum7.eu as a provider you will be able to communicate with users of other providers by giving them your full Jabber ID.</string>
     <string name="your_full_jid_will_be">Your full Jabber ID will be: %s</string>
     <string name="create_account">Create Account</string>
     <string name="use_own_provider">Use my own provider</string>
@@ -557,8 +557,6 @@
     <string name="pref_theme_options_summary">Select the color palette</string>
     <string name="pref_theme_light">Light theme</string>
     <string name="pref_theme_dark">Dark theme</string>
-    <string name="pref_use_green_background">Green Background</string>
-    <string name="pref_use_green_background_summary">Use green background for received messages</string>
     <string name="unable_to_connect_to_keychain">Unable to connect to OpenKeychain</string>
     <string name="this_device_is_no_longer_in_use">This device is no longer in use</string>
     <string name="type_pc">Computer</string>

@@ -502,8 +502,8 @@
   <string name="security_error_invalid_file_access">Erreur de sécurité : accès fichier non-valide</string>
   <string name="no_application_to_share_uri">Aucune application trouvée pour partager l\'URI</string>
   <string name="share_uri_with">Partager l\'URI avec...</string>
-  <string name="welcome_text">Jabber est un réseau de messagerie instantanée indépendant du fournisseur. Vous pouvez utiliser ce client avec n\'importe quel serveur Jabber que vous choisissez.\nToutefois, pour votre commodité, nous avons facilité la création d\'un compte sur conversations.im¹ ; un fournisseur spécialement adapté à l\'utilisation avec Conversations.</string>
-  <string name="magic_create_text">Nous vous guiderons pendant toute la procédure de création d\'un compte utilisateur sur conversations.im.¹\nEn choisissant conversations.im comme fournisseur, vous pourrez communiquer avec les utilisateurs d\'autres fournisseurs en leur transmettant votre Jabber ID complet. </string>
+  <string name="welcome_text">Jabber est un réseau de messagerie instantanée indépendant du fournisseur. Vous pouvez utiliser ce client avec n\'importe quel serveur Jabber que vous choisissez.\nToutefois, pour votre commodité, nous avons facilité la création d\'un compte sur chat.sum7.eu ; un fournisseur spécialement adapté à l\'utilisation avec Conversations.</string>
+  <string name="magic_create_text">Nous vous guiderons pendant toute la procédure de création d\'un compte utilisateur sur chat.sum7.eu.¹\nEn choisissant chat.sum7.eu comme fournisseur, vous pourrez communiquer avec les utilisateurs d\'autres fournisseurs en leur transmettant votre Jabber ID complet. </string>
   <string name="your_full_jid_will_be">Votre Jabber ID complet sera : %s</string>
   <string name="create_account">Créer un compte</string>
   <string name="use_own_provider">Utiliser votre propre fournisseur</string>
@@ -535,8 +535,6 @@
   <string name="pref_theme_options_summary">Choisir la palette de couleurs</string>
   <string name="pref_theme_light">Thème Clair</string>
   <string name="pref_theme_dark">Thème Sombre</string>
-  <string name="pref_use_green_background">Fond Vert</string>
-  <string name="pref_use_green_background_summary">Utiliser un fond vert pour les messages reçus</string>
   <string name="unable_to_connect_to_keychain">Connection à OpenKeychain impossible</string>
   <string name="this_device_is_no_longer_in_use">Cet appareil n\'est plus utilisé</string>
   <string name="type_pc">Ordinateur</string>

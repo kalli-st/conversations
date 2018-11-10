@@ -454,8 +454,6 @@
   <string name="pref_theme_options_summary">Renk paletini seçin</string>
   <string name="pref_theme_light">Açık gövde</string>
   <string name="pref_theme_dark">Koyu gövde</string>
-  <string name="pref_use_green_background">Yeşil arka plan</string>
-  <string name="pref_use_green_background_summary">Gelen iletiler için yeşil arka plan kullan</string>
   <string name="unable_to_connect_to_keychain">OpenKeychain\'e bağlanılamıyor</string>
   <string name="this_device_is_no_longer_in_use">Bu aygıt artık kullanılmıyor</string>
   <string name="type_pc">Bilgisayar</string>

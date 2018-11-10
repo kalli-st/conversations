@@ -158,11 +158,6 @@
             android:key="theme"
             android:summary="@string/pref_theme_options_summary"
             android:title="@string/pref_theme_options" />
-        <CheckBoxPreference
-            android:defaultValue="@bool/use_green_background"
-            android:key="use_green_background"
-            android:summary="@string/pref_use_green_background_summary"
-            android:title="@string/pref_use_green_background" />
         <ListPreference
             android:defaultValue="@string/default_font_size"
             android:entries="@array/font_size_entries"

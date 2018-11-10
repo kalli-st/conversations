@@ -499,7 +499,7 @@
   <string name="security_error_invalid_file_access">Ошибка безопасности: недействительный доступ к файлу</string>
   <string name="no_application_to_share_uri">Не найдено приложения для отправки</string>
   <string name="share_uri_with">Отправить URI…</string>
-  <string name="magic_create_text">Мы поможем Вам создать аккаунт на conversations.im¹.\nВыбрав conversations.im в качестве провайдера, вы сможете общаться с пользователями других провайдеров, сообщив им свой полный Jabber ID.</string>
+  <string name="magic_create_text">Мы поможем Вам создать аккаунт на chat.sum7.eu.\nВыбрав chat.sum7.eu в качестве провайдера, вы сможете общаться с пользователями других провайдеров, сообщив им свой полный Jabber ID.</string>
   <string name="your_full_jid_will_be">Ваш полный Jabber ID: %s</string>
   <string name="create_account">Создать аккаунт</string>
   <string name="use_own_provider">Использовать свой провайдер</string>
@@ -528,8 +528,6 @@
   <string name="pref_theme_options_summary">Выбрать цветовую палитру</string>
   <string name="pref_theme_light">Светлая тема</string>
   <string name="pref_theme_dark">Тёмная тема</string>
-  <string name="pref_use_green_background">Зелёный фон</string>
-  <string name="pref_use_green_background_summary">Использовать зелёный фон для полученных сообщений</string>
   <string name="unable_to_connect_to_keychain">Не удалось подключиться к OpenKeychain</string>
   <string name="this_device_is_no_longer_in_use">Данное устройство больше не используется</string>
   <string name="type_pc">Компьютер</string>

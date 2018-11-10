@@ -1,33 +1,30 @@
-<h1 align="center">Conversations</h1>
+<h1 align="center">Conversations for Sum7 / with IPv6</h1>
 
 <p align="center">Conversations: the very last word in instant messaging</p>
 
 <p align="center">
-    <a href="https://conversations.im/j/conversations@conference.siacs.eu">
-        <img src="https://inverse.chat/badge.svg?room=conversations@conference.siacs.eu"
-             alt="chat on our conference room">
-    </a>
-    <a href="https://travis-ci.org/siacs/Conversations">
-        <img src="https://travis-ci.org/siacs/Conversations.svg?branch=master"
-             alt="build status">
-    </a>
-    <a href="https://bountysource.com/teams/siacs">
-        <img src="https://api.bountysource.com/badge/tracker?tracker_id=519483" alt="Bountysource">
-    </a>
-</p>
-
+  <a href="https://conversations.im/j/support@conference.chat.sum7.eu">
+    <img src="https://inverse.chat/badge.svg?room=support@conference.chat.sum7.eu"
+     alt="chat on our conference room">
+  </a>
+  <a href="https://dev.sum7.eu/sum7/Conversations/pipelines">
+    <img src="https://dev.sum7.eu/sum7/Conversations/badges/develop/build.svg"
+     alt="build status">
+  </a>
+</a>
 <p align="center">
-    <a href="https://play.google.com/store/apps/details?id=eu.siacs.conversations&amp;referrer=utm_source%3Dgithub">
-       <img src="https://conversations.im/images/en-play-badge.png"
-            alt="Google Play">
-            </a>
-    <a href="http://www.amazon.com/dp/B00WD35AAC/">
-        <img src="https://images-na.ssl-images-amazon.com/images/G/01/AmazonMobileApps/amazon-apps-store-us-black.png"
-             alt="Amazon App Store">
-    </a>
+  <img src="metadata/en-US/phoneScreenshots/1.jpg" width="20%" alt="screenshot 1"/>
+  <img src="metadata/en-US/phoneScreenshots/2.jpg" width="20%" alt="screenshot 2"/>
+  <img src="metadata/en-US/phoneScreenshots/3.jpg" width="20%" alt="screenshot 3"/>
+  <img src="metadata/en-US/phoneScreenshots/4.jpg" width="20%" alt="screenshot 4"/>
 </p>
 
-![screenshots](https://raw.githubusercontent.com/siacs/Conversations/master/screenshots.png)
+[<img src="https://f-droid.org/badge/get-it-on.png"
+      alt="Get it on F-Droid"
+      height="80">](https://dev.sum7.eu/sum7/Conversations-nightly/raw/master/fdroid/repo)
+
+### Nightly:
+[![https://dev.sum7.eu/sum7/Conversations-nightly/raw/master/fdroid/repo](https://dev.sum7.eu/sum7/Conversations-nightly/raw/master/icon.png)](https://dev.sum7.eu/sum7/Conversations-nightly/raw/master/fdroid/repo)
 
 ## Design principles
 
@@ -92,38 +89,8 @@ Conversations is entirely open source and licensed under GPLv3. So if you are a
 software developer you can check out the sources from GitHub and use Gradle to
 build your apk file.
 
-The more convenient way — which not only gives you automatic updates but also
-supports the further development of Conversations — is to buy the App in the
-Google [Play Store](https://play.google.com/store/apps/details?id=eu.siacs.conversations&referrer=utm_source%3Dgithub).
-
-Buying the App from the Play Store will also give you access to our [beta test](#beta).
-
-#### I don't have a Google Account but I would still like to make a contribution
-
-I accept donations over PayPal, bank transfer and various crypto currencies. For donations via PayPal you
-can use the email address `donate@siacs.eu` or the button below.
-
-[![Donate with PayPal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CW3SYT3KG5PDL)
-
-**Disclaimer:** I'm not a huge fan of PayPal and their business policies. For
-larger contributions please get in touch with me beforehand and we can talk
-about bank transfer (SEPA).
-
-##### Crypto currencies
-
-Bitcoin: `1AeqNAcg85APAZj9BZfAjdFCC5zesqXp2B`
-
-Bitcoin Cash: `16ABkXzYAwWz8Y5DcWFfbBRqL63g3hzEaU`
-
-Ether: `0x5c4e5239cd9c6f4a909e4e8361526e2e3c8ba9fa`
-
 #### How do I create an account?
-XMPP, like email, is a federated protocol, which means that there is not one company you can create an *official XMPP account* with. Instead there are hundreds, or even thousands, of providers out there. One of those providers is our very own [conversations.im](https://account.conversations.im). If you don’t like to use *conversations.im* use a web search engine of your choice to find another provider. Or maybe your university has one. Or you can run your own. Or ask a friend to run one. Once you've found one, you can use Conversations to create an account. Just select *register new account* on server within the create account dialog.
-
-##### Domain hosting
-Using your own domain not only gives you a more recognizable Jabber ID, it also gives you the flexibility to migrate your account between different XMPP providers. This is a good compromise between the responsibilities of having to operate your own server and the downsides of being dependent on a single provider.
-
-Learn more about [conversations.im Jabber/XMPP domain hosting](https://account.conversations.im/domain/). 
+XMPP, like email, is a federated protocol, which means that there is not one company you can create an *official XMPP account* with. Instead there are hundreds, or even thousands, of providers out there. One of those providers is our very own [chat.sum7.eu](https://chat.sum7.eu). If you don’t like to use *chat.sum7.eu* use a web search engine of your choice to find another provider. Or maybe your university has one. Or you can run your own. Or ask a friend to run one. Once you've found one, you can use Conversations to create an account. Just select *register new account* on server within the create account dialog.
 
 ##### Running your own
 If you already have a server somewhere and are willing and able to put the necessary work in, one alternative-in the spirit of federation-is to run your own. We recommend either [Prosody](https://prosody.im/) or [ejabberd](https://www.ejabberd.im/). Both of which have their own strengths. Ejabberd is slightly more mature nowadays but Prosody is arguably easier to set up.
@@ -157,7 +124,7 @@ SCRAM-SHA1, PLAIN, EXTERNAL (client certs) and DIGEST-MD5.
 Some Bind failures are transient and resolve themselves after a reconnect.
 
 When trying to connect to OpenFire the bind failure can be a permanent problem when the domain part of the Jabber ID entered in Conversations doesn’t match the domain the OpenFire server feels responsible for. For example OpenFire is configured to use the domain `a.tld` but the Jabber ID entered is `user@b.tld` where `b.tld` also points to the same host. During bind OpenFire tries to reassign the Jabber to `user@a.tld`. Conversations doesn’t like that.
-This can be fixed by creating a new account in Conversations that uses the Jabber ID `user@a.tld`. 
+This can be fixed by creating a new account in Conversations that uses the Jabber ID `user@a.tld`.
 
 Note: This is kind of a weird quirk in OpenFire. Most other servers would just throw a 'Server not responsible for domain' error instead of attempting to reassign the Jabber ID.
 
@@ -182,7 +149,7 @@ The foreground notification is still controlled over the expert settings within 
 Long press the permanent notification and disable that particular type of notification by moving the slider to the left. This will make the notification disappear but create another notification (this time created by the operating system itself.) that will complain about Conversations (and other apps) using battery. Starting with Android 8.1 you can disable that notification again with the same method described above.
 
 ##### Android 9.0+
-Long press the permanent notification and press the info `(i)` button to get into the App info screen. In that screen touch the 'Notification' entry. In the next screen remove the checkbox for the 'Foreground service' entry. 
+Long press the permanent notification and press the info `(i)` button to get into the App info screen. In that screen touch the 'Notification' entry. In the next screen remove the checkbox for the 'Foreground service' entry.
 
 #### How do XEP-0357: Push Notifications work?
 You need to be running the Play Store version of Conversations and your server needs to support push notifications.¹ Because *Google’s Firebase Cloud Messaging (FCM)* are tied with an API key to a specific app your server can not initiate the push message directly. Instead your server will send the push notification to the [Conversations App server](https://github.com/iNPUTmice/p2) (operated by us) which then acts as a proxy and initiates the push message for you. The push message sent from our App server through FCM doesn’t contain any personal information. It is just an empty message which will wake up your device and tell Conversations to reconnect to your server. The information sent from your server to our App server depends on the configuration of your server but can be limited to your account name. (In any case the Conversations App server won't redirect any information through FCM even if your server sends this information.)
@@ -201,15 +168,11 @@ FCM (Google Push) allows an app to wake up from *Doze* which is (as the name sug
 
 #### Conversations doesn’t work for me. Where can I get help?
 
-You can join our conference room on `conversations@conference.siacs.eu`.
+You can join our conference room on `support@conference.chat.sum7.eu`.
 A lot of people in there are able to answer basic questions about the usage of
 Conversations or can provide you with tips on running your own XMPP server. If
 you found a bug or your app crashes please read the Developer / Report Bugs
 section of this document.
-
-#### I need professional support with Conversations or setting up my server
-
-I'm available for hire. Contact me at `inputmice@siacs.eu`.
 
 #### How does the address book integration work?
 
@@ -309,10 +272,6 @@ will it accelerate the development.
 Just write it yourself and send me a pull request. If I like it I will happily
 merge it if I don't at least you and like minded people get to enjoy it.
 
-#### I need a feature and I need it now!
-
-I am available for hire. Contact me via XMPP: `inputmice@siacs.eu`
-
 ### Security
 
 #### Why are there two end-to-end encryption methods and which one should I choose?
@@ -389,11 +348,6 @@ Unfortunately we don‘t have a recommendation for iPhones right now. There are 
 
 ### Development
 
-<a name="beta"></a>
-#### Beta testing
-If you bought the App on [Google Play](https://play.google.com/store/apps/details?id=eu.siacs.conversations)
-you can get access to the the latest beta version by signing up using [this link](https://play.google.com/apps/testing/eu.siacs.conversations).
-
 #### How do I build Conversations
 
 Make sure to have ANDROID_HOME point to your Android SDK. Use the Android SDK Manager to install missing dependencies.
@@ -405,7 +359,7 @@ Make sure to have ANDROID_HOME point to your Android SDK. Use the Android SDK Ma
 There are two build flavors available. *free* and *playstore*. Unless you know what you are doing you only need *free*.
 
 
-[![Build Status](https://travis-ci.org/siacs/Conversations.svg?branch=development)](https://travis-ci.org/siacs/Conversations)
+[![Build Status](https://dev.sum7.eu/sum7/Conversations/badges/develop/build.svg](https://dev.sum7.eu/sum7/Conversations/pipelines)
 
 #### How do I update/add external libraries?
 
@@ -456,4 +410,4 @@ Play Store version or the current HEAD. If you are having problems connecting to
 your XMPP server your file transfer doesn’t work as expected please always
 include a logcat debug output with your issue (see above).
 
-[issues]: https://github.com/siacs/Conversations/issues
+[issues]: https://dev.sum7.eu/sum7/Conversations/issues

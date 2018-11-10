@@ -502,8 +502,8 @@
   <string name="security_error_invalid_file_access">安全错误：文件访问权限无效</string>
   <string name="no_application_to_share_uri">未找到可以分享此链接的应用</string>
   <string name="share_uri_with">分享链接……</string>
-  <string name="welcome_text">Jabber 是一个独立即时通讯网络服务商。无论您选择何种 Jabber 服务器，您都可使用本客户端\n但是为了让您更方便些，我们希望您在 conversations.im¹ 创建账号，它专门为 Conversations 服务。</string>
-  <string name="magic_create_text">我们将会引导你完成在 conversations.im¹ 上注册账号的过程。\n当获得了 conversations.im 提供的账号以后，你可以通过添加使用其他提供商的好友的完整 Jabber ID 来与他们联络。</string>
+  <string name="welcome_text">Jabber 是一个独立即时通讯网络服务商。无论您选择何种 Jabber 服务器，您都可使用本客户端\n但是为了让您更方便些，我们希望您在 chat.sum7.eu 创建账号，它专门为 Conversations 服务。</string>
+  <string name="magic_create_text">我们将会引导你完成在 chat.sum7.eu 上注册账号的过程。\n当获得了 chat.sum7.eu 提供的账号以后，你可以通过添加使用其他提供商的好友的完整 Jabber ID 来与他们联络。</string>
   <string name="your_full_jid_will_be">您完整的 Jabble ID 是：%s </string>
   <string name="create_account">创建账户</string>
   <string name="use_own_provider">使用我自己的服务端</string>
@@ -535,8 +535,6 @@
   <string name="pref_theme_options_summary">选择调色板</string>
   <string name="pref_theme_light">明亮主题</string>
   <string name="pref_theme_dark">黑暗主题</string>
-  <string name="pref_use_green_background">绿色背景</string>
-  <string name="pref_use_green_background_summary">接收到的消息使用绿色背景</string>
   <string name="unable_to_connect_to_keychain">无法连接到 OpenKeychain</string>
   <string name="this_device_is_no_longer_in_use">此设备不再使用</string>
   <string name="type_pc">计算机</string>

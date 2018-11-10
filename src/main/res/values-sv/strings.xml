@@ -431,7 +431,7 @@
   <string name="security_error_invalid_file_access">Säkerhetsfel: Ogiltig filaccess</string>
   <string name="no_application_to_share_uri">Ingen applikation kunde hittas för att dela URI</string>
   <string name="share_uri_with">Dela URI med...</string>
-  <string name="magic_create_text">Du kommer nu att få hjälp med att skapa ett konto på conversations.im.¹\nNär conversations.im väljs som leverantör kommer du kunna kommunicera med användare hos andra leverantörer genom att ge dem ditt Jabber ID.</string>
+  <string name="magic_create_text">Du kommer nu att få hjälp med att skapa ett konto på chat.sum7.eu.¹\nNär chat.sum7.eu väljs som leverantör kommer du kunna kommunicera med användare hos andra leverantörer genom att ge dem ditt Jabber ID.</string>
   <string name="your_full_jid_will_be">Ditt jabber ID blir: %s</string>
   <string name="create_account">Skapa konto</string>
   <string name="use_own_provider">Använd min egen leverantör</string>
@@ -458,8 +458,6 @@
   <string name="pref_theme_options_summary">Välj färgschema</string>
   <string name="pref_theme_light">Ljust tema</string>
   <string name="pref_theme_dark">Mörkt tema</string>
-  <string name="pref_use_green_background">Grön bakgrund</string>
-  <string name="pref_use_green_background_summary">Använd grön bakgrund för mottagna meddelanden</string>
   <string name="unable_to_connect_to_keychain">Kan inte ansluta till OpenKeychain</string>
   <string name="this_device_is_no_longer_in_use">Denna enhet används inte längre</string>
   <string name="type_pc">Dator</string>

@@ -516,10 +516,10 @@
   <string name="security_error_invalid_file_access">Sicherheitsfehler: Dateizugriff nicht erlaubt</string>
   <string name="no_application_to_share_uri">Keine Anwendung zum Teilen der URI gefunden</string>
   <string name="share_uri_with">Teile URI mit…</string>
-  <string name="welcome_text">Jabber ist ein anbieterunabhängiges Instant Messaging Netzwerk. Du kannst diesen Client mit jedem beliebigen Jabber-Server nutzen.\nUm es dir leicht zu machen, haben wir die Möglichkeit geschaffen, ein Konto auf conversations.im¹ anzulegen; ein Anbieter, der speziell für die Verwendung mit Conversations geeignet ist.</string>
+  <string name="welcome_text">Jabber ist ein anbieterunabhängiges Instant Messaging Netzwerk. Du kannst diesen Client mit jedem beliebigen Jabber-Server nutzen.\nUm es dir leicht zu machen, haben wir die Möglichkeit geschaffen, ein Konto auf chat.sum7.eu anzulegen; ein Anbieter, der speziell für die Verwendung mit Conversations geeignet ist.</string>
   <string name="welcome_text_quicksy"><![CDATA[Quicksy ist ein Ableger des beliebten Jabber/XMPP-Clients Conversations mit automatischer Kontakterkennung.<br><br>Du registrierst dich mit deiner Telefonnummer und Quicksy wird automatisch auf der Grundlage der Telefonnummern in deinem Adressbuch mögliche Kontakte vorschlagen.<br><br>Mit der Anmeldung erklärst du dich mit unserer <a href="https://quicksy.im/#privacy">Datenschutzerklärung</a> einverstanden.]]></string>
   <string name="agree_and_continue">Zustimmen &amp; fortfahren</string>
-  <string name="magic_create_text">Wir führen dich durch den Prozess der Kontoerstellung auf conversations.im.¹\nWenn du conversations.im als Provider wählst, kannst du mit Nutzern anderer Anbieter kommunizieren, indem du ihnen deine vollständige Jabber-ID gibst.</string>
+  <string name="magic_create_text">Wir führen dich durch den Prozess der Kontoerstellung auf chat.sum7.eu.\nWenn du chat.sum7.eu als Provider wählst, kannst du mit Nutzern anderer Anbieter kommunizieren, indem du ihnen deine vollständige Jabber-ID gibst.</string>
   <string name="your_full_jid_will_be">Deine vollständige Jabber ID lautet: %s</string>
   <string name="create_account">Konto erstellen</string>
   <string name="use_own_provider">Nutze eigenen Provider</string>
@@ -551,8 +551,6 @@
   <string name="pref_theme_options_summary">Wähle die Farbpalette aus</string>
   <string name="pref_theme_light">Helles Design</string>
   <string name="pref_theme_dark">Dunkles Design</string>
-  <string name="pref_use_green_background">Grüner Hintergrund</string>
-  <string name="pref_use_green_background_summary">Für empfangene Nachrichten grünen Hintergrund verwenden</string>
   <string name="unable_to_connect_to_keychain">Verbindung zu OpenKeychain nicht möglich</string>
   <string name="this_device_is_no_longer_in_use">Dieses Gerät ist nicht länger in Benutzung</string>
   <string name="type_pc">Computer</string>

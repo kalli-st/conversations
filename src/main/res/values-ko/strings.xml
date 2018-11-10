@@ -451,8 +451,6 @@
   <string name="pref_theme_options_summary">색상 팔레트를 선택</string>
   <string name="pref_theme_light">라이트 테마</string>
   <string name="pref_theme_dark">다크 테마</string>
-  <string name="pref_use_green_background">초록색 배경</string>
-  <string name="pref_use_green_background_summary">받은 메시지에 녹색 배경을 사용합니다</string>
   <string name="unable_to_connect_to_keychain">OpenKeychain 에 연결할 수 없습니다</string>
   <string name="this_device_is_no_longer_in_use">이 장치는 현재 사용되고 있지 않습니다</string>
   <string name="type_pc">컴퓨터</string>

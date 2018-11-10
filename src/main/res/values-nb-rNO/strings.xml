@@ -476,7 +476,7 @@
   <string name="security_error_invalid_file_access">Sikkerhetsfeil: Ugyldig filtilgang</string>
   <string name="no_application_to_share_uri">Fant inget program til deling av URI</string>
   <string name="share_uri_with">Del URI med…</string>
-  <string name="magic_create_text">Vi geleider deg gjennom prosessen med å opprette en konto på conversations.im.¹\nNår du velger conversations.im som tilbyder vil du kunne snakke med brukere fra andre tilbyder ved å gi dem din fulle XMPP-ID.</string>
+  <string name="magic_create_text">Vi geleider deg gjennom prosessen med å opprette en konto på chat.sum7.eu.¹\nNår du velger chat.sum7.eu som tilbyder vil du kunne snakke med brukere fra andre tilbyder ved å gi dem din fulle XMPP-ID.</string>
   <string name="your_full_jid_will_be">Din fulle Jabber-ID vil være: %s</string>
   <string name="create_account">Opprett konto</string>
   <string name="use_own_provider">Bruk min egen tilbyder</string>
@@ -505,8 +505,6 @@
   <string name="pref_theme_options_summary">Velg fargepalett </string>
   <string name="pref_theme_light">Lys drakt</string>
   <string name="pref_theme_dark">Mørk drakt</string>
-  <string name="pref_use_green_background">Grønn bakgrunn</string>
-  <string name="pref_use_green_background_summary">Bruk grønn bakgrunn for mottatte meldinger</string>
   <string name="unable_to_connect_to_keychain">Kunne ikke koble til OpenKeychain</string>
   <string name="this_device_is_no_longer_in_use">Denne enheten er ikke lenger i bruk</string>
   <string name="type_pc">Datamaskin</string>

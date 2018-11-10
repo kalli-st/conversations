@@ -360,6 +360,4 @@
   <string name="pref_theme_options">Tema</string>
   <string name="pref_theme_light">Tema Terang</string>
   <string name="pref_theme_dark">Tema Gelap</string>
-  <string name="pref_use_green_background">Latar Hijau</string>
-  <string name="pref_use_green_background_summary">Gunakan latar hijau untuk pesan masuk</string>
 </resources>

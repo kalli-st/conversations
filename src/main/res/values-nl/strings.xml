@@ -515,9 +515,9 @@
   <string name="security_error_invalid_file_access">Beveiligingsfout: Ongeldige bestandstoegang</string>
   <string name="no_application_to_share_uri">Geen applicatie om URI te delen</string>
   <string name="share_uri_with">URI delen met…</string>
-  <string name="welcome_text">Jabber is een provider-onafhankelijk berichtennetwerk. Je kan deze cliënt gebruiken met elke willekeurige Jabber-server.\nOm het je gemakkelijker te maken kun je simpelweg een account aanmaken conversations.im¹; een provider speciaal geschikt voor Conversations.</string>
+  <string name="welcome_text">Jabber is een provider-onafhankelijk berichtennetwerk. Je kan deze cliënt gebruiken met elke willekeurige Jabber-server.\nOm het je gemakkelijker te maken kun je simpelweg een account aanmaken chat.sum7.eu; een provider speciaal geschikt voor Conversations.</string>
   <string name="agree_and_continue">Akkoord gaan &amp; doorgaan</string>
-  <string name="magic_create_text">We zullen je helpen een account op conversations.im¹ aan te maken.\nWanneer je conversations.im als je provider kiest kan je met gebruikers van andere providers communiceren door hen je volledige Jabber-ID te geven.</string>
+  <string name="magic_create_text">We zullen je helpen een account op chat.sum7.eu aan te maken.\nWanneer je chat.sum7.eu als je provider kiest kan je met gebruikers van andere providers communiceren door hen je volledige Jabber-ID te geven.</string>
   <string name="your_full_jid_will_be">Je volledige Jabber-ID zal %s zijn</string>
   <string name="create_account">Account aanmaken</string>
   <string name="use_own_provider">Gebruik mijn eigen provider</string>
@@ -549,8 +549,6 @@
   <string name="pref_theme_options_summary">Kies het kleurenpalet</string>
   <string name="pref_theme_light">Licht thema</string>
   <string name="pref_theme_dark">Donker thema</string>
-  <string name="pref_use_green_background">Groene achtergrond</string>
-  <string name="pref_use_green_background_summary">Gebruik groene achtergrond voor ontvangen berichten</string>
   <string name="unable_to_connect_to_keychain">Verbinden met OpenKeychain mislukt</string>
   <string name="this_device_is_no_longer_in_use">Dit apparaat wordt niet meer gebruikt</string>
   <string name="type_pc">Computer</string>

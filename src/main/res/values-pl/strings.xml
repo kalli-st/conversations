@@ -521,10 +521,10 @@
   <string name="no_application_to_share_uri">Nie odnaleziono aplikacji skojarzonej z URI</string>
   <string name="share_uri_with">Udostępnij URI za pomocą...</string>
   <string name="welcome_text">Jabber to niezależna sieć komunikacji natychmiastowej. Możesz użyć tego klienta z dowolnym serwerem który wybierzesz.
-Dla twojej wygody ułatwiliśmy stworzenie konta na conversations.im; serwerze dostosowanym do Conversations.</string>
+Dla twojej wygody ułatwiliśmy stworzenie konta na chat.sum7.eu; serwerze dostosowanym do Conversations.</string>
   <string name="welcome_text_quicksy"><![CDATA[Quicksy to klient Jabbera/XMPP oparty na Conversations z automatycznym odkrywaniem konetaktów. <br><br> Zapisujesz się swoim numerem telefonu i Quicksy automatycznie — na podstawie numerów telefonów w twojej książce adresowej — zasugeruje możliwe kontakty. <br><br> Zapisując się zgadzasz się na naszą <a href="https://quicksy.im/#privacy">politykę prywatności</a>.]]></string>
   <string name="agree_and_continue">Zgoda i kontynuuj</string>
-  <string name="magic_create_text">Przeprowadzimy Cię przez proces tworzenia konta na conversations.im.\nKiedy wybierzesz konto na serwerze conversations.im, będziesz mógł komunikować się z użytkownikami na innych serwerach podając im swój pełen Jabber ID.</string>
+  <string name="magic_create_text">Przeprowadzimy Cię przez proces tworzenia konta na chat.sum7.eu.\nKiedy wybierzesz konto na serwerze chat.sum7.eu, będziesz mógł komunikować się z użytkownikami na innych serwerach podając im swój pełen Jabber ID.</string>
   <string name="your_full_jid_will_be">Twój pełen Jabber ID będzie następujący: %s</string>
   <string name="create_account">Utwórz konto</string>
   <string name="use_own_provider">Użyj innego serwera</string>
@@ -556,8 +556,6 @@ Dla twojej wygody ułatwiliśmy stworzenie konta na conversations.im; serwerze d
   <string name="pref_theme_options_summary">Wybierz paletę kolorów</string>
   <string name="pref_theme_light">Jasna skórka</string>
   <string name="pref_theme_dark">Ciemna skórka</string>
-  <string name="pref_use_green_background">Zielone tło</string>
-  <string name="pref_use_green_background_summary">Używaj zielonego tła dla otrzymanych wiadomości</string>
   <string name="unable_to_connect_to_keychain">Nie można połączyć się z OpenKeychain</string>
   <string name="this_device_is_no_longer_in_use">Urządzenie to nie jest już używane</string>
   <string name="type_pc">Komputer</string>

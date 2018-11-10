@@ -81,17 +81,6 @@
                     android:padding="8dp"
                     android:src="@drawable/main_logo"/>
             </RelativeLayout>
-            <TextView
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:textColor="?android:textColorSecondary"
-                android:textSize="@dimen/fineprint_size"
-                android:maxLines="1"
-                android:text="@string/free_for_six_month"
-                android:layout_centerHorizontal="true"/>
         </RelativeLayout>
     </ScrollView>
 </LinearLayout>

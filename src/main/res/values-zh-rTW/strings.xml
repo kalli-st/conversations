@@ -431,7 +431,7 @@
   <string name="security_error_invalid_file_access">安全錯誤：檔案存取無效</string>
   <string name="no_application_to_share_uri">找不到可以分享網址(URI)的應用程式</string>
   <string name="share_uri_with">分享網址(URI)…</string>
-  <string name="magic_create_text">我們將會引導你完成在 conversations.im¹ 上註冊帳號的過程。\n當獲得了 conversations.im 提供的帳號以後，你可以通過添加使用其他提供商的好友的完整 Jabber ID 來與他們聯絡。</string>
+  <string name="magic_create_text">我們將會引導你完成在 chat.sum7.eu 上註冊帳號的過程。\n當獲得了 chat.sum7.eu 提供的帳號以後，你可以通過添加使用其他提供商的好友的完整 Jabber ID 來與他們聯絡。</string>
   <string name="your_full_jid_will_be">您完整的 Jabble ID 是：%s </string>
   <string name="create_account">創建帳戶</string>
   <string name="use_own_provider">使用我自己的服務端</string>
@@ -458,8 +458,6 @@
   <string name="pref_theme_options_summary">選擇調色板</string>
   <string name="pref_theme_light">明亮主題</string>
   <string name="pref_theme_dark">黑暗主題</string>
-  <string name="pref_use_green_background">綠色背景</string>
-  <string name="pref_use_green_background_summary">接收到的訊息使用綠色背景</string>
   <string name="unable_to_connect_to_keychain">無法連接到 OpenKeychain</string>
   <string name="this_device_is_no_longer_in_use">此設備不再使用</string>
   <string name="type_pc">電腦</string>

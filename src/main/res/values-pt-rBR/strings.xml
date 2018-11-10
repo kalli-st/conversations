@@ -516,10 +516,10 @@
   <string name="security_error_invalid_file_access">Erro de segurança: Acesso inválido ao arquivo</string>
   <string name="no_application_to_share_uri">Não foi encontrado nenhum aplicativo para compartilhar a URI</string>
   <string name="share_uri_with">Compartilhar a URI com...</string>
-  <string name="welcome_text">Jabber é uma rede de mensageria instantânea independente de provedor. Você pode usar este cliente com qualquer servidor Jabber que você escolher.\nEntretanto, para sua conveniência, nós simplificamos o processo de criação de uma conta no conversations.im¹; um provedor especialmente configurado para ser usado com o Conversations.</string>
+  <string name="welcome_text">Jabber é uma rede de mensageria instantânea independente de provedor. Você pode usar este cliente com qualquer servidor Jabber que você escolher.\nEntretanto, para sua conveniência, nós simplificamos o processo de criação de uma conta no chat.sum7.eu; um provedor especialmente configurado para ser usado com o Conversations.</string>
   <string name="welcome_text_quicksy"><![CDATA[Quicksy é um derivado do popular cliente para Jabber/XMPP Conversations, com a descoberta automática de contatos.<br><br>Você se registra com o seu número de telefone e o Quicksy sugere automaticamente - baseado nos números de telefone do seu livro de endereços - possíveis contatos para você..<br><br>Ao se registrar você concorda com nossa <a href="https://quicksy.im/#privacy">política de privacidade</a>.]]></string>
   <string name="agree_and_continue">Concordar &amp; continuar</string>
-  <string name="magic_create_text">Nós guiaremos você ao longo do processo de criar uma conta em conversations.im.¹\nAo usar esse provedor você também poderá se comunicar com usuários de outros provedores. Basta fornecê-los a sua identificação Jabber completa.</string>
+  <string name="magic_create_text">Nós guiaremos você ao longo do processo de criar uma conta em chat.sum7.eu.\nAo usar esse provedor você também poderá se comunicar com usuários de outros provedores. Basta fornecê-los a sua identificação Jabber completa.</string>
   <string name="your_full_jid_will_be">Sua ID Jabber será: %s</string>
   <string name="create_account">Criar conta</string>
   <string name="use_own_provider">Usar meu próprio provedor</string>
@@ -551,8 +551,6 @@
   <string name="pref_theme_options_summary">Selecione a paleta de cores</string>
   <string name="pref_theme_light">Tema claro</string>
   <string name="pref_theme_dark">Tema escuro</string>
-  <string name="pref_use_green_background">Fundo verde</string>
-  <string name="pref_use_green_background_summary">Usa um fundo verde no recebimento de mensagens.</string>
   <string name="unable_to_connect_to_keychain">Não foi possível conectar ao OpenKeychain</string>
   <string name="this_device_is_no_longer_in_use">Este dispositivo não está mais em uso</string>
   <string name="type_pc">Computador</string>

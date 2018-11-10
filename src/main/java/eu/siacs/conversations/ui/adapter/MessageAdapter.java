@@ -86,7 +86,6 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 	private OnContactPictureClicked mOnContactPictureClickedListener;
 	private OnContactPictureLongClicked mOnContactPictureLongClickedListener;
 	private boolean mIndicateReceived = false;
-	private boolean mUseGreenBackground = false;
 	private OnQuoteListener onQuoteListener;
 	public MessageAdapter(XmppActivity activity, List<Message> messages) {
 		super(activity, 0, messages);
@@ -336,7 +335,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 			body.setSpan(new DividerSpan(false), end, end + 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		}
 		int color = darkBackground ? this.getMessageTextColor(darkBackground, false)
-				: ContextCompat.getColor(activity, R.color.green700_desaturated);
+				: ContextCompat.getColor(activity, R.color.orange700_desaturated);
 		DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
 		body.setSpan(new QuoteSpan(color, metrics), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 	}
@@ -405,7 +404,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 			viewHolder.messageBody.setTextAppearance(getContext(), R.style.TextAppearance_Conversations_Body1);
 		}
 		viewHolder.messageBody.setHighlightColor(ContextCompat.getColor(activity, darkBackground
-				? (type == SENT || !mUseGreenBackground ? R.color.black26 : R.color.grey800) : R.color.grey500));
+				? (type == SENT ? R.color.black26 : R.color.grey800) : R.color.grey500));
 		viewHolder.messageBody.setTypeface(null, Typeface.NORMAL);
 
 		if (message.getBody() != null) {
@@ -643,7 +642,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 			}
 		}
 
-		boolean darkBackground = type == RECEIVED && (!isInValidSession || mUseGreenBackground) || activity.isDarkTheme();
+		boolean darkBackground = type == RECEIVED && !isInValidSession || activity.isDarkTheme();
 
 		if (type == DATE_SEPARATOR) {
 			if (UIHelper.today(message.getTimeSent())) {
@@ -774,13 +773,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 
 		if (type == RECEIVED) {
 			if (isInValidSession) {
-				int bubble;
-				if (!mUseGreenBackground) {
-					bubble = activity.getThemeResource(R.attr.message_bubble_received_monochrome, R.drawable.message_bubble_received_white);
-				} else {
-					bubble = activity.getThemeResource(R.attr.message_bubble_received_green, R.drawable.message_bubble_received);
-				}
-				viewHolder.message_box.setBackgroundResource(bubble);
+				viewHolder.message_box.setBackgroundResource(activity.getThemeResource(R.attr.message_bubble_received_monochrome, R.drawable.message_bubble_received_white));
 				viewHolder.encryption.setVisibility(View.GONE);
 			} else {
 				viewHolder.message_box.setBackgroundResource(R.drawable.message_bubble_received_warning);
@@ -879,7 +872,6 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 	public void updatePreferences() {
 		SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(activity);
 		this.mIndicateReceived = p.getBoolean("indicate_received", activity.getResources().getBoolean(R.bool.indicate_received));
-		this.mUseGreenBackground = p.getBoolean("use_green_background", activity.getResources().getBoolean(R.bool.use_green_background));
 	}
 
 

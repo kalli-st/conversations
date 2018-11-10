@@ -517,10 +517,10 @@
   <string name="security_error_invalid_file_access">Помилка безпеки: Недійсний доступ до файлу</string>
   <string name="no_application_to_share_uri">Не знайдено програми, щоб поділитися URI</string>
   <string name="share_uri_with">Поділитися URI з…</string>
-  <string name="welcome_text">Jabber забезпечує незалежну мережу обміну миттєвими повідомленнями. Ви можете використовувати цю програму з будь-яким сервером Jabber на Ваш вибір.\nЗадля Вашої зручності ми зробили простим створити обліковий запис на conversations.im¹; це один із серверів, який спеціально налаштований для цієї програми.</string>
+  <string name="welcome_text">Jabber забезпечує незалежну мережу обміну миттєвими повідомленнями. Ви можете використовувати цю програму з будь-яким сервером Jabber на Ваш вибір.\nЗадля Вашої зручності ми зробили простим створити обліковий запис на chat.sum7.eu; це один із серверів, який спеціально налаштований для цієї програми.</string>
   <string name="welcome_text_quicksy"><![CDATA[Ця програма («Quicksy») — версія популярного Jabber/XMPP клієнта «Conversations», яка дозволяє автоматично знайти контакти.<br><br>Ви реєструєтеся зі своїм номером телефону, а програма автоматично, виходячи з номерів телефонів у Вашій книзі контактів, пропонує Вам можливі контакти.<br><br>Реєструючись, Ви надаєте згоду з нашою <a href="https://quicksy.im/#privacy">політикою конфіденційності</a>.]]></string>
   <string name="agree_and_continue">Прийняти й продовжити</string>
-  <string name="magic_create_text">Ми допоможемо вам крок за кроком створити обліковий запис на conversations.im.¹\nОбравши conversations.im постачальником послуг, ви зможете спілкуватися з користувачами інших постачальників, надавши їм ваш повний Jabber ID.</string>
+  <string name="magic_create_text">Ми допоможемо вам крок за кроком створити обліковий запис на chat.sum7.eu.\nОбравши chat.sum7.eu постачальником послуг, ви зможете спілкуватися з користувачами інших постачальників, надавши їм ваш повний Jabber ID.</string>
   <string name="your_full_jid_will_be">Ваш повний Jabber ID буде: %s</string>
   <string name="create_account">Створити обліковий запис</string>
   <string name="use_own_provider">Використати мого власного провайдера</string>
@@ -552,8 +552,6 @@
   <string name="pref_theme_options_summary">Вибрати палітру кольорів</string>
   <string name="pref_theme_light">Світла тема</string>
   <string name="pref_theme_dark">Темна тема</string>
-  <string name="pref_use_green_background">Зелене тло</string>
-  <string name="pref_use_green_background_summary">Використовувати зелене тло для отриманих повідомлень</string>
   <string name="unable_to_connect_to_keychain">Не можу зв\'язатися з OpenKeychain</string>
   <string name="this_device_is_no_longer_in_use">Цей пристрій більше не використовується</string>
   <string name="type_pc">Комп\'ютер</string>

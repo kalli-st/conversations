@@ -513,7 +513,7 @@
   <string name="security_error_invalid_file_access">セキュリティエラー: 不正なファイルアクセス</string>
   <string name="no_application_to_share_uri">URI を共有するアプリケーションが見つかりません</string>
   <string name="share_uri_with">…で URI を共有</string>
-  <string name="magic_create_text">conversations.imのアカウントを作成する手順をガイドします。\nプロバイダーとしてconversations.imを選択すると、あなたの完全なJabber IDを指定することによって、他のプロバイダーのユーザと通信することができるようになります。</string>
+  <string name="magic_create_text">chat.sum7.euのアカウントを作成する手順をガイドします。\nプロバイダーとしてchat.sum7.euを選択すると、あなたの完全なJabber IDを指定することによって、他のプロバイダーのユーザと通信することができるようになります。</string>
   <string name="your_full_jid_will_be">あなたの完全な Jabber ID は: %s</string>
   <string name="create_account">アカウントを作成</string>
   <string name="use_own_provider">独自のプロバイダーを使用する</string>
@@ -542,8 +542,6 @@
   <string name="pref_theme_options_summary">カラーパレットの選択</string>
   <string name="pref_theme_light">ライトテーマ</string>
   <string name="pref_theme_dark">ダークテーマ</string>
-  <string name="pref_use_green_background">緑の背景</string>
-  <string name="pref_use_green_background_summary">受信したメッセージに緑の背景を使用します</string>
   <string name="unable_to_connect_to_keychain">OpenKeychain に接続できません</string>
   <string name="this_device_is_no_longer_in_use">このデバイスは、現在使用されていません</string>
   <string name="type_pc">コンピューター</string>
