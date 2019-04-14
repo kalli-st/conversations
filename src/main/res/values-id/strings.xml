@@ -135,10 +135,8 @@
   <string name="mgmt_account_enable">Aktifkan Akun</string>
   <string name="mgmt_account_are_you_sure">Apakah Anda yakin.?</string>
   <string name="attach_record_voice">Rekam suara</string>
-  <string name="account_settings_jabber_id">Jabber ID</string>
   <string name="account_settings_example_jabber_id">username@example.com</string>
   <string name="password">Password</string>
-  <string name="invalid_jid">Jabber ID tidak valid</string>
   <string name="error_out_of_memory">Memori habis. Gambar terlalu besar</string>
   <string name="server_info_show_more">Info Server</string>
   <string name="server_info_mam">XEP-0313: MAM</string>
@@ -261,14 +259,11 @@
   <string name="outcast">Orang buangan</string>
   <string name="member">Member</string>
   <string name="advanced_mode">Mode lanjut</string>
-  <string name="grant_membership">Memberikan keanggotaan</string>
-  <string name="remove_membership">Cabut keanggotaan</string>
   <string name="grant_admin_privileges">Memberikan hak istimewa admin</string>
   <string name="remove_admin_privileges">Mencabut hak istimewa admin</string>
   <string name="could_not_change_affiliation">Tidak bisa mengubah afiliasi %s</string>
   <string name="ban_now">Tendang sekarang</string>
   <string name="could_not_change_role">Tidak dapat merumah role %s</string>
-  <string name="non_anonymous">Non Anonymous</string>
   <string name="you_are_not_participating">Anda tidak berpartisipasi</string>
   <string name="never">Tidak pernah</string>
   <string name="until_further_notice">Sampai pemberitahuan selanjutnya</string>
@@ -283,7 +278,6 @@
   <string name="pdf_document">Berkas PDF</string>
   <string name="apk">Apl Android</string>
   <string name="vcard">Kontak</string>
-  <string name="touch_to_open_conversations">Sentuh untuk membuka Conversations</string>
   <string name="avatar_has_been_published">Avatar telah diterbitkan!</string>
   <string name="sending_x_file">Mengirim %s</string>
   <string name="offering_x_file">Menawarkan %s</string>
@@ -341,7 +335,6 @@
   <string name="correct_message">Perbaiki pesan</string>
   <string name="send_corrected_message">Kirim perbaikan pesan</string>
   <string name="share_uri_with">Bagikan URI dengan...</string>
-  <string name="your_full_jid_will_be">Jabber ID anda akan seperti: %s</string>
   <string name="create_account">Buat Akun</string>
   <string name="pick_your_username">Pilih username anda</string>
   <string name="status_message">Status</string>

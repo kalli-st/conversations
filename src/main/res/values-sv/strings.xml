@@ -151,11 +151,8 @@
   <string name="mgmt_account_are_you_sure">Är du säker?</string>
   <string name="mgmt_account_delete_confirm_text">Om du tar bort ditt konto kommer hela konversationshistoriken att försvinna</string>
   <string name="attach_record_voice">Spela in röst</string>
-  <string name="account_settings_jabber_id">Jabber-ID</string>
-  <string name="block_jabber_id">Blockera Jabber-ID</string>
   <string name="account_settings_example_jabber_id">användarnamn@exempel.se</string>
   <string name="password">Lösenord</string>
-  <string name="invalid_jid">Detta är inte ett korrekt Jabber-ID</string>
   <string name="error_out_of_memory">Slut på minne. Bilden är för stor</string>
   <string name="add_phone_book_text">Vill du lägga till %s i din enhets kontakter?</string>
   <string name="server_info_show_more">Server-info</string>
@@ -199,7 +196,6 @@
   <string name="select">Välj</string>
   <string name="contact_already_exists">Kontakten finns redan</string>
   <string name="join">Gå med</string>
-  <string name="conference_address_example">room@conference.example.com/nick</string>
   <string name="save_as_bookmark">Spara som bokmärke</string>
   <string name="delete_bookmark">Ta bort bokmärke</string>
   <string name="bookmark_already_exists">Detta bokmärke finns redan</string>
@@ -264,9 +260,6 @@
   <string name="try_again">Försök igen</string>
   <string name="pref_keep_foreground_service">Håll tjänst i förgrunden</string>
   <string name="pref_keep_foreground_service_summary">Förehindrar operativsystemet att ta ner uppkopplingen</string>
-  <string name="pref_export_logs">Exportera historik</string>
-  <string name="pref_export_logs_summary">Skriv loggar av konversationer till SD-kort</string>
-  <string name="notification_export_logs_title">Skriver loggar till SD-kort</string>
   <string name="choose_file">Välj fil</string>
   <string name="receiving_x_file">Tar emot %1$s (%2$d%% klart)</string>
   <string name="download_x_file">Ladda ner %s</string>
@@ -304,16 +297,12 @@
   <string name="outcast">Utstött</string>
   <string name="member">Medlem</string>
   <string name="advanced_mode">Avancerat läge</string>
-  <string name="grant_membership">Bevilja medlemsskap</string>
-  <string name="remove_membership">Återkalla medlemskap</string>
   <string name="grant_admin_privileges">Bevilja administratörsbehörighet</string>
   <string name="remove_admin_privileges">Återkalla administratörsbehörighet</string>
   <string name="could_not_change_affiliation">Kunde inte ändra tillhörigheten för %s</string>
   <string name="ban_now">Bannlys nu</string>
   <string name="could_not_change_role">Kunde inte ändra rollen för %s</string>
   <string name="members_only">Privat, medlemsskap krävs</string>
-  <string name="non_anonymous">Icke-anonymt</string>
-  <string name="moderated">Modererad</string>
   <string name="you_are_not_participating">Du deltar ej</string>
   <string name="never">Aldrig</string>
   <string name="until_further_notice">Tills vidare</string>
@@ -328,7 +317,6 @@
   <string name="pdf_document">PDF-dokument</string>
   <string name="apk">Android-app</string>
   <string name="vcard">Kontakt</string>
-  <string name="touch_to_open_conversations">Tryck för att öppna Conversations</string>
   <string name="avatar_has_been_published">Avatarbild har publicerats!</string>
   <string name="sending_x_file">Skickar %s</string>
   <string name="offering_x_file">Erbjuder %s</string>
@@ -389,7 +377,6 @@
   <string name="captcha_required">CAPTCHA krävs</string>
   <string name="captcha_hint">Skriv i texten från bilden ovan</string>
   <string name="certificate_chain_is_not_trusted">Certifikatskedjan är inte betrodd</string>
-  <string name="jid_does_not_match_certificate">Jabber-ID matchar inte certifikat</string>
   <string name="action_renew_certificate">Förnya certifikat</string>
   <string name="error_fetching_omemo_key">Misslyckades med att hämta OMEMO-nyckel!</string>
   <string name="verified_omemo_key_with_certificate">Verifierade OMEMO-nyckel med certifikat!</string>
@@ -431,8 +418,6 @@
   <string name="security_error_invalid_file_access">Säkerhetsfel: Ogiltig filaccess</string>
   <string name="no_application_to_share_uri">Ingen applikation kunde hittas för att dela URI</string>
   <string name="share_uri_with">Dela URI med...</string>
-  <string name="magic_create_text">Du kommer nu att få hjälp med att skapa ett konto på chat.sum7.eu.¹\nNär chat.sum7.eu väljs som leverantör kommer du kunna kommunicera med användare hos andra leverantörer genom att ge dem ditt Jabber ID.</string>
-  <string name="your_full_jid_will_be">Ditt jabber ID blir: %s</string>
   <string name="create_account">Skapa konto</string>
   <string name="use_own_provider">Använd min egen leverantör</string>
   <string name="pick_your_username">Välj användarnamn</string>

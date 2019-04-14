@@ -1,5 +1,15 @@
 # Changelog
 
+### Version 2.4.3
+* Fixed display of private messages sent from another client
+* Fixed backup creation on long time installations
+
+### Version 2.4.2
+* Fix image preview on older Android version
+
+### Version 2.4.1
+* Fixed crash in message view
+
 ### Version 2.4.0
 * New Backup / Restore feature
 * Clearly distinguish between (private) group chats and (public) channels
@@ -508,7 +518,7 @@
 ### Version 1.7.2
 * decode PGP messages in background
 
-####Versrion 1.7.1
+### Version 1.7.1
 * performance improvements when opening a conversation
 
 ### Version 1.7.0

@@ -147,10 +147,8 @@
   <string name="mgmt_account_enable">Bật tài khoản</string>
   <string name="mgmt_account_are_you_sure">Bạn chắc chứ?</string>
   <string name="attach_record_voice">Ghi âm</string>
-  <string name="account_settings_jabber_id">ID Jabber</string>
   <string name="account_settings_example_jabber_id">username@example.com</string>
   <string name="password">Mật khẩu</string>
-  <string name="invalid_jid">ID Jabber này không hợp lệ</string>
   <string name="error_out_of_memory">Hết bộ nhớ. Ảnh quá lớn</string>
   <string name="add_phone_book_text">Bạn có muốn thêm %s vào danh bạ?</string>
   <string name="server_info_show_more">Thông tin máy chủ</string>
@@ -194,7 +192,6 @@
   <string name="select">Chọn</string>
   <string name="contact_already_exists">Đã có liên hệ này rồi</string>
   <string name="join">Tham gia</string>
-  <string name="conference_address_example">room@conference.example.com/nick</string>
   <string name="save_as_bookmark">Lưu thành đánh dấu</string>
   <string name="delete_bookmark">Xoá đánh dấu</string>
   <string name="bookmark_already_exists">Đã có đánh dấu này rồi</string>
@@ -251,7 +248,6 @@
   <string name="try_again">Thử lại</string>
   <string name="pref_keep_foreground_service">Giữ dịch vụ luôn chạy</string>
   <string name="pref_keep_foreground_service_summary">Ngăn hệ điều hành ngắt kết nối của bạn</string>
-  <string name="notification_export_logs_title">Đang chép nhật ký vào thẻ SD</string>
   <string name="choose_file">Chọn tập tin</string>
   <string name="receiving_x_file">Đang nhận %1$s (đã hoàn tất %2$d%%)</string>
   <string name="download_x_file">Tải về %s</string>
@@ -287,16 +283,12 @@
   <string name="outcast">Kẻ bị ruồng bỏ</string>
   <string name="member">Thành viên</string>
   <string name="advanced_mode">Chế độ nâng cao</string>
-  <string name="grant_membership">Trao quyền thành viên</string>
-  <string name="remove_membership">Huỷ quyền thành viên</string>
   <string name="grant_admin_privileges">Trao quyền quản trị</string>
   <string name="remove_admin_privileges">Huỷ quyền quản trị</string>
   <string name="could_not_change_affiliation">Không thể đổi mối quan hệ của %s</string>
   <string name="ban_now">Cấm ngay</string>
   <string name="could_not_change_role">Không thể đổi phận sự của %s</string>
   <string name="members_only">Riêng, chỉ dành cho thành viên</string>
-  <string name="non_anonymous">Không ẩn danh</string>
-  <string name="moderated">Đã điều phối</string>
   <string name="you_are_not_participating">Hiện bạn chưa tham gia</string>
   <string name="never">Chưa từng</string>
   <string name="until_further_notice">Cho đến thông báo tiếp theo</string>
@@ -310,7 +302,6 @@
   <string name="pdf_document">tài liệu PDF</string>
   <string name="apk">Ứng dụng Android</string>
   <string name="vcard">Liên hệ</string>
-  <string name="touch_to_open_conversations">Chạm để mở Conversations</string>
   <string name="avatar_has_been_published">Đã đăng tải ảnh đại diện!</string>
   <string name="sending_x_file">Đang gửi %s</string>
   <string name="offering_x_file">Đang đề xuất %s</string>
@@ -355,7 +346,6 @@
   <string name="authenticate_with_certificate">Bỏ trống để xác minh với chứng nhận</string>
   <string name="captcha_required">Yêu cầu hình xác minh</string>
   <string name="certificate_chain_is_not_trusted">Chuỗi chứng nhận không được tin tưởng</string>
-  <string name="jid_does_not_match_certificate">ID Jabber không khớp với chứng nhận</string>
   <string name="action_renew_certificate">Gia hạn chứng nhận</string>
   <string name="error_fetching_omemo_key">Lỗi nhập khoá OMEMO!</string>
   <string name="verified_omemo_key_with_certificate">Khoá OMEMO đã xác minh với chứng nhận!</string>

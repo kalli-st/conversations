@@ -9,6 +9,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
@@ -90,8 +91,6 @@ public abstract class XmppActivity extends ActionBarActivity {
 	protected static final int REQUEST_BATTERY_OP = 0x49ff;
 	public XmppConnectionService xmppConnectionService;
 	public boolean xmppConnectionServiceBound = false;
-
-	protected int mColorRed;
 
 	protected static final String FRAGMENT_TAG_DIALOG = "dialog";
 
@@ -399,9 +398,6 @@ public abstract class XmppActivity extends ActionBarActivity {
 		ExceptionHelper.init(getApplicationContext());
 		new EmojiService(this).init();
 		this.isCameraFeatureAvailable = getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
-
-		mColorRed = ContextCompat.getColor(this, R.color.red800);
-
 		this.mTheme = findTheme();
 		setTheme(this.mTheme);
 
@@ -766,15 +762,6 @@ public abstract class XmppActivity extends ActionBarActivity {
 		}
 	}
 
-	public int getWarningTextColor() {
-		return this.mColorRed;
-	}
-
-	public int getPixel(int dp) {
-		DisplayMetrics metrics = getResources().getDisplayMetrics();
-		return ((int) (dp * metrics.density));
-	}
-
 	public boolean copyTextToClipboard(String text, int labelResId) {
 		ClipboardManager mClipBoardManager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
 		String label = getResources().getString(labelResId);
@@ -1000,9 +987,12 @@ public abstract class XmppActivity extends ActionBarActivity {
 	}
 
 	public static XmppActivity find(@NonNull final View view) {
-		final Context context = view.getContext();
-		if (context instanceof XmppActivity) {
-			return (XmppActivity) context;
+		Context context = view.getContext();
+		while (context instanceof ContextWrapper) {
+			if (context instanceof XmppActivity) {
+				return (XmppActivity) context;
+			}
+			context = ((ContextWrapper)context).getBaseContext();
 		}
 		return null;
 	}

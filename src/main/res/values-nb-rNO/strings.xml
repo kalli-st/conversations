@@ -158,11 +158,8 @@
   <string name="mgmt_account_are_you_sure">Bekreft.</string>
   <string name="mgmt_account_delete_confirm_text">Hvis du sletter kontoen din, vil hele samtalehistorikken gå tapt.</string>
   <string name="attach_record_voice">Ta opp stemme</string>
-  <string name="account_settings_jabber_id">Jabber-ID</string>
-  <string name="block_jabber_id">Blokker XMPP-ID</string>
   <string name="account_settings_example_jabber_id">brukernavn@eksempel.no</string>
   <string name="password">Passord</string>
-  <string name="invalid_jid">Dette er ikke en gyldig Jabber-ID</string>
   <string name="error_out_of_memory">Slapp opp for minne, bildet er for stort</string>
   <string name="add_phone_book_text">Ønsker du å legge %s til i din kontaktliste?</string>
   <string name="server_info_show_more">Tjenerinfo</string>
@@ -197,12 +194,8 @@
   <string name="fetching_keys">Hener inn nøkler…</string>
   <string name="done">Ferdig</string>
   <string name="decrypt">Dekrypter</string>
-  <string name="conferences">Gruppesludringer</string>
   <string name="search">Søk</string>
-  <string name="dialog_title_create_contact">Opprett kontakt</string>
   <string name="enter_contact">Angi kontakt</string>
-  <string name="join_conference">Ta del i gruppesludring</string>
-  <string name="dialog_title_join_conference">Ta del i gruppesludring</string>
   <string name="delete_contact">Slett kontakt</string>
   <string name="view_contact_details">Vis kontaktdetaljer</string>
   <string name="block_contact">Blokker kontakt</string>
@@ -211,8 +204,6 @@
   <string name="select">Velg</string>
   <string name="contact_already_exists">Kontakten finnes allerede</string>
   <string name="join">Ta del i</string>
-  <string name="conference_address">Gruppesludringsadresse</string>
-  <string name="conference_address_example">rom@konferanse.eksempel.no/kallenavn</string>
   <string name="save_as_bookmark">Lagre som bokmerke</string>
   <string name="delete_bookmark">Slett bokmerke</string>
   <string name="bookmark_already_exists">Dette bokmerket finnes allerede</string>
@@ -287,9 +278,6 @@
   <string name="try_again">Prøv igjen</string>
   <string name="pref_keep_foreground_service">Forgrunnstjeneste</string>
   <string name="pref_keep_foreground_service_summary">Forhindrer operativsystemet fra å drepe tilkoblingen din</string>
-  <string name="pref_export_logs">Eksporter historikk</string>
-  <string name="pref_export_logs_summary">Skriv loggføring av samtalehistorikk til SD-kort</string>
-  <string name="notification_export_logs_title">Skriver loggføringer til SD-kort</string>
   <string name="choose_file">Velg fil</string>
   <string name="receiving_x_file">Mottak av %1$s (%2$d%% fullført)</string>
   <string name="download_x_file">Last ned %s</string>
@@ -332,22 +320,14 @@
   <string name="outcast">Fredløs</string>
   <string name="member">Medlem</string>
   <string name="advanced_mode">Avansert modus</string>
-  <string name="grant_membership">Innlem som medlem</string>
-  <string name="remove_membership">Tilbakekall medlemskap</string>
   <string name="grant_admin_privileges">Innlem som administrator</string>
   <string name="remove_admin_privileges">Tilbakekall administratorrettigheter</string>
   <string name="remove_from_room">Fjern fra gruppesludring</string>
   <string name="could_not_change_affiliation">Kunne ikke endre tilknytningen til %s</string>
   <string name="ban_from_conference">Bannlys fra gruppesludring</string>
-  <string name="removing_from_public_conference">Du prøver å fjerne %s fra en offentlig gruppesludring. Den eneste måten å gjøre det på er å bannlyse denne brukeren for godt.</string>
   <string name="ban_now">Bannlys nå</string>
   <string name="could_not_change_role">Kunne ikke endre rollen til %s</string>
-  <string name="public_conference">Offentlig tilgjengelig gruppesludring</string>
-  <string name="private_conference">Privat gruppesludring kun for medlemmer</string>
-  <string name="conference_options">Gruppesludringsvalg</string>
   <string name="members_only">Privat, kun for medlemmer</string>
-  <string name="non_anonymous">Ikke-anonym</string>
-  <string name="moderated">Moderert</string>
   <string name="you_are_not_participating">Du deltar ikke</string>
   <string name="modified_conference_options">Endret gruppesludringsvalg!</string>
   <string name="could_not_modify_conference_options">Kunne ikke endre gruppesludringsvalg</string>
@@ -367,7 +347,6 @@
   <string name="pdf_document">PDF-dokument</string>
   <string name="apk">Android-app</string>
   <string name="vcard">Kontakt</string>
-  <string name="touch_to_open_conversations">Trykk for å åpne Conversations</string>
   <string name="avatar_has_been_published">Avatar publisert!</string>
   <string name="sending_x_file">Sender %s</string>
   <string name="offering_x_file">Tilbyr %s</string>
@@ -383,7 +362,6 @@
   <string name="no_application_found_to_display_location">Ingen programmer funnet til visning av plasseringsdata</string>
   <string name="location">Plasseringsdata</string>
   <string name="title_undo_swipe_out_conversation">Samtale lukket</string>
-  <string name="title_undo_swipe_out_muc">Forlot gruppesludringen</string>
   <string name="pref_dont_trust_system_cas_title">Ikke stol på systemets CA-er</string>
   <string name="pref_dont_trust_system_cas_summary">Alle sertifikat må godkjennes manuelt</string>
   <string name="pref_remove_trusted_certificates_title">Fjern sertifikater</string>
@@ -432,7 +410,6 @@
   <string name="captcha_required">CAPTCHA-påkrevd</string>
   <string name="captcha_hint">Skriv inn teksten fra bildet ovenfor</string>
   <string name="certificate_chain_is_not_trusted">Sertifikat-kjeden er ikke betrodd</string>
-  <string name="jid_does_not_match_certificate">Jabber-ID-en samsvarer ikke med sertifikatet</string>
   <string name="action_renew_certificate">Forny sertifikat</string>
   <string name="error_fetching_omemo_key">Feil ved innhenting av OMEMO-nøkkel!</string>
   <string name="verified_omemo_key_with_certificate">Bekreftet OMEMO-nøkkel med sertifikat!</string>
@@ -476,8 +453,6 @@
   <string name="security_error_invalid_file_access">Sikkerhetsfeil: Ugyldig filtilgang</string>
   <string name="no_application_to_share_uri">Fant inget program til deling av URI</string>
   <string name="share_uri_with">Del URI med…</string>
-  <string name="magic_create_text">Vi geleider deg gjennom prosessen med å opprette en konto på chat.sum7.eu.¹\nNår du velger chat.sum7.eu som tilbyder vil du kunne snakke med brukere fra andre tilbyder ved å gi dem din fulle XMPP-ID.</string>
-  <string name="your_full_jid_will_be">Din fulle Jabber-ID vil være: %s</string>
   <string name="create_account">Opprett konto</string>
   <string name="use_own_provider">Bruk min egen tilbyder</string>
   <string name="pick_your_username">Velg ditt brukernavn</string>
@@ -491,7 +466,6 @@
   <string name="device_does_not_support_battery_op">Din enhet støtter ikke å melde seg ut av batterioptimeringsprogrammet</string>
   <string name="registration_please_wait">Registrering mislyktes: Prøv igjen senere</string>
   <string name="registration_password_too_weak">Registrering mislyktes: Passordet er for svakt</string>
-  <string name="dialog_title_create_conference">Opprett gruppesludring</string>
   <string name="choose_participants">Velg deltagere</string>
   <string name="creating_conference">Opprett gruppesludring…</string>
   <string name="invite_again">Inviter igjen</string>
@@ -580,7 +554,6 @@
   <string name="yesterday">I går</string>
   <string name="pref_validate_hostname">Gyldig vertsnavn med DNSSEC</string>
   <string name="pref_validate_hostname_summary">Tjenersertifikat som inneholder gyldige vertsnavn anses som bekreftet</string>
-  <string name="certificate_does_not_contain_jid">Tjenersertifikatet inneholder ikke en Jabber-ID</string>
   <string name="server_info_partial">delvis</string>
   <string name="attach_record_video">Ta opp video</string>
   <string name="copy_to_clipboard">Kopier til utklippstavle</string>
