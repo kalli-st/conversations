@@ -29,16 +29,19 @@ publish:
   - develop
   script:
   # workaround for bug in fdroid nightly
+  - sed -i "s/-debug.apk/-unsigned.apk/" /usr/lib/python3/dist-packages/fdroidserver/nightly.py
   - sed -i "s/servergitmirror = 'git@' +/servergitmirror = 'gitlab@' +/" /usr/lib/python3/dist-packages/fdroidserver/nightly.py
   - sed -i "s/git@/gitlab@/" /usr/lib/python3/dist-packages/fdroidserver/index.py
   # generate new version
-  - export versionCode=`printf '%05d' $(date '+%s'| cut -b4-8)`
-  - sed -i "s/^\(\s*versionCode\s*[0-9]*\).*/\1$versionCode/" build.gradle
-  - export versionName=`printf '%s-%05d' $(git describe --tag --abbrev=0) $versionCode`
+  - export versionCode="$CI_JOB_ID"
+  - export versionName="$(git describe --tag --abbrev=0)-${CI_JOB_ID}_${CI_COMMIT_REF_NAME}"
+  - echo "set VersionCode '${versionCode}' and VersonName '${versionName}'"
+  - sed -i "s/^\(\s*versionCode\s*\).*$/\1$versionCode/" build.gradle
   - sed -i "0,/versionName/s/^\(\s*versionName\).*/\1 \"$versionName\"/" build.gradle
   - cat -n build.gradle
   # build free version
-  - ./gradlew assembleConversationsFreeCompatDebug
+  - ./gradlew assembleConversationsFreeCompatRelease
+  - ls build/outputs/apk/conversationsFreeCompat/*
   # publish on nightly fdroid repo
   - fdroid nightly -v
 
