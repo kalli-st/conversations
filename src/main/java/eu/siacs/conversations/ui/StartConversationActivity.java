@@ -98,6 +98,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 	private List<String> mActivatedAccounts = new ArrayList<>();
 	private EditText mSearchEditText;
 	private AtomicBoolean mRequestedContactsPermission = new AtomicBoolean(false);
+	private AtomicBoolean mOpenedFab = new AtomicBoolean(false);
 	private boolean mHideOfflineContacts = false;
 	private boolean createdByViewIntent = false;
 	private MenuItem.OnActionExpandListener mOnActionExpandListener = new MenuItem.OnActionExpandListener() {
@@ -304,6 +305,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 			mInitialSearchValue.push("");
 		}
 		mRequestedContactsPermission.set(savedInstanceState != null && savedInstanceState.getBoolean("requested_contacts_permission",false));
+		mOpenedFab.set(savedInstanceState != null && savedInstanceState.getBoolean("opened_fab",false));
 		binding.speedDial.setOnActionSelectedListener(actionItem -> {
 			final String searchString = mSearchEditText != null ? mSearchEditText.getText().toString() : null;
 			final String prefilled;
@@ -313,6 +315,9 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 				prefilled = null;
 			}
 			switch (actionItem.getId()) {
+				case R.id.discover_public_channels:
+					startActivity(new Intent(this, ChannelDiscoveryActivity.class));
+					break;
 				case R.id.join_public_channel:
 					showJoinConferenceDialog(prefilled);
 					break;
@@ -344,6 +349,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 		Intent pendingIntent = pendingViewIntent.peek();
 		savedInstanceState.putParcelable("intent", pendingIntent != null ? pendingIntent : getIntent());
 		savedInstanceState.putBoolean("requested_contacts_permission",mRequestedContactsPermission.get());
+		savedInstanceState.putBoolean("opened_fab",mOpenedFab.get());
 		savedInstanceState.putBoolean("created_by_view_intent",createdByViewIntent);
 		if (mMenuSearchView != null && mMenuSearchView.isActionViewExpanded()) {
 			savedInstanceState.putString("search", mSearchEditText != null ? mSearchEditText.getText().toString() : null);
@@ -489,7 +495,8 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 				getString(R.string.add),
 				prefilledJid,
 				null,
-				invite == null || !invite.hasFingerprints()
+				invite == null || !invite.hasFingerprints(),
+				true
 		);
 
 		dialog.setOnEnterJidDialogPositiveListener((accountJid, contactJid) -> {
@@ -781,15 +788,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 			this.mPostponedActivityResult = null;
 		}
 		this.mActivatedAccounts.clear();
-		for (Account account : xmppConnectionService.getAccounts()) {
-			if (account.getStatus() != Account.State.DISABLED) {
-				if (Config.DOMAIN_LOCK != null) {
-					this.mActivatedAccounts.add(account.getJid().getLocal());
-				} else {
-					this.mActivatedAccounts.add(account.getJid().asBareJid().toString());
-				}
-			}
-		}
+		this.mActivatedAccounts.addAll(AccountUtils.getEnabledAccounts(xmppConnectionService));
 		configureHomeButton();
 		Intent intent = pendingViewIntent.pop();
 		if (intent != null && processViewIntent(intent)) {
@@ -808,6 +807,9 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 		}
 		if (QuickConversationsService.isQuicksy()) {
 			setRefreshing(xmppConnectionService.getQuickConversationsService().isSynchronizing());
+		}
+		if (QuickConversationsService.isConversations() && AccountUtils.hasEnabledAccounts(xmppConnectionService) && this.contacts.size() == 0 && this.conferences.size() == 0 && mOpenedFab.compareAndSet(false,true)) {
+			binding.speedDial.open();
 		}
 	}
 

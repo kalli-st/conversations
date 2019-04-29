@@ -68,6 +68,9 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -100,6 +103,7 @@ import eu.siacs.conversations.generator.MessageGenerator;
 import eu.siacs.conversations.generator.PresenceGenerator;
 import eu.siacs.conversations.http.HttpConnectionManager;
 import eu.siacs.conversations.http.CustomURLStreamHandlerFactory;
+import eu.siacs.conversations.http.services.MuclumbusService;
 import eu.siacs.conversations.parser.AbstractParser;
 import eu.siacs.conversations.parser.IqParser;
 import eu.siacs.conversations.parser.MessageParser;
@@ -151,6 +155,11 @@ import eu.siacs.conversations.xmpp.stanzas.IqPacket;
 import eu.siacs.conversations.xmpp.stanzas.MessagePacket;
 import eu.siacs.conversations.xmpp.stanzas.PresencePacket;
 import me.leolin.shortcutbadger.ShortcutBadger;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 import rocks.xmpp.addr.Jid;
 
 public class XmppConnectionService extends Service {
@@ -200,6 +209,7 @@ public class XmppConnectionService extends Service {
     private FileBackend fileBackend = new FileBackend(this);
     private MemorizingTrustManager mMemorizingTrustManager;
     private NotificationService mNotificationService = new NotificationService(this);
+    private ChannelDiscoveryService mChannelDiscoveryService = new ChannelDiscoveryService(this);
     private ShortcutService mShortcutService = new ShortcutService(this);
     private AtomicBoolean mInitialAddressbookSyncCompleted = new AtomicBoolean(false);
     private AtomicBoolean mForceForegroundService = new AtomicBoolean(false);
@@ -477,9 +487,7 @@ public class XmppConnectionService extends Service {
             encryption = Message.ENCRYPTION_DECRYPTED;
         }
         Message message = new Message(conversation, uri.toString(), encryption);
-        if (conversation.getNextCounterpart() != null) {
-            message.setCounterpart(conversation.getNextCounterpart());
-        }
+        Message.configurePrivateMessage(message);
         if (encryption == Message.ENCRYPTION_DECRYPTED) {
             getPgpEngine().encrypt(message, callback);
         } else {
@@ -495,8 +503,12 @@ public class XmppConnectionService extends Service {
         } else {
             message = new Message(conversation, "", conversation.getNextEncryption());
         }
-        message.setCounterpart(conversation.getNextCounterpart());
-        message.setType(Message.TYPE_FILE);
+        if (!Message.configurePrivateFileMessage(message)) {
+            message.setCounterpart(conversation.getNextCounterpart());
+            message.setType(Message.TYPE_FILE);
+        }
+        Log.d(Config.LOGTAG,"attachFile: type="+message.getType());
+        Log.d(Config.LOGTAG,"counterpart="+message.getCounterpart());
         final AttachFileToConversationRunnable runnable = new AttachFileToConversationRunnable(this, uri, type, message, callback);
         if (runnable.isVideoMessage()) {
             mVideoCompressionExecutor.execute(runnable);
@@ -523,8 +535,11 @@ public class XmppConnectionService extends Service {
         } else {
             message = new Message(conversation, "", conversation.getNextEncryption());
         }
-        message.setCounterpart(conversation.getNextCounterpart());
-        message.setType(Message.TYPE_IMAGE);
+        if (!Message.configurePrivateFileMessage(message)) {
+            message.setCounterpart(conversation.getNextCounterpart());
+            message.setType(Message.TYPE_IMAGE);
+        }
+        Log.d(Config.LOGTAG,"attachImage: type="+message.getType());
         mFileAddingExecutor.execute(() -> {
             try {
                 getFileBackend().copyImageToPrivateStorage(message, uri);
@@ -795,6 +810,14 @@ public class XmppConnectionService extends Service {
         return pingNow;
     }
 
+    public void reinitializeMuclumbusService() {
+        mChannelDiscoveryService.initializeMuclumbusService();
+    }
+
+    public void discoverChannels(String query, ChannelDiscoveryService.OnChannelSearchResultsFound onChannelSearchResultsFound) {
+        mChannelDiscoveryService.discover(query, onChannelSearchResultsFound);
+    }
+
     public boolean isDataSaverDisabled() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
@@ -920,7 +943,7 @@ public class XmppConnectionService extends Service {
                 }
             }
             if (account.setShowErrorNotification(true)) {
-                databaseBackend.updateAccount(account);
+                mDatabaseWriterExecutor.execute(() -> databaseBackend.updateAccount(account));
             }
         }
         mNotificationService.updateErrorNotification();
@@ -931,7 +954,7 @@ public class XmppConnectionService extends Service {
             if (account.hasErrorStatus()) {
                 Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": dismissing error notification");
                 if (account.setShowErrorNotification(false)) {
-                    databaseBackend.updateAccount(account);
+                    mDatabaseWriterExecutor.execute(() -> databaseBackend.updateAccount(account));
                 }
             }
         }
@@ -978,6 +1001,7 @@ public class XmppConnectionService extends Service {
         if (Compatibility.runsTwentySix()) {
             mNotificationService.initializeChannels();
         }
+        mChannelDiscoveryService.initializeMuclumbusService();
         mForceDuringOnCreate.set(Compatibility.runsAndTargetsTwentySix(this));
         toggleForegroundService();
         this.destroyed = false;
@@ -1412,7 +1436,7 @@ public class XmppConnectionService extends Service {
         }
 
 
-        boolean mucMessage = conversation.getMode() == Conversation.MODE_MULTI && message.getType() != Message.TYPE_PRIVATE;
+        boolean mucMessage = conversation.getMode() == Conversation.MODE_MULTI && !message.isPrivateMessage();
         if (mucMessage) {
             message.setCounterpart(conversation.getMucOptions().getSelf().getFullJid());
         }
@@ -1447,6 +1471,7 @@ public class XmppConnectionService extends Service {
                     packet.addChild(ChatState.toElement(conversation.getOutgoingChatState()));
                 }
             }
+            Log.d(Config.LOGTAG,packet.toString());
             sendMessagePacket(account, packet);
         }
     }

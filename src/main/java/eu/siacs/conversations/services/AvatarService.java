@@ -3,7 +3,6 @@ package eu.siacs.conversations.services;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
@@ -14,7 +13,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.annotation.ColorInt;
-import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
 import android.support.v4.content.res.ResourcesCompat;
 import android.text.TextUtils;
@@ -39,10 +37,10 @@ import eu.siacs.conversations.entities.Conversational;
 import eu.siacs.conversations.entities.ListItem;
 import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.entities.MucOptions;
+import eu.siacs.conversations.http.services.MuclumbusService;
 import eu.siacs.conversations.utils.UIHelper;
 import eu.siacs.conversations.xmpp.OnAdvancedStreamFeaturesLoaded;
 import eu.siacs.conversations.xmpp.XmppConnection;
-import eu.siacs.conversations.xmpp.pep.Avatar;
 import rocks.xmpp.addr.Jid;
 
 public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
@@ -82,9 +80,20 @@ public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
 			return get((ListItem) avatarable, size, cachedOnly);
 		} else if (avatarable instanceof MucOptions.User) {
 			return get((MucOptions.User) avatarable, size, cachedOnly);
+		} else if (avatarable instanceof MuclumbusService.Room) {
+			return get((MuclumbusService.Room) avatarable, size, cachedOnly);
 		}
 		throw new AssertionError("AvatarService does not know how to generate avatar from "+avatarable.getClass().getName());
 
+	}
+
+	private Bitmap get(final MuclumbusService.Room result, final int size, boolean cacheOnly) {
+		final Jid room = result.getRoom();
+		Conversation conversation = room != null ? mXmppConnectionService.findFirstMuc(room) : null;
+		if (conversation != null) {
+			return get(conversation,size,cacheOnly);
+		}
+		return get(result.getName(), room != null ? room.asBareJid().toEscapedString() : result.getName(), size, cacheOnly);
 	}
 
 	private Bitmap get(final Contact contact, final int size, boolean cachedOnly) {

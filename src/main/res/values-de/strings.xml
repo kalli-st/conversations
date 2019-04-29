@@ -526,7 +526,6 @@
   <string name="security_error_invalid_file_access">Sicherheitsfehler: Dateizugriff nicht erlaubt</string>
   <string name="no_application_to_share_uri">Keine Anwendung zum Teilen der URI gefunden</string>
   <string name="share_uri_with">Teile URI mit…</string>
-  <string name="welcome_text">XMPP ist ein anbieterunabhängiges Instant Messaging Netzwerk. Du kannst diesen Client mit jedem beliebigen XMPP-Server nutzen.\nUm es dir leicht zu machen, haben wir die Möglichkeit geschaffen, ein Konto auf chat.sum7.eu anzulegen; ein Anbieter, der speziell für die Verwendung mit Conversations geeignet ist.</string>
   <string name="welcome_text_quicksy"><![CDATA[Quicksy ist ein Ableger des beliebten XMPP-Clients Conversations mit automatischer Kontakterkennung.<br><br>Du registrierst dich mit deiner Telefonnummer und Quicksy wird automatisch auf der Grundlage der Telefonnummern in deinem Adressbuch mögliche Kontakte vorschlagen.<br><br>Mit der Anmeldung erklärst du dich mit unserer <a href="https://quicksy.im/#privacy">Datenschutzerklärung</a> einverstanden.]]></string>
   <string name="agree_and_continue">Zustimmen &amp; fortfahren</string>
   <string name="magic_create_text">Wir führen dich durch den Prozess der Kontoerstellung auf chat.sum7.eu.\nWenn du chat.sum7.eu als Provider wählst, kannst du mit Nutzern anderer Anbieter kommunizieren, indem du ihnen deine vollständige XMPP-Adresse gibst.</string>
@@ -704,7 +703,7 @@
   <string name="medium">Mittel</string>
   <string name="large">Groß</string>
   <string name="not_encrypted_for_this_device">Die Nachricht wurde nicht für dieses Gerät verschlüsselt.</string>
-  <string name="omemo_decryption_failed">Die OMEMO-Nachricht konnte nicht entschlüsselt werden.</string>
+  <string name="omemo_decryption_failed">OMEMO-Nachricht konnte nicht entschlüsselt werden.</string>
   <string name="undo">rückgängig</string>
   <string name="location_disabled">Standort teilen ist deaktiviert</string>
   <string name="action_fix_to_location">Position fixieren</string>
@@ -754,7 +753,7 @@
   <string name="view_users">Teilnehmer anzeigen</string>
   <string name="group_chat_members">Teilnehmer</string>
   <string name="media_browser">Medienbrowser</string>
-  <string name="security_violation_not_attaching_file">Die Datei wurde aufgrund von Sicherheitsverletzungen ausgelassen.</string>
+  <string name="security_violation_not_attaching_file">Datei wurde aufgrund von Sicherheitsverletzungen ausgelassen.</string>
   <string name="pref_video_compression">Videoqualität</string>
   <string name="pref_video_compression_summary">Geringere Qualität ermöglicht kleinere Dateien</string>
   <string name="video_360p">Mittel (360p)</string>
@@ -853,4 +852,14 @@
   <string name="search_participants">Teilnehmer suchen</string>
   <string name="file_too_large">Datei ist zu groß</string>
   <string name="attach">Hinzufügen</string>
+  <string name="discover_channels">Channels entdecken</string>
+  <string name="search_channels">Channels suchen</string>
+  <string name="channel_discovery_opt_in_title">Mögliche Datenschutzverletzung!</string>
+  <string name="channel_discover_opt_in_message"><![CDATA[Die Channel-Entdeckung verwendet einen Drittanbieterservice namens <a href="https://search.jabbercat.org">search.jabbercat.org</a>.<br><br>Wenn du diese Funktion verwendest, werden deine IP-Adresse und deine Suchbegriffe an diesen Dienst übertragen. Weitere Informationen findest du in der <a href="https://search.jabbercat.org/privacy">Datenschutzerklärung</a>.]]></string>
+  <string name="i_already_have_an_account">Ich habe bereits ein Konto</string>
+  <string name="add_existing_account">Vorhandenes Konto hinzufügen</string>
+  <string name="register_new_account">Neues Konto erstellen</string>
+  <string name="this_looks_like_a_domain">Dies sieht aus wie eine Domain-Adresse</string>
+  <string name="add_anway">Trotzdem hinzufügen</string>
+  <string name="this_looks_like_channel">Dies sieht aus wie eine Channel-Adresse</string>
 </resources>

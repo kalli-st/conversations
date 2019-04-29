@@ -71,7 +71,7 @@
   <string name="problem_connecting_to_account">Nie można połączyć się z kontem</string>
   <string name="problem_connecting_to_accounts">Nie można połączyć się z wieloma kontami</string>
   <string name="touch_to_fix">Dotknij tutaj aby zarządzać swoimi kontami</string>
-  <string name="attach_file">Dołącz plik</string>
+  <string name="attach_file">Załącz plik</string>
   <string name="not_in_roster">Kontakt nie należy do Twojej listy kontaktów. Czy chcesz go dodać?</string>
   <string name="add_contact">Dodaj kontakt</string>
   <string name="send_failed">wysyłanie nie powiodło się</string>
@@ -868,4 +868,15 @@ Administrator twojego serwera będzie mógł czytać twoje wiadomości, ale moż
   <string name="manage_permission">Zarządzaj uprawnieniami</string>
   <string name="search_participants">Wyszukaj uczestników</string>
   <string name="file_too_large">Plik jest zbyt duży</string>
+  <string name="attach">Załącz</string>
+  <string name="discover_channels">Odkryj kanały</string>
+  <string name="search_channels">Wyszukaj kanał</string>
+  <string name="channel_discovery_opt_in_title">Możliwe naruszenie prywatności!</string>
+  <string name="channel_discover_opt_in_message"><![CDATA[Odkrywanie kanałów używa usługi firmy trzeciej <a href="https://search.jabbercat.org">search.jabbercat.org</a>. <br><br>Używając tej funkcji twój adres IP oraz kryteria wyszukiwania zostaną wysłane do tej usługi. Sprawdź <a href="https://search.jabbercat.org/privacy">Politykę Prywatności</a> aby uzyskać więcej informacji.]]></string>
+  <string name="i_already_have_an_account">Już mam konto</string>
+  <string name="add_existing_account">Dodaj istniejące konto</string>
+  <string name="register_new_account">Zarejestruj nowe konto</string>
+  <string name="this_looks_like_a_domain">To wygląda jak nazwa domeny</string>
+  <string name="add_anway">Dodaj i tak</string>
+  <string name="this_looks_like_channel">To wygląda jak adres kanału</string>
 </resources>

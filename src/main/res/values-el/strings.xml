@@ -522,8 +522,6 @@
   <string name="pref_theme_options_summary">Επιλογή παλέτας χρωμάτων</string>
   <string name="pref_theme_light">Ανοιχτόχρωμο θέμα</string>
   <string name="pref_theme_dark">Σκουρόχρωμο θέμα</string>
-  <string name="pref_use_green_background">Πράσινο φόντο</string>
-  <string name="pref_use_green_background_summary">Χρήση πράσινου φόντου για εισερχόμενα μηνύματα</string>
   <string name="unable_to_connect_to_keychain">Αδυναμία σύνδεσης στο OpenKeychain</string>
   <string name="this_device_is_no_longer_in_use">Αυτή η συσκευή δεν χρησιμοποιείται πλέον</string>
   <string name="type_pc">Υπολογιστής</string>
