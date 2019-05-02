@@ -28,6 +28,7 @@ publish:
   only:
   - develop
   script:
+  - ./build-fork.sh
   # workaround for bug in fdroid nightly
   - sed -i "s/-debug.apk/-unsigned.apk/" /usr/lib/python3/dist-packages/fdroidserver/nightly.py
   - sed -i "s/servergitmirror = 'git@' +/servergitmirror = 'gitlab@' +/" /usr/lib/python3/dist-packages/fdroidserver/nightly.py
