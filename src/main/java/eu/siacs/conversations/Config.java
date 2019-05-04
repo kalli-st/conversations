@@ -94,7 +94,7 @@ public final class Config {
 
     public static final long MILLISECONDS_IN_DAY = 24 * 60 * 60 * 1000;
 
-    public static final long OMEMO_AUTO_EXPIRY = 7 * MILLISECONDS_IN_DAY;
+    public static final long OMEMO_AUTO_EXPIRY = 14 * MILLISECONDS_IN_DAY;
     public static final boolean REMOVE_BROKEN_DEVICES = false;
     public static final boolean OMEMO_PADDING = false;
     public static final boolean PUT_AUTH_TAG_INTO_KEY = true;
@@ -122,7 +122,7 @@ public final class Config {
 
     public static final int EXPIRY_INTERVAL = 30 * 60 * 1000; // 30 minutes
 
-    public static final String ENABLED_CIPHERS[] = {
+    public static final String[] ENABLED_CIPHERS = {
             "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
             "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA384",
             "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA256",
