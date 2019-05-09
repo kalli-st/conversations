@@ -31,7 +31,6 @@ publish:
   - find -type d -name "siacs" -print0 | xargs --null -I{} bash -c 'x="{}"; mv "$x" "${x/siacs/sum7}" '
   - find -type f -name "*.java" -exec sed -i "/eu.siacs.conversations.axolotl/! s/eu.siacs./eu.sum7./" "{}" \;
   - find -type f -name "*.xml"  -exec sed -i "/eu.siacs.conversations.axolotl/! s/eu.siacs./eu.sum7./" "{}" \;
-  - sed -i "s/eu.siacs./eu.sum7./" "proguard-rules.pro"
   # workaround for bug in fdroid nightly
   - sed -i "s/-debug.apk/-unsigned.apk/" /usr/lib/python3/dist-packages/fdroidserver/nightly.py
   - sed -i "s/servergitmirror = 'git@' +/servergitmirror = 'gitlab@' +/" /usr/lib/python3/dist-packages/fdroidserver/nightly.py
