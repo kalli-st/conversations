@@ -54,7 +54,6 @@ import eu.siacs.conversations.services.ShortcutService;
 import eu.siacs.conversations.utils.CryptoHelper;
 import eu.siacs.conversations.utils.FtsUtils;
 import eu.siacs.conversations.utils.MimeUtils;
-import eu.siacs.conversations.utils.Resolver;
 import eu.siacs.conversations.xmpp.InvalidJid;
 import eu.siacs.conversations.xmpp.mam.MamReference;
 import rocks.xmpp.addr.Jid;
@@ -147,18 +146,6 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             + SQLiteAxolotlStore.NAME + ", "
             + SQLiteAxolotlStore.FINGERPRINT
             + ") ON CONFLICT IGNORE"
-            + ");";
-
-    private static String RESOLVER_RESULTS_TABLENAME = "resolver_results";
-
-    private static String CREATE_RESOLVER_RESULTS_TABLE = "create table " + RESOLVER_RESULTS_TABLENAME + "("
-            + Resolver.Result.DOMAIN + " TEXT,"
-            + Resolver.Result.HOSTNAME + " TEXT,"
-            + Resolver.Result.PRIORITY + " NUMBER,"
-            + Resolver.Result.DIRECT_TLS + " NUMBER,"
-            + Resolver.Result.AUTHENTICATED + " NUMBER,"
-            + Resolver.Result.PORT + " NUMBER,"
-            + "UNIQUE(" + Resolver.Result.DOMAIN + ") ON CONFLICT REPLACE"
             + ");";
 
     private static String CREATE_MESSAGE_TIME_INDEX = "create INDEX message_time_index ON " + Message.TABLENAME + "(" + Message.TIME_SENT + ")";
@@ -254,7 +241,6 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         db.execSQL(CREATE_SIGNED_PREKEYS_STATEMENT);
         db.execSQL(CREATE_IDENTITIES_STATEMENT);
         db.execSQL(CREATE_PRESENCE_TEMPLATES_STATEMENT);
-        db.execSQL(CREATE_RESOLVER_RESULTS_TABLE);
         db.execSQL(CREATE_MESSAGE_INDEX_TABLE);
         db.execSQL(CREATE_MESSAGE_INSERT_TRIGGER);
         db.execSQL(CREATE_MESSAGE_UPDATE_TRIGGER);
@@ -510,10 +496,6 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             db.execSQL("ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " + Message.MARKABLE + " NUMBER DEFAULT 0");
         }
 
-        if (oldVersion < 39 && newVersion >= 39) {
-            db.execSQL(CREATE_RESOLVER_RESULTS_TABLE);
-        }
-
         if (oldVersion < 41 && newVersion >= 41) {
             db.execSQL(CREATE_MESSAGE_INDEX_TABLE);
             db.execSQL(CREATE_MESSAGE_INSERT_TRIGGER);
@@ -539,6 +521,8 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             db.execSQL(CREATE_MESSAGE_RELATIVE_FILE_PATH_INDEX);
             db.execSQL(CREATE_MESSAGE_TYPE_INDEX);
         }
+
+	db.execSQL("DROP TABLE resolver_results");
     }
 
     private void canonicalizeJids(SQLiteDatabase db) {
@@ -658,34 +642,6 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         } catch (JSONException e) { /* result is still null */ }
 
         cursor.close();
-        return result;
-    }
-
-    public void saveResolverResult(String domain, Resolver.Result result) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues = result.toContentValues();
-        contentValues.put(Resolver.Result.DOMAIN, domain);
-        db.insert(RESOLVER_RESULTS_TABLENAME, null, contentValues);
-    }
-
-    public synchronized Resolver.Result findResolverResult(String domain) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        String where = Resolver.Result.DOMAIN + "=?";
-        String[] whereArgs = {domain};
-        final Cursor cursor = db.query(RESOLVER_RESULTS_TABLENAME, null, where, whereArgs, null, null, null);
-        Resolver.Result result = null;
-        if (cursor != null) {
-            try {
-                if (cursor.moveToFirst()) {
-                    result = Resolver.Result.fromCursor(cursor);
-                }
-            } catch (Exception e) {
-                Log.d(Config.LOGTAG, "unable to find cached resolver result in database " + e.getMessage());
-                return null;
-            } finally {
-                cursor.close();
-            }
-        }
         return result;
     }
 
