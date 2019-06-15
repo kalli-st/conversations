@@ -120,10 +120,10 @@
         <item name="colorAccent">@color/blue_a100</item>
         <item name="popupOverlayStyle">@style/ThemeOverlay.AppCompat.Dark</item>
 
-        <item name="color_background_primary">@color/grey800</item>
-        <item name="color_background_secondary">@color/grey900</item>
-        <item name="color_background_tertiary">@color/grey700</item>
-        <item name="color_background_overlay">@color/black26</item>
+        <item name="color_background_primary">@color/black</item>
+        <item name="color_background_secondary">@color/black</item>
+        <item name="color_background_tertiary">@color/grey900</item>
+        <item name="color_background_overlay">@color/grey700</item>
         <item name="activity_background_search">@drawable/search_background_dark</item>
         <item name="activity_background_no_results">@drawable/no_results_background_dark</item>
         <item name="list_item_background">@drawable/list_item_background_dark</item>
