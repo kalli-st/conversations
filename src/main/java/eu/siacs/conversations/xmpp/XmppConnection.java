@@ -1396,7 +1396,7 @@ public class XmppConnection implements Runnable {
         if (!r()) {
             final IqPacket iq = new IqPacket(IqPacket.TYPE.GET);
             iq.setFrom(account.getJid());
-            iq.addChild("ping", "urn:xmpp:ping");
+            iq.addChild("ping", Namespace.PING);
             this.sendIqPacket(iq, null);
         }
         this.lastPingSent = SystemClock.elapsedRealtime();
