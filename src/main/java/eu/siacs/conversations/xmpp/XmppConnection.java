@@ -1439,15 +1439,8 @@ public class XmppConnection implements Runnable {
     }
 
     private void forceCloseSocket() {
-        if (socket != null) {
-            try {
-                socket.close();
-            } catch (IOException e) {
-                Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": io exception " + e.getMessage() + " during force close");
-            }
-        } else {
-            Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": socket was null during force close");
-        }
+        FileBackend.close(this.socket);
+        FileBackend.close(this.tagReader);
     }
 
     public void interrupt() {
@@ -1458,7 +1451,7 @@ public class XmppConnection implements Runnable {
 
     public void disconnect(final boolean force) {
         interrupt();
-        Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": disconnecting force=" + Boolean.toString(force));
+        Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": disconnecting force=" + force);
         if (force) {
             forceCloseSocket();
         } else {
@@ -1798,8 +1791,8 @@ public class XmppConnection implements Runnable {
         }
 
         public boolean push() {
-            return hasDiscoFeature(account.getJid().asBareJid(), "urn:xmpp:push:0")
-                    || hasDiscoFeature(Jid.of(account.getServer()), "urn:xmpp:push:0");
+            return hasDiscoFeature(account.getJid().asBareJid(), Namespace.PUSH)
+                    || hasDiscoFeature(Jid.of(account.getServer()), Namespace.PUSH);
         }
 
         public boolean rosterVersioning() {

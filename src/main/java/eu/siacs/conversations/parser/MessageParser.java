@@ -22,6 +22,7 @@ import eu.siacs.conversations.crypto.axolotl.XmppAxolotlMessage;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Conversation;
+import eu.siacs.conversations.entities.Conversational;
 import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.entities.MucOptions;
 import eu.siacs.conversations.entities.ReadByMarker;
@@ -126,7 +127,8 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
                     service.reportBrokenSessionException(e, postpone);
                     return new Message(conversation, "", Message.ENCRYPTION_AXOLOTL_FAILED, status);
                 } else {
-                    Log.d(Config.LOGTAG,"ignoring broken session exception because checkForDuplicase failed");
+                    Log.d(Config.LOGTAG,"ignoring broken session exception because checkForDuplicates failed");
+                    //TODO should be still emit a failed message?
                     return null;
                 }
             } catch (NotEncryptedForThisDeviceException e) {
@@ -264,6 +266,17 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
                         packet.getId(),
                         Message.STATUS_SEND_FAILED,
                         extractErrorMessage(packet));
+                final Element error = packet.findChild("error");
+                final boolean pingWorthyError = error != null && (error.hasChild("not-acceptable") || error.hasChild("remote-server-timeout") || error.hasChild("remote-server-not-found"));
+                if (pingWorthyError) {
+                    Conversation conversation = mXmppConnectionService.find(account,from);
+                    if (conversation != null && conversation.getMode() == Conversational.MODE_MULTI) {
+                        if (conversation.getMucOptions().online()) {
+                            Log.d(Config.LOGTAG,account.getJid().asBareJid()+": received ping worthy error for seemingly online muc at "+from);
+                            mXmppConnectionService.mucSelfPingAndRejoin(conversation);
+                        }
+                    }
+                }
             }
             return true;
         }
@@ -437,6 +450,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
                     origin = from;
                 }
 
+                //TODO either or is probably fine?
                 final boolean checkedForDuplicates = serverMsgId != null && remoteMsgId != null && !conversation.possibleDuplicate(serverMsgId, remoteMsgId);
 
                 if (origin != null) {
@@ -598,7 +612,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
                     } else {
                         serverMsgIdUpdated = false;
                     }
-                    Log.d(Config.LOGTAG, "skipping duplicate message with " + message.getCounterpart() + ". serverMsgIdUpdated=" + Boolean.toString(serverMsgIdUpdated));
+                    Log.d(Config.LOGTAG, "skipping duplicate message with " + message.getCounterpart() + ". serverMsgIdUpdated=" + serverMsgIdUpdated);
                     return;
                 }
             }

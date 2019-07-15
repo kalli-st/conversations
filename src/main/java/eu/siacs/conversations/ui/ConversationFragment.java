@@ -632,7 +632,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
             }
 
             @Override
-            public void userInputRequried(PendingIntent pi, Message object) {
+            public void userInputRequired(PendingIntent pi, Message object) {
 
             }
         });
@@ -666,7 +666,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
             }
 
             @Override
-            public void userInputRequried(PendingIntent pi, Message message) {
+            public void userInputRequired(PendingIntent pi, Message message) {
                 hidePrepareFileToast(prepareFileToast);
             }
         });
@@ -688,7 +688,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
                 new UiCallback<Message>() {
 
                     @Override
-                    public void userInputRequried(PendingIntent pi, Message object) {
+                    public void userInputRequired(PendingIntent pi, Message object) {
                         hidePrepareFileToast(prepareFileToast);
                     }
 
@@ -1326,7 +1326,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
                             new UiCallback<Contact>() {
 
                                 @Override
-                                public void userInputRequried(PendingIntent pi, Contact contact) {
+                                public void userInputRequired(PendingIntent pi, Contact contact) {
                                     startPendingIntent(pi, attachmentChoice);
                                 }
 
@@ -2284,7 +2284,10 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
             status = Presence.Status.OFFLINE;
         }
         this.binding.textSendButton.setTag(action);
-        this.binding.textSendButton.setImageResource(SendButtonTool.getSendButtonImageResource(getActivity(), action, status));
+        final Activity activity = getActivity();
+        if (activity != null) {
+            this.binding.textSendButton.setImageResource(SendButtonTool.getSendButtonImageResource(activity, action, status));
+        }
     }
 
     protected void updateStatusMessages() {
@@ -2456,7 +2459,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
                         new UiCallback<Contact>() {
 
                             @Override
-                            public void userInputRequried(PendingIntent pi, Contact contact) {
+                            public void userInputRequired(PendingIntent pi, Contact contact) {
                                 startPendingIntent(pi, REQUEST_ENCRYPT_MESSAGE);
                             }
 
@@ -2512,7 +2515,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
                 new UiCallback<Message>() {
 
                     @Override
-                    public void userInputRequried(PendingIntent pi, Message message) {
+                    public void userInputRequired(PendingIntent pi, Message message) {
                         startPendingIntent(pi, REQUEST_SEND_MESSAGE);
                     }
 

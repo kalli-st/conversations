@@ -305,7 +305,7 @@ public class IqGenerator extends AbstractGenerator {
 	public IqPacket generateSetBlockRequest(final Jid jid, boolean reportSpam) {
 		final IqPacket iq = new IqPacket(IqPacket.TYPE.SET);
 		final Element block = iq.addChild("block", Namespace.BLOCKING);
-		final Element item = block.addChild("item").setAttribute("jid", jid.asBareJid().toString());
+		final Element item = block.addChild("item").setAttribute("jid", jid.toEscapedString());
 		if (reportSpam) {
 			item.addChild("report", "urn:xmpp:reporting:0").addChild("spam");
 		}
@@ -316,7 +316,7 @@ public class IqGenerator extends AbstractGenerator {
 	public IqPacket generateSetUnblockRequest(final Jid jid) {
 		final IqPacket iq = new IqPacket(IqPacket.TYPE.SET);
 		final Element block = iq.addChild("unblock", Namespace.BLOCKING);
-		block.addChild("item").setAttribute("jid", jid.asBareJid().toString());
+		block.addChild("item").setAttribute("jid", jid.toEscapedString());
 		return iq;
 	}
 
@@ -423,29 +423,60 @@ public class IqGenerator extends AbstractGenerator {
 	}
 
 	public IqPacket pushTokenToAppServer(Jid appServer, String token, String deviceId) {
-		IqPacket packet = new IqPacket(IqPacket.TYPE.SET);
+		return pushTokenToAppServer(appServer, token, deviceId, null);
+	}
+
+	public IqPacket pushTokenToAppServer(Jid appServer, String token, String deviceId, Jid muc) {
+		final IqPacket packet = new IqPacket(IqPacket.TYPE.SET);
 		packet.setTo(appServer);
-		Element command = packet.addChild("command", "http://jabber.org/protocol/commands");
+		final Element command = packet.addChild("command", Namespace.COMMANDS);
 		command.setAttribute("node", "register-push-fcm");
 		command.setAttribute("action", "execute");
-		Data data = new Data();
+		final Data data = new Data();
 		data.put("token", token);
+		data.put("android-id", deviceId);
+		if (muc != null) {
+			data.put("muc", muc.toEscapedString());
+		}
+		data.submit();
+		command.addChild(data);
+		return packet;
+	}
+
+	public IqPacket unregisterChannelOnAppServer(Jid appServer, String deviceId, String channel) {
+		final IqPacket packet = new IqPacket(IqPacket.TYPE.SET);
+		packet.setTo(appServer);
+		final Element command = packet.addChild("command", Namespace.COMMANDS);
+		command.setAttribute("node", "unregister-push-fcm");
+		command.setAttribute("action", "execute");
+		final Data data = new Data();
+		data.put("channel", channel);
 		data.put("android-id", deviceId);
 		data.submit();
 		command.addChild(data);
 		return packet;
 	}
 
-	public IqPacket enablePush(Jid jid, String node, String secret) {
+	public IqPacket enablePush(final Jid jid, final String node, final String secret) {
 		IqPacket packet = new IqPacket(IqPacket.TYPE.SET);
-		Element enable = packet.addChild("enable", "urn:xmpp:push:0");
+		Element enable = packet.addChild("enable", Namespace.PUSH);
 		enable.setAttribute("jid", jid.toString());
 		enable.setAttribute("node", node);
-		Data data = new Data();
-		data.setFormType(Namespace.PUBSUB_PUBLISH_OPTIONS);
-		data.put("secret", secret);
-		data.submit();
-		enable.addChild(data);
+		if (secret != null) {
+			Data data = new Data();
+			data.setFormType(Namespace.PUBSUB_PUBLISH_OPTIONS);
+			data.put("secret", secret);
+			data.submit();
+			enable.addChild(data);
+		}
+		return packet;
+	}
+
+	public IqPacket disablePush(final Jid jid, final String node) {
+		IqPacket packet = new IqPacket(IqPacket.TYPE.SET);
+		Element disable = packet.addChild("disable", Namespace.PUSH);
+		disable.setAttribute("jid", jid.toEscapedString());
+		disable.setAttribute("node", node);
 		return packet;
 	}
 
