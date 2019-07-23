@@ -6,22 +6,22 @@ chats and e2e encryption.
 
 Design principles:
 
-* Be as beautiful and easy to use as possible without sacrificing security or privacy
-* Rely on existing, well established protocols
-* Do not require a Google Account or specifically Google Cloud Messaging (GCM)
-* Require as few permissions as possible
+• Be as beautiful and easy to use as possible without sacrificing security or privacy
+• Rely on existing, well established protocols
+• Do not require a Google Account or specifically Google Cloud Messaging (GCM)
+• Require as few permissions as possible
 
 Features:
 
-* End-to-end encryption with either <a href="https://conversations.im/omemo/">OMEMO</a> or <a href="https://openpgp.org/about/">OpenPGP</a>
-* Sending and receiving images
-* Intuitive UI that follows Android Design guidelines
-* Pictures / Avatars for your Contacts
-* Syncs with desktop client
-* Conferences (with support for bookmarks)
-* Address book integration
-* Multiple accounts / unified inbox
-* Very low impact on battery life
+• End-to-end encryption with either <a href="https://conversations.im/omemo/">OMEMO</a> or <a href="https://openpgp.org/about/">OpenPGP</a>
+• Sending and receiving images
+• Intuitive UI that follows Android Design guidelines
+• Pictures / Avatars for your Contacts
+• Syncs with desktop client
+• Conferences (with support for bookmarks)
+• Address book integration
+• Multiple accounts / unified inbox
+• Very low impact on battery life
 
 Conversations makes it very easy to create an account on the chat.sum7.eu
 server. However Conversations will work with any other XMPP server as
@@ -39,12 +39,12 @@ run your own XMPP server for you and your friends.
 
 These XEPs are - as of now:
 
-* XEP-0065: SOCKS5 Bytestreams (or mod_proxy65). Will be used to transfer files if both parties are behind a firewall (NAT).
-* XEP-0163: Personal Eventing Protocol for avatars
-* XEP-0191: Blocking command lets you blacklist spammers or block contacts without removing them from your roster.
-* XEP-0198: Stream Management allows XMPP to survive small network outages and changes of the underlying TCP connection.
-* XEP-0280: Message Carbons which automatically syncs the messages you send to your desktop client and thus allows you to switch seamlessly from your mobile client to your desktop client and back within one conversation.
-* XEP-0237: Roster Versioning mainly to save bandwidth on poor mobile connections
-* XEP-0313: Message Archive Management synchronize message history with the server. Catch up with messages that were sent while Conversations was offline.
-* XEP-0352: Client State Indication lets the server know whether or not Conversations is in the background. Allows the server to save bandwidth by withholding unimportant packages.
-* XEP-0363: HTTP File Upload allows you to share files in conferences and with offline contacts. Requires an additional component on your server.
+• XEP-0065: SOCKS5 Bytestreams (or mod_proxy65). Will be used to transfer files if both parties are behind a firewall (NAT).
+• XEP-0163: Personal Eventing Protocol for avatars
+• XEP-0191: Blocking command lets you blacklist spammers or block contacts without removing them from your roster.
+• XEP-0198: Stream Management allows XMPP to survive small network outages and changes of the underlying TCP connection.
+• XEP-0280: Message Carbons which automatically syncs the messages you send to your desktop client and thus allows you to switch seamlessly from your mobile client to your desktop client and back within one conversation.
+• XEP-0237: Roster Versioning mainly to save bandwidth on poor mobile connections
+• XEP-0313: Message Archive Management synchronize message history with the server. Catch up with messages that were sent while Conversations was offline.
+• XEP-0352: Client State Indication lets the server know whether or not Conversations is in the background. Allows the server to save bandwidth by withholding unimportant packages.
+• XEP-0363: HTTP File Upload allows you to share files in conferences and with offline contacts. Requires an additional component on your server.

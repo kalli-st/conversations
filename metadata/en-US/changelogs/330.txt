@@ -1,2 +1,2 @@
-* bug fixes for peer to peer file transfer (Jingle)
-* fixed server info for unlimited/unknown max file size
+• bug fixes for peer to peer file transfer (Jingle)
+• fixed server info for unlimited/unknown max file size
