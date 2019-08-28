@@ -17,6 +17,8 @@
   <string name="action_unblock_contact">Kontaktua desblokeatu</string>
   <string name="action_block_domain">Domeinua blokeatu</string>
   <string name="action_unblock_domain">Domeinua desblokeatu</string>
+  <string name="action_block_participant">Parte-hartzailea blokeatu</string>
+  <string name="action_unblock_participant">Parte-hartzaileari blokeoa kendu</string>
   <string name="title_activity_manage_accounts">Kontuak kudeatu</string>
   <string name="title_activity_settings">Ezarpenak</string>
   <string name="title_activity_sharewith">Elkarrizketa batekin partekatu</string>
@@ -860,4 +862,11 @@
   <string name="this_looks_like_a_domain">Honek domeinu helbide baten itxura dauka</string>
   <string name="add_anway">Gehitu hala ere</string>
   <string name="this_looks_like_channel">Honek kanal helbide baten itxura dauka</string>
+  <string name="share_backup_files">Babes-kopia fitxategiak partekatu</string>
+  <string name="conversations_backup">Conversations babes-kopia</string>
+  <string name="event">Gertaera</string>
+  <string name="open_backup">Babes-kopia ireki</string>
+  <string name="not_a_backup_file">Hautatu duzun fitxategia ez da Conversations babes-kopia bat</string>
+  <string name="account_already_setup">Kontu hau konfiguratuta dago jada</string>
+  <string name="please_enter_password">Mesedez idatzi ezazu kontu honetarako pasahitza</string>
 </resources>

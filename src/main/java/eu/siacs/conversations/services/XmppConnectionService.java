@@ -68,12 +68,8 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
-
 
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
@@ -101,9 +97,8 @@ import eu.siacs.conversations.generator.AbstractGenerator;
 import eu.siacs.conversations.generator.IqGenerator;
 import eu.siacs.conversations.generator.MessageGenerator;
 import eu.siacs.conversations.generator.PresenceGenerator;
-import eu.siacs.conversations.http.HttpConnectionManager;
 import eu.siacs.conversations.http.CustomURLStreamHandlerFactory;
-import eu.siacs.conversations.http.services.MuclumbusService;
+import eu.siacs.conversations.http.HttpConnectionManager;
 import eu.siacs.conversations.parser.AbstractParser;
 import eu.siacs.conversations.parser.IqParser;
 import eu.siacs.conversations.parser.MessageParser;
@@ -129,9 +124,9 @@ import eu.siacs.conversations.utils.Resolver;
 import eu.siacs.conversations.utils.SerialSingleThreadExecutor;
 import eu.siacs.conversations.utils.StringUtils;
 import eu.siacs.conversations.utils.WakeLockHelper;
-import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.utils.XmppUri;
 import eu.siacs.conversations.xml.Element;
+import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xmpp.OnBindListener;
 import eu.siacs.conversations.xmpp.OnContactStatusChanged;
 import eu.siacs.conversations.xmpp.OnIqPacketReceived;
@@ -155,11 +150,6 @@ import eu.siacs.conversations.xmpp.stanzas.IqPacket;
 import eu.siacs.conversations.xmpp.stanzas.MessagePacket;
 import eu.siacs.conversations.xmpp.stanzas.PresencePacket;
 import me.leolin.shortcutbadger.ShortcutBadger;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 import rocks.xmpp.addr.Jid;
 
 public class XmppConnectionService extends Service {
@@ -428,11 +418,11 @@ public class XmppConnectionService extends Service {
                     final int next = connection.getTimeToNextAttempt();
                     final boolean lowPingTimeoutMode = isInLowPingTimeoutMode(account);
                     if (next <= 0) {
-                        Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": error connecting account. reconnecting now. lowPingTimeout=" + Boolean.toString(lowPingTimeoutMode));
+                        Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": error connecting account. reconnecting now. lowPingTimeout=" + lowPingTimeoutMode);
                         reconnectAccount(account, true, false);
                     } else {
                         final int attempt = connection.getAttempt() + 1;
-                        Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": error connecting account. try again in " + next + "s for the " + attempt + " time. lowPingTimeout=" + Boolean.toString(lowPingTimeoutMode));
+                        Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": error connecting account. try again in " + next + "s for the " + attempt + " time. lowPingTimeout=" + lowPingTimeoutMode);
                         scheduleWakeUpCall(next, account.getUuid().hashCode());
                     }
                 }
@@ -1395,7 +1385,7 @@ public class XmppConnectionService extends Service {
 
         final boolean inProgressJoin;
         synchronized (account.inProgressConferenceJoins) {
-            inProgressJoin = conversation.getMode() == Conversational.MODE_MULTI && account.inProgressConferenceJoins.contains(conversation);
+            inProgressJoin = conversation.getMode() == Conversational.MODE_MULTI && (account.inProgressConferenceJoins.contains(conversation) || account.pendingConferenceJoins.contains(conversation));
         }
 
         if (account.isOnlineAndConnected() && !inProgressJoin) {
@@ -1522,7 +1512,6 @@ public class XmppConnectionService extends Service {
                     packet.addChild(ChatState.toElement(conversation.getOutgoingChatState()));
                 }
             }
-            Log.d(Config.LOGTAG,packet.toString());
             sendMessagePacket(account, packet);
         }
     }
@@ -2546,8 +2535,10 @@ public class XmppConnectionService extends Service {
 		    synchronized (account.inProgressConferenceJoins) {
                 account.inProgressConferenceJoins.add(conversation);
             }
-			sendPresencePacket(account, mPresenceGenerator.leave(conversation.getMucOptions()));
-			conversation.resetMucOptions();
+            if (Config.MUC_LEAVE_BEFORE_JOIN) {
+                sendPresencePacket(account, mPresenceGenerator.leave(conversation.getMucOptions()));
+            }
+            conversation.resetMucOptions();
 			if (onConferenceJoined != null) {
 				conversation.getMucOptions().flagNoAutoPushConfiguration();
 			}
@@ -2800,7 +2791,13 @@ public class XmppConnectionService extends Service {
 		final Bookmark bookmark = conversation.getBookmark();
 		final String bookmarkedNick = bookmark == null ? null : bookmark.getNick();
         if (bookmark != null && (tookProposedNickFromBookmark || TextUtils.isEmpty(bookmarkedNick)) && !full.getResource().equals(bookmarkedNick)) {
-            Log.d(Config.LOGTAG, conversation.getAccount().getJid().asBareJid() + ": persist nick '" + full.getResource() + "' into bookmark for " + conversation.getJid().asBareJid());
+            final Account account = conversation.getAccount();
+            final String defaultNick = MucOptions.defaultNick(account);
+            if (TextUtils.isEmpty(bookmarkedNick) && full.getResource().equals(defaultNick)) {
+                Log.d(Config.LOGTAG,account.getJid().asBareJid()+": do not overwrite empty bookmark nick with default nick for "+conversation.getJid().asBareJid());
+                return;
+            }
+            Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": persist nick '" + full.getResource() + "' into bookmark for " + conversation.getJid().asBareJid());
             bookmark.setNick(full.getResource());
             pushBookmarks(bookmark.getAccount());
         }
@@ -2827,15 +2824,8 @@ public class XmppConnectionService extends Service {
 				}
 			});
 
-			PresencePacket packet = new PresencePacket();
-			packet.setTo(joinJid);
-			packet.setFrom(conversation.getAccount().getJid());
-
-			String sig = account.getPgpSignature();
-			if (sig != null) {
-				packet.addChild("status").setContent("online");
-				packet.addChild("x", "jabber:x:signed").setContent(sig);
-			}
+            final PresencePacket packet = mPresenceGenerator.selfPresence(account, Presence.Status.ONLINE, options.nonanonymous());
+            packet.setTo(joinJid);
 			sendPresencePacket(account, packet);
 		} else {
 			conversation.setContactJid(joinJid);
@@ -4105,11 +4095,7 @@ public class XmppConnectionService extends Service {
 		} else {
 			status = getTargetPresence();
 		}
-		PresencePacket packet = mPresenceGenerator.selfPresence(account, status);
-		String message = account.getPresenceStatusMessage();
-		if (message != null && !message.isEmpty()) {
-			packet.addChild(new Element("status").setContent(message));
-		}
+		final PresencePacket packet = mPresenceGenerator.selfPresence(account, status);
 		if (mLastActivity > 0 && includeIdleTimestamp) {
 			long since = Math.min(mLastActivity, System.currentTimeMillis()); //don't send future dates
 			packet.addChild("idle", Namespace.IDLE).setAttribute("since", AbstractGenerator.getTimestamp(since));
@@ -4419,11 +4405,12 @@ public class XmppConnectionService extends Service {
 	}
 
 	public void saveConversationAsBookmark(Conversation conversation, String name) {
-		Account account = conversation.getAccount();
-		Bookmark bookmark = new Bookmark(account, conversation.getJid().asBareJid());
-		if (!conversation.getJid().isBareJid()) {
-			bookmark.setNick(conversation.getJid().getResource());
-		}
+		final Account account = conversation.getAccount();
+		final Bookmark bookmark = new Bookmark(account, conversation.getJid().asBareJid());
+		final String nick = conversation.getJid().getResource();
+        if (nick != null && !nick.isEmpty() && !nick.equals(MucOptions.defaultNick(account))) {
+            bookmark.setNick(nick);
+        }
 		if (!TextUtils.isEmpty(name)) {
 			bookmark.setBookmarkName(name);
 		}

@@ -1184,8 +1184,21 @@ public class XmppConnection implements Runnable {
                 if (advancedStreamFeaturesLoaded && (jid.equals(Jid.of(account.getServer())) || jid.equals(account.getJid().asBareJid()))) {
                     enableAdvancedStreamFeatures();
                 }
-            } else {
+            } else if (packet.getType() == IqPacket.TYPE.ERROR) {
                 Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": could not query disco info for " + jid.toString());
+                final boolean serverOrAccount = jid.equals(Jid.of(account.getServer())) || jid.equals(account.getJid().asBareJid());
+                final boolean advancedStreamFeaturesLoaded;
+                if (serverOrAccount) {
+                    synchronized (XmppConnection.this.disco) {
+                        disco.put(jid, ServiceDiscoveryResult.empty());
+                        advancedStreamFeaturesLoaded = disco.containsKey(Jid.of(account.getServer())) && disco.containsKey(account.getJid().asBareJid());
+                    }
+                } else {
+                    advancedStreamFeaturesLoaded = false;
+                }
+                if (advancedStreamFeaturesLoaded) {
+                    enableAdvancedStreamFeatures();
+                }
             }
             if (packet.getType() != IqPacket.TYPE.TIMEOUT) {
                 if (mPendingServiceDiscoveries.decrementAndGet() == 0
@@ -1294,11 +1307,10 @@ public class XmppConnection implements Runnable {
             throw new IOException();
         } else if (streamError.hasChild("host-unknown")) {
             throw new StateChangingException(Account.State.HOST_UNKNOWN);
-        } else if (streamError.hasChild("policy-violation")) { ;
+        } else if (streamError.hasChild("policy-violation")) {
+            this.lastConnect = SystemClock.elapsedRealtime();
             final String text = streamError.findChildContent("text");
-            if (text != null) {
-                Log.d(Config.LOGTAG,account.getJid().asBareJid()+": policy violation. "+text);
-            }
+            Log.d(Config.LOGTAG,account.getJid().asBareJid()+": policy violation. "+text);
             throw new StateChangingException(Account.State.POLICY_VIOLATION);
         } else {
             Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": stream error " + streamError.toString());
@@ -1545,7 +1557,8 @@ public class XmppConnection implements Runnable {
     }
 
     public int getTimeToNextAttempt() {
-        final int interval = Math.min((int) (25 * Math.pow(1.3, attempt)), 300);
+        final int additionalTime = account.getLastErrorStatus() == Account.State.POLICY_VIOLATION ? 3 : 0;
+        final int interval = Math.min((int) (25 * Math.pow(1.3, (additionalTime + attempt))), 300);
         final int secondsSinceLast = (int) ((SystemClock.elapsedRealtime() - this.lastConnect) / 1000);
         return interval - secondsSinceLast;
     }
