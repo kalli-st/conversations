@@ -1,0 +1,3 @@
+• fix light themen composing fied
+• fixes for Jingle file transfer
+• fixed some rare crashes
