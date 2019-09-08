@@ -1,0 +1,3 @@
+• fixed crash when scanning QR codes on Android 6 and lower
+• when sharing a message from and to Conversations insert it as quote
+
