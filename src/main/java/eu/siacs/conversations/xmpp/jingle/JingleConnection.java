@@ -43,6 +43,8 @@ import rocks.xmpp.addr.Jid;
 
 public class JingleConnection implements Transferable {
 
+    private static final String JET_OMEMO_CIPHER = "urn:xmpp:ciphers:aes-128-gcm-nopadding";
+
     private static final int JINGLE_STATUS_INITIATED = 0;
     private static final int JINGLE_STATUS_ACCEPTED = 1;
     private static final int JINGLE_STATUS_FINISHED = 4;
@@ -72,6 +74,7 @@ public class JingleConnection implements Transferable {
     private String contentName;
     private String contentCreator;
     private Transport initialTransport;
+    private boolean remoteSupportsOmemoJet;
 
     private int mProgress = 0;
 
@@ -171,7 +174,10 @@ public class JingleConnection implements Transferable {
 
         @Override
         public void failed() {
-            Log.d(Config.LOGTAG, "proxy activation failed");
+            Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": proxy activation failed");
+            if (initiating()) {
+                sendFallbackToIbb();
+            }
         }
     };
 
@@ -292,8 +298,10 @@ public class JingleConnection implements Transferable {
         this.contentName = this.mJingleConnectionManager.nextRandomId();
         this.message = message;
         this.account = message.getConversation().getAccount();
-        upgradeNamespace();
-        this.initialTransport = getRemoteFeatures().contains(Namespace.JINGLE_TRANSPORTS_S5B) ? Transport.SOCKS : Transport.IBB;
+        final List<String> remoteFeatures = getRemoteFeatures();
+        upgradeNamespace(remoteFeatures);
+        this.initialTransport = remoteFeatures.contains(Namespace.JINGLE_TRANSPORTS_S5B) ? Transport.SOCKS : Transport.IBB;
+        this.remoteSupportsOmemoJet = remoteFeatures.contains(Namespace.JINGLE_ENCRYPTED_TRANSPORT_OMEMO);
         this.message.setTransferable(this);
         this.mStatus = Transferable.STATUS_UPLOADING;
         this.initiator = this.account.getJid();
@@ -302,10 +310,9 @@ public class JingleConnection implements Transferable {
         this.transportId = this.mJingleConnectionManager.nextRandomId();
         if (this.initialTransport == Transport.IBB) {
             this.sendInitRequest();
-        } else if (this.candidates.size() > 0) {
-            this.sendInitRequest();
         } else {
-            this.mJingleConnectionManager.getPrimaryCandidate(account, (success, candidate) -> {
+            gatherAndConnectDirectCandidates();
+            this.mJingleConnectionManager.getPrimaryCandidate(account, initiating(), (success, candidate) -> {
                 if (success) {
                     final JingleSocks5Transport socksConnection = new JingleSocks5Transport(this, candidate);
                     connections.put(candidate.getCid(), socksConnection);
@@ -313,22 +320,20 @@ public class JingleConnection implements Transferable {
 
                         @Override
                         public void failed() {
-                            Log.d(Config.LOGTAG,
-                                    "connection to our own primary candidete failed");
+                            Log.d(Config.LOGTAG, "connection to our own proxy65 candidate failed");
                             sendInitRequest();
                         }
 
                         @Override
                         public void established() {
-                            Log.d(Config.LOGTAG,
-                                    "successfully connected to our own primary candidate");
+                            Log.d(Config.LOGTAG, "successfully connected to our own proxy65 candidate");
                             mergeCandidate(candidate);
                             sendInitRequest();
                         }
                     });
                     mergeCandidate(candidate);
                 } else {
-                    Log.d(Config.LOGTAG, "no primary candidate of our own was found");
+                    Log.d(Config.LOGTAG, "no proxy65 candidate of our own was found");
                     sendInitRequest();
                 }
             });
@@ -336,11 +341,28 @@ public class JingleConnection implements Transferable {
 
     }
 
-    private void upgradeNamespace() {
-        List<String> features = getRemoteFeatures();
-        if (features.contains(Content.Version.FT_5.getNamespace())) {
+    private void gatherAndConnectDirectCandidates() {
+        final List<JingleCandidate> directCandidates;
+        if (Config.USE_DIRECT_JINGLE_CANDIDATES) {
+            if (account.isOnion() || mXmppConnectionService.useTorToConnect()) {
+                directCandidates = Collections.emptyList();
+            } else {
+                directCandidates = DirectConnectionUtils.getLocalCandidates(account.getJid());
+            }
+        } else {
+            directCandidates = Collections.emptyList();
+        }
+        for (JingleCandidate directCandidate : directCandidates) {
+            final JingleSocks5Transport socksConnection = new JingleSocks5Transport(this, directCandidate);
+            connections.put(directCandidate.getCid(), socksConnection);
+            candidates.add(directCandidate);
+        }
+    }
+
+    private void upgradeNamespace(List<String> remoteFeatures) {
+        if (remoteFeatures.contains(Content.Version.FT_5.getNamespace())) {
             this.ftVersion = Content.Version.FT_5;
-        } else if (features.contains(Content.Version.FT_4.getNamespace())) {
+        } else if (remoteFeatures.contains(Content.Version.FT_4.getNamespace())) {
             this.ftVersion = Content.Version.FT_4;
         }
     }
@@ -408,8 +430,18 @@ public class JingleConnection implements Transferable {
         }
         this.fileOffer = content.getFileOffer(this.ftVersion);
 
+
         if (fileOffer != null) {
+            boolean remoteIsUsingJet = false;
             Element encrypted = fileOffer.findChild("encrypted", AxolotlService.PEP_PREFIX);
+            if (encrypted == null) {
+                final Element security = content.findChild("security", Namespace.JINGLE_ENCRYPTED_TRANSPORT);
+                if (security != null && AxolotlService.PEP_PREFIX.equals(security.getAttribute("type"))) {
+                    Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": received jingle file offer with JET");
+                    encrypted = security.findChild("encrypted", AxolotlService.PEP_PREFIX);
+                    remoteIsUsingJet = true;
+                }
+            }
             if (encrypted != null) {
                 this.mXmppAxolotlMessage = XmppAxolotlMessage.fromElement(encrypted, packet.getFrom().asBareJid());
             }
@@ -450,7 +482,10 @@ public class JingleConnection implements Transferable {
                     }
                 }
                 message.resetFileParams();
-                this.file.setExpectedSize(size);
+                //legacy OMEMO encrypted file transfers reported the file size after encryption
+                //JET reports the plain text size. however lower levels of our receiving code still
+                //expect the cipher text size. so we just + 16 bytes (auth tag size) here
+                this.file.setExpectedSize(size + (remoteIsUsingJet ? 16 : 0));
                 if (mJingleConnectionManager.hasStoragePermission()
                         && size < this.mJingleConnectionManager.getAutoAcceptFileSize()
                         && mXmppConnectionService.isDataSaverDisabled()) {
@@ -499,8 +534,21 @@ public class JingleConnection implements Transferable {
             if (message.getEncryption() == Message.ENCRYPTION_AXOLOTL) {
                 this.file.setKey(mXmppAxolotlMessage.getInnerKey());
                 this.file.setIv(mXmppAxolotlMessage.getIV());
-                this.file.setExpectedSize(file.getSize() + 16);
-                content.setFileOffer(this.file, false, this.ftVersion).addChild(mXmppAxolotlMessage.toElement());
+                //legacy OMEMO encrypted file transfer reported file size of the encrypted file
+                //JET uses the file size of the plain text file. The difference is only 16 bytes (auth tag)
+                this.file.setExpectedSize(file.getSize() + (this.remoteSupportsOmemoJet ? 0 : 16));
+                final Element file = content.setFileOffer(this.file, false, this.ftVersion);
+                if (remoteSupportsOmemoJet) {
+                    Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": remote announced support for JET");
+                    final Element security = new Element("security", Namespace.JINGLE_ENCRYPTED_TRANSPORT);
+                    security.setAttribute("name", this.contentName);
+                    security.setAttribute("cipher", JET_OMEMO_CIPHER);
+                    security.setAttribute("type", AxolotlService.PEP_PREFIX);
+                    security.addChild(mXmppAxolotlMessage.toElement());
+                    content.addChild(security);
+                } else {
+                    file.addChild(mXmppAxolotlMessage.toElement());
+                }
             } else {
                 this.file.setExpectedSize(file.getSize());
                 content.setFileOffer(this.file, false, this.ftVersion);
@@ -564,7 +612,8 @@ public class JingleConnection implements Transferable {
     }
 
     private void sendAcceptSocks() {
-        this.mJingleConnectionManager.getPrimaryCandidate(this.account, (success, candidate) -> {
+        gatherAndConnectDirectCandidates();
+        this.mJingleConnectionManager.getPrimaryCandidate(this.account, initiating(), (success, candidate) -> {
             final JinglePacket packet = bootstrapPacket("session-accept");
             final Content content = new Content(contentCreator, contentName);
             content.setFileOffer(fileOffer, ftVersion);
@@ -576,7 +625,7 @@ public class JingleConnection implements Transferable {
 
                     @Override
                     public void failed() {
-                        Log.d(Config.LOGTAG, "connection to our own primary candidate failed");
+                        Log.d(Config.LOGTAG, "connection to our own proxy65 candidate failed");
                         content.socks5transport().setChildren(getCandidatesAsElements());
                         packet.setContent(content);
                         sendJinglePacket(packet);
@@ -585,7 +634,7 @@ public class JingleConnection implements Transferable {
 
                     @Override
                     public void established() {
-                        Log.d(Config.LOGTAG, "connected to primary candidate");
+                        Log.d(Config.LOGTAG, "connected to proxy65 candidate");
                         mergeCandidate(candidate);
                         content.socks5transport().setChildren(getCandidatesAsElements());
                         packet.setContent(content);
@@ -594,7 +643,7 @@ public class JingleConnection implements Transferable {
                     }
                 });
             } else {
-                Log.d(Config.LOGTAG, "did not find a primary candidate for ourself");
+                Log.d(Config.LOGTAG, "did not find a proxy65 candidate for ourselves");
                 content.socks5transport().setChildren(getCandidatesAsElements());
                 packet.setContent(content);
                 sendJinglePacket(packet);
@@ -635,7 +684,7 @@ public class JingleConnection implements Transferable {
 
     private boolean receiveAccept(JinglePacket packet) {
         if (this.mJingleStatus != JINGLE_STATUS_INITIATED) {
-            Log.d(Config.LOGTAG,account.getJid().asBareJid()+": received out of order session-accept");
+            Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": received out of order session-accept");
             return false;
         }
         this.mJingleStatus = JINGLE_STATUS_ACCEPTED;
@@ -654,7 +703,7 @@ public class JingleConnection implements Transferable {
                         this.ibbBlockSize = bs;
                     }
                 } catch (Exception e) {
-                    Log.d(Config.LOGTAG,account.getJid().asBareJid()+": unable to parse block size in session-accept");
+                    Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": unable to parse block size in session-accept");
                 }
             }
             this.transport = new JingleInbandTransport(this, this.transportId, this.ibbBlockSize);
@@ -689,7 +738,7 @@ public class JingleConnection implements Transferable {
                 onProxyActivated.failed();
                 return true;
             } else if (content.socks5transport().hasChild("candidate-error")) {
-                Log.d(Config.LOGTAG, "received candidate error");
+                Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": received candidate error");
                 this.receivedCandidate = true;
                 if (mJingleStatus == JINGLE_STATUS_ACCEPTED && this.sentCandidate) {
                     this.connect();
@@ -727,12 +776,14 @@ public class JingleConnection implements Transferable {
         final JingleSocks5Transport connection = chooseConnection();
         this.transport = connection;
         if (connection == null) {
-            Log.d(Config.LOGTAG, "could not find suitable candidate");
+            Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": could not find suitable candidate");
             this.disconnectSocks5Connections();
             if (initiating()) {
                 this.sendFallbackToIbb();
             }
         } else {
+            final JingleCandidate candidate = connection.getCandidate();
+            Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": elected candidate " + candidate.getHost() + ":" + candidate.getPort());
             this.mJingleStatus = JINGLE_STATUS_TRANSMITTING;
             if (connection.needsActivation()) {
                 if (connection.getCandidate().isOurs()) {
@@ -754,10 +805,12 @@ public class JingleConnection implements Transferable {
                             .setContent(this.getCounterPart().toString());
                     mXmppConnectionService.sendIqPacket(account, activation, (account, response) -> {
                         if (response.getType() != IqPacket.TYPE.RESULT) {
+                            Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": " + response.toString());
+                            sendProxyError();
                             onProxyActivated.failed();
                         } else {
-                            onProxyActivated.success();
                             sendProxyActivated(connection.getCandidate().getCid());
+                            onProxyActivated.success();
                         }
                     });
                 } else {
@@ -841,7 +894,7 @@ public class JingleConnection implements Transferable {
 
 
     private boolean receiveFallbackToIbb(JinglePacket packet) {
-        Log.d(Config.LOGTAG, "receiving fallback to ibb");
+        Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": receiving fallback to ibb");
         final String receivedBlockSize = packet.getJingleContent().ibbTransport().getAttribute("block-size");
         if (receivedBlockSize != null) {
             try {
@@ -850,7 +903,7 @@ public class JingleConnection implements Transferable {
                     this.ibbBlockSize = bs;
                 }
             } catch (NumberFormatException e) {
-                Log.d(Config.LOGTAG,account.getJid().asBareJid()+": unable to parse block size in transport-replace");
+                Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": unable to parse block size in transport-replace");
             }
         }
         this.transportId = packet.getJingleContent().getTransportId();
@@ -889,7 +942,7 @@ public class JingleConnection implements Transferable {
                         this.ibbBlockSize = bs;
                     }
                 } catch (NumberFormatException e) {
-                    Log.d(Config.LOGTAG, account.getJid().asBareJid()+": unable to parse block size in transport-accept");
+                    Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": unable to parse block size in transport-accept");
                 }
             }
             this.transport = new JingleInbandTransport(this, this.transportId, this.ibbBlockSize);
@@ -1029,10 +1082,19 @@ public class JingleConnection implements Transferable {
     }
 
     private void sendProxyActivated(String cid) {
-        JinglePacket packet = bootstrapPacket("transport-info");
-        Content content = new Content(this.contentCreator, this.contentName);
+        final JinglePacket packet = bootstrapPacket("transport-info");
+        final Content content = new Content(this.contentCreator, this.contentName);
         content.setTransportId(this.transportId);
         content.socks5transport().addChild("activated").setAttribute("cid", cid);
+        packet.setContent(content);
+        this.sendJinglePacket(packet);
+    }
+
+    private void sendProxyError() {
+        final JinglePacket packet = bootstrapPacket("transport-info");
+        final Content content = new Content(this.contentCreator, this.contentName);
+        content.setTransportId(this.transportId);
+        content.socks5transport().addChild("proxy-error");
         packet.setContent(content);
         this.sendJinglePacket(packet);
     }
@@ -1051,7 +1113,7 @@ public class JingleConnection implements Transferable {
     }
 
     private void sendCandidateError() {
-        Log.d(Config.LOGTAG, "sending candidate error");
+        Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": sending candidate error");
         JinglePacket packet = bootstrapPacket("transport-info");
         Content content = new Content(this.contentCreator, this.contentName);
         content.setTransportId(this.transportId);
@@ -1087,6 +1149,7 @@ public class JingleConnection implements Transferable {
     }
 
     private void mergeCandidates(List<JingleCandidate> candidates) {
+        Collections.sort(candidates, (a, b) -> Integer.compare(b.getPriority(), a.getPriority()));
         for (JingleCandidate c : candidates) {
             mergeCandidate(c);
         }
