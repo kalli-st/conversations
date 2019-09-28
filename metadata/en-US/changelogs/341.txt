@@ -1,0 +1,4 @@
+• Fixed crash on Android <5.0
+• Fixed crash on Xiaomi devices running Android 8.0 + 8.1
+• fixed minor security issues
+• Share XMPP uri from channel search by long pressing a result
