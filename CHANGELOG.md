@@ -1,6 +1,16 @@
 # Changelog
 
-## Version 2.5.8
+### Version 2.5.11
+* Fixed crash on Android <5.0
+
+### Version 2.5.10
+* Fixed crash on Xiaomi devices running Android 8.0 + 8.1
+
+### Version 2.5.9
+* fixed minor security issues
+* Share XMPP uri from channel search by long pressing a result
+
+### Version 2.5.8
 * fixed connection issues over Tor
 * P2P file transfer (Jingle) now offers direct candidates
 * Support XEP-0396: Jingle Encrypted Transports - OMEMO

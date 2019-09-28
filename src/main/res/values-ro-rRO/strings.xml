@@ -30,6 +30,7 @@
   <string name="just_now">în acest moment</string>
   <string name="minute_ago">acum un minut</string>
   <string name="minutes_ago">acum %d minute</string>
+  <string name="x_unread_conversations">%d conversații necitite</string>
   <string name="sending">trimitere...</string>
   <string name="message_decrypting">Decriptez mesaj. Te rog așteaptă...</string>
   <string name="pgp_message">Mesaj criptat cu OpenPGP</string>
@@ -412,7 +413,7 @@
   <string name="sending_x_file">Trimit %s</string>
   <string name="offering_x_file">Ofer %s</string>
   <string name="hide_offline">Ascunde deconectat</string>
-  <string name="contact_is_typing">%s tasteaza...</string>
+  <string name="contact_is_typing">%s tastează...</string>
   <string name="contact_has_stopped_typing">%s s-a oprit din scris</string>
   <string name="contacts_are_typing">%s tastează...</string>
   <string name="contacts_have_stopped_typing">%s s-au oprit din scris</string>
@@ -880,4 +881,5 @@ sau chiar pierderea mesajelor.\nÎn continuare veți fi rugați să dezactivați
   <string name="account_already_setup">Acest cont a fost deja configurat</string>
   <string name="please_enter_password">Va rugăm să introduceți parola pentru acest cont</string>
   <string name="unable_to_perform_this_action">Nu se poate realiza această acțiune</string>
+  <string name="open_join_dialog">Alătură-te unui canal public...</string>
 </resources>

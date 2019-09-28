@@ -2,8 +2,10 @@ package eu.siacs.conversations.ui;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
@@ -37,11 +39,8 @@ public class ChannelDiscoveryActivity extends XmppActivity implements MenuItem.O
     private static final String CHANNEL_DISCOVERY_OPT_IN = "channel_discovery_opt_in";
 
     private final ChannelSearchResultAdapter adapter = new ChannelSearchResultAdapter();
-
-    private ActivityChannelDiscoveryBinding binding;
-
     private final PendingItem<String> mInitialSearchValue = new PendingItem<>();
-
+    private ActivityChannelDiscoveryBinding binding;
     private MenuItem mMenuSearchView;
     private EditText mSearchEditText;
 
@@ -196,6 +195,26 @@ public class ChannelDiscoveryActivity extends XmppActivity implements MenuItem.O
             builder.create().show();
         }
 
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        final MuclumbusService.Room room = adapter.getCurrent();
+        if (room != null) {
+            switch (item.getItemId()) {
+                case R.id.share_with:
+                    StartConversationActivity.shareAsChannel(this, room.address);
+                    return true;
+                case R.id.open_join_dialog:
+                    final Intent intent = new Intent(this, StartConversationActivity.class);
+                    intent.setAction(Intent.ACTION_VIEW);
+                    intent.putExtra("force_dialog", true);
+                    intent.setData(Uri.parse(String.format("xmpp:%s?join", room.address)));
+                    startActivity(intent);
+                    return true;
+            }
+        }
+        return false;
     }
 
     public void joinChannelSearchResult(String accountJid, MuclumbusService.Room result) {

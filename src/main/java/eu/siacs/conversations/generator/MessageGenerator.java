@@ -58,7 +58,7 @@ public class MessageGenerator extends AbstractGenerator {
 		packet.setId(message.getUuid());
 		packet.addChild("origin-id", Namespace.STANZA_IDS).setAttribute("id", message.getUuid());
 		if (message.edited()) {
-			packet.addChild("replace", "urn:xmpp:message-correct:0").setAttribute("id", message.getEditedId());
+			packet.addChild("replace", "urn:xmpp:message-correct:0").setAttribute("id", message.getEditedIdWireFormat());
 		}
 		return packet;
 	}
@@ -192,6 +192,10 @@ public class MessageGenerator extends AbstractGenerator {
 		String password = conversation.getMucOptions().getPassword();
 		if (password != null) {
 			x.setAttribute("password", password);
+		}
+		if (contact.isFullJid()) {
+			packet.addChild("no-store", "urn:xmpp:hints");
+			packet.addChild("no-copy", "urn:xmpp:hints");
 		}
 		return packet;
 	}

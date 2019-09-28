@@ -1383,10 +1383,8 @@ public class XmppConnectionService extends Service {
             }
         }
 
-        final boolean inProgressJoin;
-        synchronized (account.inProgressConferenceJoins) {
-            inProgressJoin = conversation.getMode() == Conversational.MODE_MULTI && (account.inProgressConferenceJoins.contains(conversation) || account.pendingConferenceJoins.contains(conversation));
-        }
+        final boolean inProgressJoin = isJoinInProgress(conversation);
+
 
         if (account.isOnlineAndConnected() && !inProgressJoin) {
             switch (message.getEncryption()) {
@@ -1513,6 +1511,23 @@ public class XmppConnectionService extends Service {
                 }
             }
             sendMessagePacket(account, packet);
+        }
+    }
+
+    private boolean isJoinInProgress(final Conversation conversation) {
+        final Account account = conversation.getAccount();
+        synchronized (account.inProgressConferenceJoins) {
+            if (conversation.getMode() == Conversational.MODE_MULTI) {
+                final boolean inProgress = account.inProgressConferenceJoins.contains(conversation);
+                final boolean pending = account.pendingConferenceJoins.contains(conversation);
+                final boolean inProgressJoin = inProgress || pending;
+                if (inProgressJoin) {
+                    Log.d(Config.LOGTAG,account.getJid().asBareJid()+": holding back message to group. inProgress="+inProgress+", pending="+pending);
+                }
+                return inProgressJoin;
+            } else {
+                return false;
+            }
         }
     }
 
@@ -2190,6 +2205,7 @@ public class XmppConnectionService extends Service {
 						leaveMuc(conversation);
 					}
 					conversations.remove(conversation);
+					mNotificationService.clear(conversation);
 				}
 			}
 			if (account.getXmppConnection() != null) {
@@ -2204,7 +2220,7 @@ public class XmppConnectionService extends Service {
 			this.accounts.remove(account);
 			this.mRosterSyncTaskManager.clear(account);
 			updateAccountUi();
-			getNotificationService().updateErrorNotification();
+			mNotificationService.updateErrorNotification();
 			syncEnabledAccountSetting();
 			toggleForegroundService();
 		}
@@ -2550,6 +2566,9 @@ public class XmppConnectionService extends Service {
 					final MucOptions mucOptions = conversation.getMucOptions();
 
 					if (mucOptions.nonanonymous() && !mucOptions.membersOnly() && !conversation.getBooleanAttribute("accept_non_anonymous", false)) {
+					    synchronized (account.inProgressConferenceJoins) {
+                            account.inProgressConferenceJoins.remove(conversation);
+                        }
 					    mucOptions.setError(MucOptions.Error.NON_ANONYMOUS);
 					    updateConversationUi();
                         if (onConferenceJoined != null) {
@@ -2943,9 +2962,11 @@ public class XmppConnectionService extends Service {
 								for (Jid invite : jids) {
 									invite(conversation, invite);
 								}
-								if (account.countPresences() > 1) {
-									directInvite(conversation, account.getJid().asBareJid());
-								}
+								for(String resource : account.getSelfContact().getPresences().toResourceArray()) {
+								    Jid other = account.getJid().withResource(resource);
+								    Log.d(Config.LOGTAG,account.getJid().asBareJid()+": sending direct invite to "+other);
+								    directInvite(conversation, other);
+                                }
 								saveConversationAsBookmark(conversation, name);
 								if (callback != null) {
 									callback.success(conversation);
@@ -2989,31 +3010,31 @@ public class XmppConnectionService extends Service {
 			@Override
 			public void onIqPacketReceived(Account account, IqPacket packet) {
 				if (packet.getType() == IqPacket.TYPE.RESULT) {
+                    final MucOptions mucOptions = conversation.getMucOptions();
+                    final Bookmark bookmark = conversation.getBookmark();
+                    final boolean sameBefore = StringUtils.equals(bookmark == null ? null : bookmark.getBookmarkName(), mucOptions.getName());
 
-					final MucOptions mucOptions = conversation.getMucOptions();
-					final Bookmark bookmark = conversation.getBookmark();
-					final boolean sameBefore = StringUtils.equals(bookmark == null ? null : bookmark.getBookmarkName(), mucOptions.getName());
+                    if (mucOptions.updateConfiguration(new ServiceDiscoveryResult(packet))) {
+                        Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": muc configuration changed for " + conversation.getJid().asBareJid());
+                        updateConversation(conversation);
+                    }
 
-					if (mucOptions.updateConfiguration(new ServiceDiscoveryResult(packet))) {
-						Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": muc configuration changed for " + conversation.getJid().asBareJid());
-						updateConversation(conversation);
-					}
-
-					if (bookmark != null && (sameBefore || bookmark.getBookmarkName() == null)) {
-						if (bookmark.setBookmarkName(StringUtils.nullOnEmpty(mucOptions.getName()))) {
-							pushBookmarks(account);
-						}
-					}
-
-
-					if (callback != null) {
-						callback.onConferenceConfigurationFetched(conversation);
-					}
+                    if (bookmark != null && (sameBefore || bookmark.getBookmarkName() == null)) {
+                        if (bookmark.setBookmarkName(StringUtils.nullOnEmpty(mucOptions.getName()))) {
+                            pushBookmarks(account);
+                        }
+                    }
 
 
+                    if (callback != null) {
+                        callback.onConferenceConfigurationFetched(conversation);
+                    }
 
-					updateConversationUi();
-				} else if (packet.getType() == IqPacket.TYPE.ERROR) {
+
+                    updateConversationUi();
+                } else if (packet.getType() == IqPacket.TYPE.TIMEOUT) {
+                    Log.d(Config.LOGTAG,account.getJid().asBareJid()+": received timeout waiting for conference configuration fetch");
+				} else {
 					if (callback != null) {
 						callback.onFetchFailed(conversation, packet.getError());
 					}
@@ -3073,7 +3094,6 @@ public class XmppConnectionService extends Service {
 				if (packet.getType() == IqPacket.TYPE.RESULT) {
 					Data data = Data.parse(packet.query().findChild("x", Namespace.DATA));
 					data.submit(options);
-					Log.d(Config.LOGTAG,data.toString());
 					IqPacket set = new IqPacket(IqPacket.TYPE.SET);
 					set.setTo(conversation.getJid().asBareJid());
 					set.query("http://jabber.org/protocol/muc#owner").addChild(data);

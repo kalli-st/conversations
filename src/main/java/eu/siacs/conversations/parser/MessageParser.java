@@ -33,6 +33,7 @@ import eu.siacs.conversations.services.MessageArchiveService;
 import eu.siacs.conversations.services.QuickConversationsService;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.utils.CryptoHelper;
+import eu.siacs.conversations.xml.LocalizedContent;
 import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xmpp.InvalidJid;
@@ -124,8 +125,13 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
                 plaintextMessage = service.processReceivingPayloadMessage(xmppAxolotlMessage, postpone);
             } catch (BrokenSessionException e) {
                 if (checkedForDuplicates) {
-                    service.reportBrokenSessionException(e, postpone);
-                    return new Message(conversation, "", Message.ENCRYPTION_AXOLOTL_FAILED, status);
+                    if (service.trustedOrPreviouslyResponded(from.asBareJid())) {
+                        service.reportBrokenSessionException(e, postpone);
+                        return new Message(conversation, "", Message.ENCRYPTION_AXOLOTL_FAILED, status);
+                    } else {
+                        Log.d(Config.LOGTAG, "ignoring broken session exception because contact was not trusted");
+                        return new Message(conversation, "", Message.ENCRYPTION_AXOLOTL_FAILED, status);
+                    }
                 } else {
                     Log.d(Config.LOGTAG,"ignoring broken session exception because checkForDuplicates failed");
                     //TODO should be still emit a failed message?
@@ -147,31 +153,28 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
         return null;
     }
 
-    private Invite extractInvite(Account account, Element message) {
-        Element x = message.findChild("x", "http://jabber.org/protocol/muc#user");
-        if (x != null) {
-            Element invite = x.findChild("invite");
+    private Invite extractInvite(Element message) {
+        final Element mucUser = message.findChild("x", Namespace.MUC_USER);
+        if (mucUser != null) {
+            Element invite = mucUser.findChild("invite");
             if (invite != null) {
-                String password = x.findChildContent("password");
+                String password = mucUser.findChildContent("password");
                 Jid from = InvalidJid.getNullForInvalid(invite.getAttributeAsJid("from"));
-                Contact contact = from == null ? null : account.getRoster().getContact(from);
                 Jid room = InvalidJid.getNullForInvalid(message.getAttributeAsJid("from"));
                 if (room == null) {
                     return null;
                 }
-                return new Invite(room, password, contact);
+                return new Invite(room, password, false, from);
             }
-        } else {
-            x = message.findChild("x", "jabber:x:conference");
-            if (x != null) {
-                Jid from = InvalidJid.getNullForInvalid(message.getAttributeAsJid("from"));
-                Contact contact = from == null ? null : account.getRoster().getContact(from);
-                Jid room = InvalidJid.getNullForInvalid(x.getAttributeAsJid("jid"));
-                if (room == null) {
-                    return null;
-                }
-                return new Invite(room, x.getAttribute("password"), contact);
+        }
+        final Element conference = message.findChild("x", "jabber:x:conference");
+        if (conference != null) {
+            Jid from = InvalidJid.getNullForInvalid(message.getAttributeAsJid("from"));
+            Jid room = InvalidJid.getNullForInvalid(conference.getAttributeAsJid("jid"));
+            if (room == null) {
+                return null;
             }
+            return new Invite(room, conference.getAttribute("password"), true, from);
         }
         return null;
     }
@@ -328,8 +331,8 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
         if (timestamp == null) {
             timestamp = AbstractParser.parseTimestamp(original, AbstractParser.parseTimestamp(packet));
         }
-        final String body = packet.getBody();
-        final Element mucUserElement = packet.findChild("x", "http://jabber.org/protocol/muc#user");
+        final LocalizedContent body = packet.getBody();
+        final Element mucUserElement = packet.findChild("x", Namespace.MUC_USER);
         final String pgpEncrypted = packet.findChildContent("x", "jabber:x:encrypted");
         final Element replaceElement = packet.findChild("replace", "urn:xmpp:message-correct:0");
         final Element oob = packet.findChild("x", Namespace.OOB);
@@ -337,7 +340,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
         final URL xP1S3url = xP1S3 == null ? null : P1S3UrlStreamHandler.of(xP1S3);
         final String oobUrl = oob != null ? oob.findChildContent("url") : null;
         final String replacementId = replaceElement == null ? null : replaceElement.getAttribute("id");
-        final Element axolotlEncrypted = packet.findChild(XmppAxolotlMessage.CONTAINERTAG, AxolotlService.PEP_PREFIX);
+        final Element axolotlEncrypted = packet.findChildEnsureSingle(XmppAxolotlMessage.CONTAINERTAG, AxolotlService.PEP_PREFIX);
         int status;
         final Jid counterpart;
         final Jid to = packet.getTo();
@@ -377,9 +380,16 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
             selfAddressed = false;
         }
 
-        Invite invite = extractInvite(account, packet);
-        if (invite != null && invite.execute(account)) {
-            return;
+        final Invite invite = extractInvite(packet);
+        if (invite != null) {
+            if (isTypeGroupChat) {
+                Log.d(Config.LOGTAG,account.getJid().asBareJid()+": ignoring invite to "+invite.jid+" because type=groupchat");
+            } else if (invite.direct && (mucUserElement != null || invite.inviter == null || mXmppConnectionService.isMuc(account, invite.inviter))) {
+                Log.d(Config.LOGTAG, account.getJid().asBareJid()+": ignoring direct invite to "+invite.jid+" because it was received in MUC");
+            } else {
+                invite.execute(account);
+                return;
+            }
         }
 
         if ((body != null || pgpEncrypted != null || (axolotlEncrypted != null && axolotlEncrypted.hasChild("payload")) || oobUrl != null || xP1S3 != null) && !isMucStatusMessage) {
@@ -409,10 +419,13 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
                     if (mXmppConnectionService.markMessage(conversation, remoteMsgId, status, serverMsgId)) {
                         return;
                     } else if (remoteMsgId == null || Config.IGNORE_ID_REWRITE_IN_MUC) {
-                        Message message = conversation.findSentMessageWithBody(packet.getBody());
-                        if (message != null) {
-                            mXmppConnectionService.markMessage(message, status);
-                            return;
+                        LocalizedContent localizedBody = packet.getBody();
+                        if (localizedBody != null) {
+                            Message message = conversation.findSentMessageWithBody(localizedBody.content);
+                            if (message != null) {
+                                mXmppConnectionService.markMessage(message, status);
+                                return;
+                            }
                         }
                     }
                 } else {
@@ -491,7 +504,10 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
                     message.setEncryption(Message.ENCRYPTION_DECRYPTED);
                 }
             } else {
-                message = new Message(conversation, body, Message.ENCRYPTION_NONE, status);
+                message = new Message(conversation, body.content, Message.ENCRYPTION_NONE, status);
+                if (body.count > 1) {
+                    message.setBodyLanguage(body.language);
+                }
             }
 
             message.setCounterpart(counterpart);
@@ -499,7 +515,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
             message.setServerMsgId(serverMsgId);
             message.setCarbon(isCarbon);
             message.setTime(timestamp);
-            if (body != null && body.equals(oobUrl)) {
+            if (body != null && body.content != null && body.content.equals(oobUrl)) {
                 message.setOob(true);
                 if (CryptoHelper.isPgpEncryptedUrl(oobUrl)) {
                     message.setEncryption(Message.ENCRYPTION_DECRYPTED);
@@ -702,11 +718,11 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
             }
 
             if (isTypeGroupChat) {
-                if (packet.hasChild("subject")) {
+                if (packet.hasChild("subject")) { //TODO usually we would want to check for lack of body; however some servers do set a body :(
                     if (conversation != null && conversation.getMode() == Conversation.MODE_MULTI) {
                         conversation.setHasMessagesLeftOnServer(conversation.countMessages() > 0);
-                        String subject = packet.findInternationalizedChildContent("subject");
-                        if (conversation.getMucOptions().setSubject(subject)) {
+                        final LocalizedContent subject = packet.findInternationalizedChildContentInDefaultNamespace("subject");
+                        if (subject != null && conversation.getMucOptions().setSubject(subject.content)) {
                             mXmppConnectionService.updateConversation(conversation);
                         }
                         mXmppConnectionService.updateConversationUi();
@@ -791,9 +807,8 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
                                 mXmppConnectionService.markRead(conversation);
                             }
                         } else if (!counterpart.isBareJid() && trueJid != null) {
-                            ReadByMarker readByMarker = ReadByMarker.from(counterpart, trueJid);
+                            final ReadByMarker readByMarker = ReadByMarker.from(counterpart, trueJid);
                             if (message.addReadByMarker(readByMarker)) {
-                                Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": added read by (" + readByMarker.getRealJid() + ") to message '" + message.getBody() + "'");
                                 mXmppConnectionService.updateMessage(message, false);
                             }
                         }
@@ -873,11 +888,13 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
     private class Invite {
         final Jid jid;
         final String password;
-        final Contact inviter;
+        final boolean direct;
+        final Jid inviter;
 
-        Invite(Jid jid, String password, Contact inviter) {
+        Invite(Jid jid, String password, boolean direct, Jid inviter) {
             this.jid = jid;
             this.password = password;
+            this.direct = direct;
             this.inviter = inviter;
         }
 
@@ -890,7 +907,8 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
                 } else {
                     conversation.getMucOptions().setPassword(password);
                     mXmppConnectionService.databaseBackend.updateConversation(conversation);
-                    mXmppConnectionService.joinMuc(conversation, inviter != null && inviter.mutualPresenceSubscription());
+                    final Contact contact = inviter != null ? account.getRoster().getContactFromContactList(inviter) : null;
+                    mXmppConnectionService.joinMuc(conversation, contact != null && contact.mutualPresenceSubscription());
                     mXmppConnectionService.updateConversationUi();
                 }
                 return true;
