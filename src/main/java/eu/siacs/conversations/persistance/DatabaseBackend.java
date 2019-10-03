@@ -527,7 +527,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             db.execSQL("ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " + Message.BODY_LANGUAGE);
         }
 
-	db.execSQL("DROP TABLE resolver_results");
+	db.execSQL("DROP TABLE IF EXISTS resolver_results");
     }
 
     private void canonicalizeJids(SQLiteDatabase db) {
