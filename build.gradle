@@ -89,7 +89,7 @@ android {
         archivesBaseName += "-$versionName"
         applicationId "eu.sum7.conversations"
         resValue "string", "applicationId", applicationId
-        resValue "string", "app_name", "Conversations with IPv6"
+        resValue "string", "app_name", "Conv6ations for Sum7"
         buildConfigField "String", "LOGTAG", "\"conversations-sum7\""
     }
 
