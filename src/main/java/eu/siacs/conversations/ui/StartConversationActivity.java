@@ -431,7 +431,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 		bookmark.setConversation(conversation);
 		if (!bookmark.autojoin() && getPreferences().getBoolean("autojoin", getResources().getBoolean(R.bool.autojoin))) {
 			bookmark.setAutojoin(true);
-			xmppConnectionService.pushBookmarks(bookmark.getAccount());
+			xmppConnectionService.createBookmark(bookmark.getAccount(), bookmark);
 		}
 		SoftKeyboardUtils.hideSoftKeyboard(this);
 		switchToConversation(conversation);
@@ -478,9 +478,8 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 		builder.setMessage(JidDialog.style(this, R.string.remove_bookmark_text, bookmark.getJid().toEscapedString()));
 		builder.setPositiveButton(R.string.delete, (dialog, which) -> {
 			bookmark.setConversation(null);
-			Account account = bookmark.getAccount();
-			account.getBookmarks().remove(bookmark);
-			xmppConnectionService.pushBookmarks(account);
+			final Account account = bookmark.getAccount();
+			xmppConnectionService.deleteBookmark(account, bookmark);
 			filter(mSearchEditText.getText().toString());
 		});
 		builder.create().show();
@@ -1041,8 +1040,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 				if (nick != null && !nick.isEmpty() && !nick.equals(MucOptions.defaultNick(account))) {
 					bookmark.setNick(nick);
 				}
-				account.getBookmarks().add(bookmark);
-				xmppConnectionService.pushBookmarks(account);
+				xmppConnectionService.createBookmark(account, bookmark);
 				final Conversation conversation = xmppConnectionService
 						.findOrCreateConversation(account, conferenceJid, true, true, true);
 				bookmark.setConversation(conversation);

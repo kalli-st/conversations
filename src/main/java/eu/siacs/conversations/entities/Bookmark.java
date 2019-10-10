@@ -6,12 +6,16 @@ import android.support.annotation.Nullable;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import eu.siacs.conversations.utils.StringUtils;
 import eu.siacs.conversations.utils.UIHelper;
 import eu.siacs.conversations.xml.Element;
+import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xmpp.InvalidJid;
 import rocks.xmpp.addr.Jid;
 
@@ -33,11 +37,69 @@ public class Bookmark extends Element implements ListItem {
 		this.account = account;
 	}
 
+	public static Map<Jid, Bookmark> parseFromStorage(Element storage, Account account) {
+		if (storage == null) {
+			return Collections.emptyMap();
+		}
+		final HashMap<Jid, Bookmark> bookmarks = new HashMap<>();
+		for (final Element item : storage.getChildren()) {
+			if (item.getName().equals("conference")) {
+				final Bookmark bookmark = Bookmark.parse(item, account);
+				if (bookmark != null) {
+					final Bookmark old = bookmarks.put(bookmark.jid, bookmark);
+					if (old != null && old.getBookmarkName() != null && bookmark.getBookmarkName() == null) {
+						bookmark.setBookmarkName(old.getBookmarkName());
+					}
+				}
+			}
+		}
+		return bookmarks;
+	}
+
+	public static Map<Jid, Bookmark> parseFromPubsub(Element pubsub, Account account) {
+		if (pubsub == null) {
+			return Collections.emptyMap();
+		}
+		final Element items = pubsub.findChild("items");
+		if (items != null && Namespace.BOOKMARKS2.equals(items.getAttribute("node"))) {
+			final Map<Jid, Bookmark> bookmarks = new HashMap<>();
+			for(Element item : items.getChildren()) {
+				if (item.getName().equals("item")) {
+					final Bookmark bookmark = Bookmark.parseFromItem(item, account);
+					if (bookmark != null) {
+						bookmarks.put(bookmark.jid, bookmark);
+					}
+				}
+			}
+			return bookmarks;
+		}
+		return Collections.emptyMap();
+	}
+
 	public static Bookmark parse(Element element, Account account) {
 		Bookmark bookmark = new Bookmark(account);
 		bookmark.setAttributes(element.getAttributes());
 		bookmark.setChildren(element.getChildren());
 		bookmark.jid = InvalidJid.getNullForInvalid(bookmark.getAttributeAsJid("jid"));
+		if (bookmark.jid == null) {
+			return null;
+		}
+		return bookmark;
+	}
+
+	public static Bookmark parseFromItem(Element item, Account account) {
+		final Element conference = item.findChild("conference", Namespace.BOOKMARKS2);
+		if (conference == null) {
+			return null;
+		}
+		final Bookmark bookmark = new Bookmark(account);
+		bookmark.jid = InvalidJid.getNullForInvalid(item.getAttributeAsJid("id"));
+		if (bookmark.jid == null) {
+			return null;
+		}
+		bookmark.setBookmarkName(conference.getAttribute("name"));
+		bookmark.setAutojoin(conference.getAttributeAsBoolean("autojoin"));
+		bookmark.setNick(conference.findChildContent("nick"));
 		return bookmark;
 	}
 

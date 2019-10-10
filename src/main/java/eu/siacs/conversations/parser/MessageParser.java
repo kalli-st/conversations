@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -20,6 +21,7 @@ import eu.siacs.conversations.crypto.axolotl.BrokenSessionException;
 import eu.siacs.conversations.crypto.axolotl.NotEncryptedForThisDeviceException;
 import eu.siacs.conversations.crypto.axolotl.XmppAxolotlMessage;
 import eu.siacs.conversations.entities.Account;
+import eu.siacs.conversations.entities.Bookmark;
 import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Conversational;
@@ -110,7 +112,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
         return false;
     }
 
-    private Message parseAxolotlChat(Element axolotlMessage, Jid from, Conversation conversation, int status, boolean checkedForDuplicates, boolean postpone) {
+    private Message parseAxolotlChat(Element axolotlMessage, Jid from, Conversation conversation, int status, final boolean checkedForDuplicates, boolean postpone) {
         final AxolotlService service = conversation.getAccount().getAxolotlService();
         final XmppAxolotlMessage xmppAxolotlMessage;
         try {
@@ -134,7 +136,6 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
                     }
                 } else {
                     Log.d(Config.LOGTAG,"ignoring broken session exception because checkForDuplicates failed");
-                    //TODO should be still emit a failed message?
                     return null;
                 }
             } catch (NotEncryptedForThisDeviceException e) {
@@ -224,23 +225,55 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
             if (account.getXmppConnection().getFeatures().bookmarksConversion()) {
                 final Element i = items.findChild("item");
                 final Element storage = i == null ? null : i.findChild("storage", Namespace.BOOKMARKS);
-                mXmppConnectionService.processBookmarks(account, storage, true);
-                Log.d(Config.LOGTAG,account.getJid().asBareJid()+": processing bookmark PEP event");
+                Map<Jid, Bookmark> bookmarks = Bookmark.parseFromStorage(storage, account);
+                mXmppConnectionService.processBookmarksInitial(account, bookmarks, true);
+                Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": processing bookmark PEP event");
             } else {
-                Log.d(Config.LOGTAG,account.getJid().asBareJid()+": ignoring bookmark PEP event because bookmark conversion was not detected");
+                Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": ignoring bookmark PEP event because bookmark conversion was not detected");
             }
+        } else if (Namespace.BOOKMARKS2.equals(node) && account.getJid().asBareJid().equals(from)) {
+            final Element item = items.findChild("item");
+            final Element retract = items.findChild("retract");
+            if (item != null) {
+                final Bookmark bookmark = Bookmark.parseFromItem(item, account);
+                if (bookmark != null) {
+                    account.putBookmark(bookmark);
+                    mXmppConnectionService.processModifiedBookmark(bookmark);
+                    mXmppConnectionService.updateConversationUi();
+                }
+            }
+            if (retract != null) {
+                final Jid id = InvalidJid.getNullForInvalid(retract.getAttributeAsJid("id"));
+                if (id != null) {
+                    account.removeBookmark(id);
+                    Log.d(Config.LOGTAG,account.getJid().asBareJid()+": deleted bookmark for "+id);
+                    mXmppConnectionService.processDeletedBookmark(account, id);
+                    mXmppConnectionService.updateConversationUi();
+                }
+            }
+        } else {
+            Log.d(Config.LOGTAG,account.getJid().asBareJid()+" received pubsub notification for node="+node);
         }
     }
 
     private void parseDeleteEvent(final Element event, final Jid from, final Account account) {
         final Element delete = event.findChild("delete");
-        if (delete == null) {
-            return;
-        }
-        String node = delete.getAttribute("node");
+        final String node = delete == null ? null : delete.getAttribute("node");
         if (Namespace.NICK.equals(node)) {
             Log.d(Config.LOGTAG, "parsing nick delete event from " + from);
             setNick(account, from, null);
+        } else if (Namespace.BOOKMARKS2.equals(node) && account.getJid().asBareJid().equals(from)) {
+            account.setBookmarks(Collections.emptyMap());
+            Log.d(Config.LOGTAG,account.getJid().asBareJid()+": deleted bookmarks node");
+        }
+    }
+
+    private void parsePurgeEvent(final Element event, final Jid from, final Account account) {
+        final Element purge = event.findChild("purge");
+        final String node = purge == null ? null : purge.getAttribute("node");
+        if (Namespace.BOOKMARKS2.equals(node) && account.getJid().asBareJid().equals(from)) {
+            account.setBookmarks(Collections.emptyMap());
+            Log.d(Config.LOGTAG,account.getJid().asBareJid()+": purged bookmarks");
         }
     }
 
@@ -463,8 +496,8 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
                     origin = from;
                 }
 
-                //TODO either or is probably fine?
-                final boolean checkedForDuplicates = serverMsgId != null && remoteMsgId != null && !conversation.possibleDuplicate(serverMsgId, remoteMsgId);
+                final boolean liveMessage = query == null && !isTypeGroupChat && mucUserElement == null;
+                final boolean checkedForDuplicates = liveMessage || (serverMsgId != null && remoteMsgId != null && !conversation.possibleDuplicate(serverMsgId, remoteMsgId));
 
                 if (origin != null) {
                     message = parseAxolotlChat(axolotlEncrypted, origin, conversation, status,  checkedForDuplicates,query != null);
@@ -835,6 +868,8 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
                 parseEvent(event, original.getFrom(), account);
             } else if (event.hasChild("delete")) {
                 parseDeleteEvent(event, original.getFrom(), account);
+            } else if (event.hasChild("purge")) {
+                parsePurgeEvent(event, original.getFrom(), account);
             }
         }
 

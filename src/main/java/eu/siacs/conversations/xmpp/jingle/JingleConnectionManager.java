@@ -106,7 +106,7 @@ public class JingleConnectionManager extends AbstractConnectionManager {
 								candidate.setPort(Integer.parseInt(port));
 								candidate.setType(JingleCandidate.TYPE_PROXY);
 								candidate.setJid(proxy);
-								candidate.setPriority(655360 + (initiator ? 10 : 20));
+								candidate.setPriority(655360 + (initiator ? 30 : 0));
 								primaryCandidates.put(account.getJid().asBareJid(),candidate);
 								listener.onPrimaryCandidateFound(true,candidate);
 							} catch (final NumberFormatException e) {
@@ -166,7 +166,7 @@ public class JingleConnectionManager extends AbstractConnectionManager {
 	public void cancelInTransmission() {
 		for (JingleConnection connection : this.connections) {
 			if (connection.getJingleStatus() == JingleConnection.JINGLE_STATUS_TRANSMITTING) {
-				connection.abort();
+				connection.abort("connectivity-error");
 			}
 		}
 	}

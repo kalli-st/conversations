@@ -386,11 +386,10 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
     }
 
     protected void deleteBookmark() {
-        Account account = mConversation.getAccount();
-        Bookmark bookmark = mConversation.getBookmark();
-        account.getBookmarks().remove(bookmark);
+        final Account account = mConversation.getAccount();
+        final Bookmark bookmark = mConversation.getBookmark();
         bookmark.setConversation(null);
-        xmppConnectionService.pushBookmarks(account);
+        xmppConnectionService.deleteBookmark(account, bookmark);
         updateView();
     }
 

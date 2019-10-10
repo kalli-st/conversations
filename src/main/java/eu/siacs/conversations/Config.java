@@ -41,7 +41,7 @@ public final class Config {
     public static final String MAGIC_CREATE_DOMAIN = "chat.sum7.eu";
     public static final String QUICKSY_DOMAIN = "quicksy.im";
 
-    public static final String CHANNEL_DISCOVERY = "https://search.jabbercat.org";
+    public static final String CHANNEL_DISCOVERY = "https://search.jabber.network";
 
     public static final boolean DISALLOW_REGISTRATION_IN_UI = false; //hide the register checkbox
 
@@ -99,6 +99,7 @@ public final class Config {
     public static final boolean OMEMO_PADDING = false;
     public static final boolean PUT_AUTH_TAG_INTO_KEY = true;
 
+    public static final boolean USE_BOOKMARKS2 = false;
 
     public static final boolean DISABLE_PROXY_LOOKUP = false; //useful to debug ibb
     public static final boolean USE_DIRECT_JINGLE_CANDIDATES = true;

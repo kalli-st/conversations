@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ActivityChannelDiscoveryBinding;
 import eu.siacs.conversations.entities.Account;
@@ -217,20 +218,21 @@ public class ChannelDiscoveryActivity extends XmppActivity implements MenuItem.O
         return false;
     }
 
-    public void joinChannelSearchResult(String accountJid, MuclumbusService.Room result) {
-        final boolean syncAutojoin = getBooleanPreference("autojoin", R.bool.autojoin);
-        Account account = xmppConnectionService.findAccountByJid(Jid.of(accountJid));
+    public void joinChannelSearchResult(String selectedAccount, MuclumbusService.Room result) {
+        final Jid jid = Config.DOMAIN_LOCK == null ? Jid.of(selectedAccount) : Jid.of(selectedAccount, Config.DOMAIN_LOCK, null);
+        final boolean syncAutoJoin = getBooleanPreference("autojoin", R.bool.autojoin);
+        final Account account = xmppConnectionService.findAccountByJid(jid);
         final Conversation conversation = xmppConnectionService.findOrCreateConversation(account, result.getRoom(), true, true, true);
-        if (conversation.getBookmark() != null) {
-            if (!conversation.getBookmark().autojoin() && syncAutojoin) {
-                conversation.getBookmark().setAutojoin(true);
-                xmppConnectionService.pushBookmarks(account);
+        Bookmark bookmark = conversation.getBookmark();
+        if (bookmark != null) {
+            if (!bookmark.autojoin() && syncAutoJoin) {
+                bookmark.setAutojoin(true);
+                xmppConnectionService.createBookmark(account, bookmark);
             }
         } else {
-            final Bookmark bookmark = new Bookmark(account, conversation.getJid().asBareJid());
-            bookmark.setAutojoin(syncAutojoin);
-            account.getBookmarks().add(bookmark);
-            xmppConnectionService.pushBookmarks(account);
+            bookmark = new Bookmark(account, conversation.getJid().asBareJid());
+            bookmark.setAutojoin(syncAutoJoin);
+            xmppConnectionService.createBookmark(account, bookmark);
         }
         switchToConversation(conversation);
     }
