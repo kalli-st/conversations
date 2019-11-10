@@ -7,8 +7,10 @@ import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,11 +29,13 @@ import eu.siacs.conversations.databinding.ActivityChannelDiscoveryBinding;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Bookmark;
 import eu.siacs.conversations.entities.Conversation;
-import eu.siacs.conversations.http.services.MuclumbusService;
+import eu.siacs.conversations.entities.Room;
 import eu.siacs.conversations.services.ChannelDiscoveryService;
+import eu.siacs.conversations.services.QuickConversationsService;
 import eu.siacs.conversations.ui.adapter.ChannelSearchResultAdapter;
 import eu.siacs.conversations.ui.util.PendingItem;
 import eu.siacs.conversations.ui.util.SoftKeyboardUtils;
+import eu.siacs.conversations.ui.util.StyledAttributes;
 import eu.siacs.conversations.utils.AccountUtils;
 import rocks.xmpp.addr.Jid;
 
@@ -45,6 +49,8 @@ public class ChannelDiscoveryActivity extends XmppActivity implements MenuItem.O
     private MenuItem mMenuSearchView;
     private EditText mSearchEditText;
 
+    private ChannelDiscoveryService.Method method = ChannelDiscoveryService.Method.LOCAL_SERVER;
+
     private boolean optedIn = false;
 
     @Override
@@ -54,14 +60,15 @@ public class ChannelDiscoveryActivity extends XmppActivity implements MenuItem.O
 
     @Override
     void onBackendConnected() {
-        if (optedIn) {
-            String query;
+        if (optedIn || method == ChannelDiscoveryService.Method.LOCAL_SERVER) {
+            final String query;
             if (mMenuSearchView != null && mMenuSearchView.isActionViewExpanded()) {
                 query = mSearchEditText.getText().toString();
             } else {
                 query = mInitialSearchValue.peek();
             }
-            xmppConnectionService.discoverChannels(query, this);
+            toggleLoadingScreen();
+            xmppConnectionService.discoverChannels(query, this.method, this);
         }
     }
 
@@ -73,29 +80,42 @@ public class ChannelDiscoveryActivity extends XmppActivity implements MenuItem.O
         configureActionBar(getSupportActionBar(), true);
         binding.list.setAdapter(this.adapter);
         this.adapter.setOnChannelSearchResultSelectedListener(this);
-        optedIn = getPreferences().getBoolean(CHANNEL_DISCOVERY_OPT_IN, false);
+        this.optedIn = getPreferences().getBoolean(CHANNEL_DISCOVERY_OPT_IN, false);
 
         final String search = savedInstanceState == null ? null : savedInstanceState.getString("search");
         if (search != null) {
             mInitialSearchValue.push(search);
         }
+    }
 
+    private static ChannelDiscoveryService.Method getMethod(final Context c) {
+        if (QuickConversationsService.isQuicksy()) {
+            return ChannelDiscoveryService.Method.JABBER_NETWORK;
+        }
+        final SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(c);
+        final String m = p.getString("channel_discovery_method", c.getString(R.string.default_channel_discovery));
+        try {
+            return ChannelDiscoveryService.Method.valueOf(m);
+        } catch (IllegalArgumentException e) {
+            return ChannelDiscoveryService.Method.JABBER_NETWORK;
+        }
     }
 
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
-        getMenuInflater().inflate(R.menu.muc_users_activity, menu);
+        getMenuInflater().inflate(R.menu.channel_discovery_activity, menu);
+        AccountUtils.showHideMenuItems(menu);
         mMenuSearchView = menu.findItem(R.id.action_search);
         final View mSearchView = mMenuSearchView.getActionView();
         mSearchEditText = mSearchView.findViewById(R.id.search_field);
         mSearchEditText.setHint(R.string.search_channels);
-        String initialSearchValue = mInitialSearchValue.pop();
+        final String initialSearchValue = mInitialSearchValue.pop();
         if (initialSearchValue != null) {
             mMenuSearchView.expandActionView();
             mSearchEditText.append(initialSearchValue);
             mSearchEditText.requestFocus();
-            if (optedIn && xmppConnectionService != null) {
-                xmppConnectionService.discoverChannels(initialSearchValue, this);
+            if ((optedIn || method == ChannelDiscoveryService.Method.LOCAL_SERVER) && xmppConnectionService != null) {
+                xmppConnectionService.discoverChannels(initialSearchValue, this.method, this);
             }
         }
         mSearchEditText.setOnEditorActionListener(this);
@@ -119,8 +139,8 @@ public class ChannelDiscoveryActivity extends XmppActivity implements MenuItem.O
         imm.hideSoftInputFromWindow(mSearchEditText.getWindowToken(), InputMethodManager.HIDE_IMPLICIT_ONLY);
         mSearchEditText.setText("");
         toggleLoadingScreen();
-        if (optedIn) {
-            xmppConnectionService.discoverChannels(null, this);
+        if (optedIn || method == ChannelDiscoveryService.Method.LOCAL_SERVER) {
+            xmppConnectionService.discoverChannels(null, this.method, this);
         }
         return true;
     }
@@ -128,12 +148,14 @@ public class ChannelDiscoveryActivity extends XmppActivity implements MenuItem.O
     private void toggleLoadingScreen() {
         adapter.submitList(Collections.emptyList());
         binding.progressBar.setVisibility(View.VISIBLE);
+        binding.list.setBackgroundColor(StyledAttributes.getColor(this, R.attr.color_background_primary));
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        if (!optedIn) {
+        this.method = getMethod(this);
+        if (!optedIn && method == ChannelDiscoveryService.Method.JABBER_NETWORK) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle(R.string.channel_discovery_opt_in_title);
             builder.setMessage(Html.fromHtml(getString(R.string.channel_discover_opt_in_message)));
@@ -141,9 +163,23 @@ public class ChannelDiscoveryActivity extends XmppActivity implements MenuItem.O
             builder.setPositiveButton(R.string.confirm, (dialog, which) -> optIn());
             builder.setOnCancelListener(dialog -> finish());
             final AlertDialog dialog = builder.create();
+            dialog.setOnShowListener(d -> {
+                final TextView textView = dialog.findViewById(android.R.id.message);
+                if (textView == null) {
+                    return;
+                }
+                textView.setMovementMethod(LinkMovementMethod.getInstance());
+            });
             dialog.setCanceledOnTouchOutside(false);
             dialog.show();
+            holdLoading();
         }
+    }
+
+    private void holdLoading() {
+        adapter.submitList(Collections.emptyList());
+        binding.progressBar.setVisibility(View.GONE);
+        binding.list.setBackgroundColor(StyledAttributes.getColor(this, R.attr.color_background_primary));
     }
 
     @Override
@@ -158,31 +194,36 @@ public class ChannelDiscoveryActivity extends XmppActivity implements MenuItem.O
         SharedPreferences preferences = getPreferences();
         preferences.edit().putBoolean(CHANNEL_DISCOVERY_OPT_IN, true).apply();
         optedIn = true;
-        xmppConnectionService.discoverChannels(null, this);
+        toggleLoadingScreen();
+        xmppConnectionService.discoverChannels(null, this.method, this);
     }
 
     @Override
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-        if (optedIn) {
-            xmppConnectionService.discoverChannels(v.getText().toString(), this);
+        if (optedIn || method == ChannelDiscoveryService.Method.LOCAL_SERVER) {
+            toggleLoadingScreen();
+            SoftKeyboardUtils.hideSoftKeyboard(this);
+            xmppConnectionService.discoverChannels(v.getText().toString(), this.method, this);
         }
-        toggleLoadingScreen();
-        SoftKeyboardUtils.hideSoftKeyboard(this);
         return true;
     }
 
     @Override
-    public void onChannelSearchResultsFound(List<MuclumbusService.Room> results) {
+    public void onChannelSearchResultsFound(final List<Room> results) {
         runOnUiThread(() -> {
             adapter.submitList(results);
-            binding.list.setVisibility(View.VISIBLE);
             binding.progressBar.setVisibility(View.GONE);
+            if (results.size() == 0) {
+                binding.list.setBackground(StyledAttributes.getDrawable(this, R.attr.activity_primary_background_no_results));
+            } else {
+                binding.list.setBackgroundColor(StyledAttributes.getColor(this, R.attr.color_background_primary));
+            }
         });
 
     }
 
     @Override
-    public void onChannelSearchResult(final MuclumbusService.Room result) {
+    public void onChannelSearchResult(final Room result) {
         List<String> accounts = AccountUtils.getEnabledAccounts(xmppConnectionService);
         if (accounts.size() == 1) {
             joinChannelSearchResult(accounts.get(0), result);
@@ -200,7 +241,7 @@ public class ChannelDiscoveryActivity extends XmppActivity implements MenuItem.O
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        final MuclumbusService.Room room = adapter.getCurrent();
+        final Room room = adapter.getCurrent();
         if (room != null) {
             switch (item.getItemId()) {
                 case R.id.share_with:
@@ -218,7 +259,7 @@ public class ChannelDiscoveryActivity extends XmppActivity implements MenuItem.O
         return false;
     }
 
-    public void joinChannelSearchResult(String selectedAccount, MuclumbusService.Room result) {
+    public void joinChannelSearchResult(String selectedAccount, Room result) {
         final Jid jid = Config.DOMAIN_LOCK == null ? Jid.of(selectedAccount) : Jid.of(selectedAccount, Config.DOMAIN_LOCK, null);
         final boolean syncAutoJoin = getBooleanPreference("autojoin", R.bool.autojoin);
         final Account account = xmppConnectionService.findAccountByJid(jid);

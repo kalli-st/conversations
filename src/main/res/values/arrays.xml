@@ -62,7 +62,7 @@
 
 	<string-array name="picture_compression_entries">
 		<item>@string/never</item>
-		<item>@string/automatically</item>
+		<item>@string/large_images_only</item>
 		<item>@string/always</item>
 	</string-array>
 
@@ -123,5 +123,15 @@
 		<item>@string/video_360p</item>
 		<item>@string/video_720p</item>
 		<item>@string/video_original</item>
+	</string-array>
+
+	<string-array name="channel_discovery_entries">
+		<item>@string/jabber_network</item>
+		<item>@string/local_server</item>
+	</string-array>
+
+	<string-array name="channel_discover_values">
+		<item>JABBER_NETWORK</item>
+		<item>LOCAL_SERVER</item>
 	</string-array>
 </resources>

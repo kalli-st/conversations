@@ -34,6 +34,7 @@ import android.provider.ContactsContract;
 import android.security.KeyChain;
 import android.support.annotation.BoolRes;
 import android.support.annotation.IntegerRes;
+import android.support.annotation.NonNull;
 import android.support.v4.app.RemoteInput;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
@@ -41,6 +42,8 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.LruCache;
 import android.util.Pair;
+
+import com.google.common.base.Strings;
 
 import org.conscrypt.Conscrypt;
 import org.openintents.openpgp.IOpenPgpService2;
@@ -275,6 +278,9 @@ public class XmppConnectionService extends Service {
     private final Set<OnKeyStatusUpdated> mOnKeyStatusUpdated = Collections.newSetFromMap(new WeakHashMap<OnKeyStatusUpdated, Boolean>());
 
     private final Object LISTENER_LOCK = new Object();
+
+
+    public final Set<String> FILENAMES_TO_IGNORE_DELETION = new HashSet<>();
 
 
     private final OnBindListener mOnBindListener = new OnBindListener() {
@@ -854,8 +860,8 @@ public class XmppConnectionService extends Service {
         mChannelDiscoveryService.initializeMuclumbusService();
     }
 
-    public void discoverChannels(String query, ChannelDiscoveryService.OnChannelSearchResultsFound onChannelSearchResultsFound) {
-        mChannelDiscoveryService.discover(query, onChannelSearchResultsFound);
+    public void discoverChannels(String query, ChannelDiscoveryService.Method method, ChannelDiscoveryService.OnChannelSearchResultsFound onChannelSearchResultsFound) {
+        mChannelDiscoveryService.discover(Strings.nullToEmpty(query).trim(), method, onChannelSearchResultsFound);
     }
 
     public boolean isDataSaverDisabled() {
@@ -1831,6 +1837,12 @@ public class XmppConnectionService extends Service {
     }
 
     private void markFileDeleted(final String path) {
+        synchronized (FILENAMES_TO_IGNORE_DELETION) {
+            if (FILENAMES_TO_IGNORE_DELETION.remove(path)) {
+                Log.d(Config.LOGTAG,"ignored deletion of "+path);
+                return;
+            }
+        }
         final File file = new File(path);
         final boolean isInternalFile = fileBackend.isInternalFile(file);
         final List<String> uuids = databaseBackend.markFileAsDeleted(file, isInternalFile);
@@ -1951,9 +1963,13 @@ public class XmppConnectionService extends Service {
      * This will find all conferences with the contact as member and also the conference that is the contact (that 'fake' contact is used to store the avatar)
      */
     public List<Conversation> findAllConferencesWith(Contact contact) {
-        ArrayList<Conversation> results = new ArrayList<>();
+        final ArrayList<Conversation> results = new ArrayList<>();
         for (final Conversation c : conversations) {
-            if (c.getMode() == Conversation.MODE_MULTI && (c.getJid().asBareJid().equals(contact.getJid().asBareJid()) || c.getMucOptions().isContactInRoom(contact))) {
+            if (c.getMode() != Conversation.MODE_MULTI) {
+                continue;
+            }
+            final MucOptions mucOptions = c.getMucOptions();
+            if (c.getJid().asBareJid().equals(contact.getJid().asBareJid()) || (mucOptions != null && mucOptions.isContactInRoom(contact))) {
                 results.add(c);
             }
         }
@@ -2231,6 +2247,7 @@ public class XmppConnectionService extends Service {
             getNotificationService().updateErrorNotification();
             toggleForegroundService();
             syncEnabledAccountSetting();
+            mChannelDiscoveryService.cleanCache();
             return true;
         } else {
             return false;
@@ -3073,9 +3090,7 @@ public class XmppConnectionService extends Service {
     }
 
     public void fetchConferenceConfiguration(final Conversation conversation, final OnConferenceConfigurationFetched callback) {
-        IqPacket request = new IqPacket(IqPacket.TYPE.GET);
-        request.setTo(conversation.getJid().asBareJid());
-        request.query("http://jabber.org/protocol/disco#info");
+        IqPacket request = mIqGenerator.queryDiscoInfo(conversation.getJid().asBareJid());
         sendIqPacket(conversation.getAccount(), request, new OnIqPacketReceived() {
             @Override
             public void onIqPacketReceived(Account account, IqPacket packet) {
@@ -3891,10 +3906,6 @@ public class XmppConnectionService extends Service {
         return getBooleanPreference("autojoin", R.bool.autojoin);
     }
 
-    public boolean indicateReceived() {
-        return getBooleanPreference("indicate_received", R.bool.indicate_received);
-    }
-
     public boolean useTorToConnect() {
         return QuickConversationsService.isConversations() && getBooleanPreference("use_tor", R.bool.use_tor);
     }
@@ -4424,7 +4435,7 @@ public class XmppConnectionService extends Service {
                 request.setTo(jid);
                 final String node = presence.getNode();
                 final String ver = presence.getVer();
-                final Element query = request.query("http://jabber.org/protocol/disco#info");
+                final Element query = request.query(Namespace.DISCO_INFO);
                 if (node != null && ver != null) {
                     query.setAttribute("node", node + "#" + ver);
                 }

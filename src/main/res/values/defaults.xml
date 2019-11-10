@@ -16,7 +16,6 @@
     <integer name="auto_accept_filesize">524288</integer>
     <string name="picture_compression">auto</string>
     <string name="theme">light</string>
-    <bool name="send_button_status">true</bool>
     <string name="quick_action">recent</string>
     <bool name="show_dynamic_tags">true</bool>
     <bool name="btbv">true</bool>
@@ -31,7 +30,6 @@
     <bool name="dnd_on_silent_mode">true</bool>
     <bool name="treat_vibrate_as_silent">true</bool>
     <bool name="autojoin">true</bool>
-    <bool name="indicate_received">true</bool>
     <bool name="enable_foreground_service">true</bool>
     <bool name="never_send">false</bool>
     <bool name="validate_hostname">false</bool>
@@ -42,4 +40,5 @@
     <bool name="use_share_location_plugin">false</bool>
     <bool name="start_searching">false</bool>
     <string name="video_compression">360</string>
+    <string name="default_channel_discovery">JABBER_NETWORK</string>
 </resources>
