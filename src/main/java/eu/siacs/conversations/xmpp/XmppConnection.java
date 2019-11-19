@@ -290,65 +290,50 @@ public class XmppConnection implements Runnable {
                 }
             } else {
                 final String domain = account.getJid().getDomain();
-                final List<Resolver.Result> results;
+                final Resolver.Result result;
                 final boolean hardcoded = extended && !account.getHostname().isEmpty();
                 if (hardcoded) {
-                    results = Resolver.fromHardCoded(account.getHostname(), account.getPort());
+                    result = Resolver.fromHardCoded(account.getHostname(), account.getPort());
                 } else {
-                    results = Resolver.resolve(domain);
+                    result = Resolver.resolve(domain);
+                }
+                if (result == null) {
+                    throw new UnknownHostException();
                 }
                 if (Thread.currentThread().isInterrupted()) {
                     Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": Thread was interrupted");
                     return;
                 }
-                if (results.size() == 0) {
-                    Log.e(Config.LOGTAG,account.getJid().asBareJid()+": Resolver results were empty");
+                try {
+                    // if tls is true, encryption is implied and must not be started
+                    features.encryptionEnabled = result.isDirectTls();
+                    verifiedHostname = result.isAuthenticated() ? result.getHostname().toString() : null;
+                    Log.d(Config.LOGTAG,"verified hostname " + verifiedHostname);
+                    Log.d(Config.LOGTAG, account.getJid().asBareJid().toString()
+                            + ": using values from resolver " + result.toString());
+
+                    localSocket = result.getSocket();
+
+                    if (features.encryptionEnabled) {
+                        localSocket = upgradeSocketToTls(localSocket);
+                    }
+
+                    localSocket.setSoTimeout(Config.SOCKET_TIMEOUT * 1000);
+                    if (startXmpp(localSocket)) {
+                        localSocket.setSoTimeout(0); //reset to 0; once the connection is established we don’t want this
+                        // successfully connected to server that speaks xmpp
+                    } else {
+                        FileBackend.close(localSocket);
+                        throw new StateChangingException(Account.State.STREAM_OPENING_ERROR);
+                    }
+                } catch (final StateChangingException e) {
+                    throw e;
+                } catch (InterruptedException e) {
+                    Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": thread was interrupted before beginning stream");
                     return;
-                }
-                for (Iterator<Resolver.Result> iterator = results.iterator(); iterator.hasNext(); ) {
-                    final Resolver.Result result = iterator.next();
-                    if (Thread.currentThread().isInterrupted()) {
-                        Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": Thread was interrupted");
-                        return;
-                    }
-                    try {
-                        // if tls is true, encryption is implied and must not be started
-                        features.encryptionEnabled = result.isDirectTls();
-                        verifiedHostname = result.isAuthenticated() ? result.getHostname().toString() : null;
-                        Log.d(Config.LOGTAG,"verified hostname "+verifiedHostname);
-                        final InetSocketAddress addr = new InetSocketAddress(IDN.toASCII(result.getHostname().toString()), result.getPort());
-                        Log.d(Config.LOGTAG, account.getJid().asBareJid().toString()
-                                + ": using values from resolver "
-                                + result.getHostname().toString() + ":" + result.getPort() + " tls: " + features.encryptionEnabled);
-
-                        localSocket = new Socket();
-                        localSocket.connect(addr, Config.SOCKET_TIMEOUT * 1000);
-
-                        if (features.encryptionEnabled) {
-                            localSocket = upgradeSocketToTls(localSocket);
-                        }
-
-                        localSocket.setSoTimeout(Config.SOCKET_TIMEOUT * 1000);
-                        if (startXmpp(localSocket)) {
-                            localSocket.setSoTimeout(0); //reset to 0; once the connection is established we don’t want this
-                            break; // successfully connected to server that speaks xmpp
-                        } else {
-                            FileBackend.close(localSocket);
-                            throw new StateChangingException(Account.State.STREAM_OPENING_ERROR);
-                        }
-                    } catch (final StateChangingException e) {
-                        if (!iterator.hasNext()) {
-                            throw e;
-                        }
-                    } catch (InterruptedException e) {
-                        Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": thread was interrupted before beginning stream");
-                        return;
-                    } catch (final Throwable e) {
-                        Log.d(Config.LOGTAG, account.getJid().asBareJid().toString() + ": " + e.getMessage() + "(" + e.getClass().getName() + ")");
-                        if (!iterator.hasNext()) {
-                            throw new UnknownHostException();
-                        }
-                    }
+                } catch (final Throwable e) {
+                    Log.d(Config.LOGTAG, account.getJid().asBareJid().toString() + ": " + e.getMessage() + "(" + e.getClass().getName() + ")");
+                    throw new UnknownHostException();
                 }
             }
             processStream();
@@ -362,8 +347,12 @@ public class XmppConnection implements Runnable {
             this.changeStatus(Account.State.SERVER_NOT_FOUND);
         } catch (final SocksSocketFactory.SocksProxyNotFoundException e) {
             this.changeStatus(Account.State.TOR_NOT_AVAILABLE);
-        } catch (final IOException | XmlPullParserException  e) {
-            Log.d(Config.LOGTAG, account.getJid().asBareJid().toString() + ": " + e.getMessage());
+        } catch (final IOException e) {
+            Log.d(Config.LOGTAG, account.getJid().asBareJid().toString() + ": socket io :" + e.getMessage());
+            this.changeStatus(Account.State.OFFLINE);
+            this.attempt = Math.max(0, this.attempt - 1);
+        } catch (final XmlPullParserException  e) {
+            Log.d(Config.LOGTAG, account.getJid().asBareJid().toString() + ": xml parser :" + e.getMessage());
             this.changeStatus(Account.State.OFFLINE);
             this.attempt = Math.max(0, this.attempt - 1);
         } finally {
