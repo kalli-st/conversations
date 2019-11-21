@@ -1,5 +1,8 @@
-Conversations with IPv6 is a fork of <a href="https://f-droid.org/packages/eu.siacs.conversations/">Conversations</a> that
- only patches away the hardcoded IPv4 preference and rebrands it as chat.sum7.eu (to run both version together).
+Conversations for Sum7 is a fork of <a href="https://f-droid.org/packages/eu.siacs.conversations/">Conversations</a>.
+
+Changes to origin:
+• replace the hardcoded IPv4 preference to easy Happy Eyeball, for faster connection and fair to both IP version.
+• rebrands it as chat.sum7.eu (to run both version together)
 
 Easy to use, reliable, battery friendly. With built-in support for images, group
 chats and e2e encryption.
