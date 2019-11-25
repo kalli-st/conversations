@@ -1,4 +1,4 @@
-Conversations for Sum7 is a fork of <a href="https://f-droid.org/packages/eu.siacs.conversations/">Conversations</a>.
+Conv6ations for Sum7 is a fork of <a href="https://f-droid.org/packages/eu.siacs.conversations/">Conversations</a>.
 
 Changes to origin:
 • replace the hardcoded IPv4 preference to easy Happy Eyeball, for faster connection and fair to both IP version.

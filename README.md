@@ -1,6 +1,6 @@
-<h1 align="center">Conversations for Sum7 / with IPv6</h1>
+<h1 align="center">Conv6ations for Sum7 is a fork of <a href="https://f-droid.org/packages/eu.siacs.conversations/">Conversations</a></h1>
 
-<p align="center">Conversations: the very last word in instant messaging</p>
+<p align="center">A Jabber/XMPP chat client which is fair to IPv6</p>
 
 <p align="center">
   <a href="https://conversations.im/j/support@conference.chat.sum7.eu">
@@ -25,6 +25,11 @@
 
 ### Nightly:
 [![https://dev.sum7.eu/sum7/Conversations-nightly/raw/master/fdroid/repo](https://dev.sum7.eu/sum7/Conversations-nightly/raw/master/icon.png)](https://dev.sum7.eu/sum7/Conversations-nightly/raw/master/fdroid/repo)
+
+## Changes to origin:
+* replace the hardcoded IPv4 preference to easy Happy Eyeball, for faster connection and fair to both IP version.
+* rebrands it as chat.sum7.eu (to run both version together)
+
 
 ## Design principles
 
