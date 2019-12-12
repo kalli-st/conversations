@@ -21,7 +21,7 @@
 
 [<img src="https://f-droid.org/badge/get-it-on.png"
       alt="Get it on F-Droid"
-      height="80">](https://dev.sum7.eu/sum7/Conversations-nightly/raw/master/fdroid/repo)
+      height="80">](https://f-droid.org/en/packages/eu.sum7.conversations)
 
 ### Nightly:
 [![https://dev.sum7.eu/sum7/Conversations-nightly/raw/master/fdroid/repo](https://dev.sum7.eu/sum7/Conversations-nightly/raw/master/icon.png)](https://dev.sum7.eu/sum7/Conversations-nightly/raw/master/fdroid/repo)
