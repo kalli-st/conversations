@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="pick_a_server">Válassza ki az XMPP szolgáltatóját</string>
-    <string name="use_chat.sum7.eu">chat.sum7.eu használata</string>
+    <string name="use_chat.sum7.eu">A chat.sum7.eu használata</string>
     <string name="create_new_account">Új fiók létrehozása</string>
-    <string name="do_you_have_an_account">Már rendelkezik XMPP fiókkal? Ez az eset állhat fenn, ha már egy másik XMPP klienst használ vagy ha már korábban használta a Conversations-t. Ha nem, akkor most létrehozhat egy új XMPP fiókot.\nTipp: Egyes e-mail szolgáltatók is biztosítanak XMPP fiókokat is.</string>
-    <string name="server_select_text">Az XMPP egy szolgáltató független, azonnali üzenetküldő hálózat. Ezt az ügyfél programot bármelyik XMPP szerverhez használhatja.\nDe a könnyebbség kedvéért létrehozhat egy fiókot a chat.sum7.eu szolgáltatón is; ami kifejezetten a Conversations programmal való használatra lett tervezve.</string>
+    <string name="do_you_have_an_account">Már rendelkezik XMPP-fiókkal? Ez az eset állhat fenn, ha már egy másik XMPP-klienst használ, vagy ha már korábban használta a Conv6sations alkalmazást. Ha nem, akkor most létrehozhat egy új XMPP-fiókot.\nTipp: egyes e-mail szolgáltatók is biztosítanak XMPP-fiókokat.</string>
+    <string name="server_select_text">Az XMPP egy szolgáltatófüggetlen, azonnali üzenetküldő hálózat. Ezt a kliensprogramot bármely XMPP-kiszolgálóhoz használhatja.\nAzonban a kényelem érdekében megkönnyítettük a chat.sum7.eu szolgáltatón való fióklétrehozást, ami kifejezetten a Conv6sations alkalmazással történő használatra lett tervezve.</string>
 
 </resources>
