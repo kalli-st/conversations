@@ -155,6 +155,7 @@
     <string name="account_status_regis_conflict">Username already in use</string>
     <string name="account_status_regis_success">Registration completed</string>
     <string name="account_status_regis_not_sup">Server does not support registration</string>
+    <string name="account_status_regis_invalid_token">Invalid registration token</string>
     <string name="account_status_tls_error">TLS negotiation failed</string>
     <string name="account_status_policy_violation">Policy violation</string>
     <string name="account_status_incompatible_server">Incompatible server</string>
@@ -751,7 +752,6 @@
     <string name="pref_more_notification_settings_summary">Importance, Sound, Vibrate</string>
     <string name="video_compression_channel_name">Video compression</string>
     <string name="view_media">View media</string>
-    <string name="view_users">View participants</string>
     <string name="group_chat_members">Participants</string>
     <string name="media_browser">Media browser</string>
     <string name="security_violation_not_attaching_file">File omitted due to security violation.</string>
@@ -880,4 +880,8 @@
     <string name="pref_channel_discovery">Channel discovery method</string>
     <string name="backup">Backup</string>
     <string name="category_about">About</string>
+    <plurals name="view_users">
+        <item quantity="one">View %1$d Participant</item>
+        <item quantity="other">View %1$d Participants</item>
+    </plurals>
 </resources>

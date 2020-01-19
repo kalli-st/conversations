@@ -155,6 +155,7 @@
   <string name="account_status_regis_conflict">Benutzername wird bereits verwendet</string>
   <string name="account_status_regis_success">Registrierung abgeschlossen</string>
   <string name="account_status_regis_not_sup">Der Server unterstützt keine Registrierung</string>
+  <string name="account_status_regis_invalid_token">Ungültiger Registrierungstoken</string>
   <string name="account_status_tls_error">TLS-Aushandlung fehlgeschlagen</string>
   <string name="account_status_policy_violation">Verstoß gegen die Richtlinien</string>
   <string name="account_status_incompatible_server">Inkompatibler Server</string>
@@ -749,7 +750,6 @@
   <string name="pref_more_notification_settings_summary">Wichtigkeit, Klang, Vibrationen</string>
   <string name="video_compression_channel_name">Video komprimieren</string>
   <string name="view_media">Medien anzeigen</string>
-  <string name="view_users">Teilnehmer anzeigen</string>
   <string name="group_chat_members">Teilnehmer</string>
   <string name="media_browser">Medienbrowser</string>
   <string name="security_violation_not_attaching_file">Datei wurde aufgrund von Sicherheitsverletzungen ausgelassen.</string>
@@ -878,4 +878,8 @@
   <string name="pref_channel_discovery">Channelsuchmethode</string>
   <string name="backup">Sicherungskopie</string>
   <string name="category_about">Über</string>
+  <plurals name="view_users">
+    <item quantity="one">%1$d Teilnehmer anzeigen</item>
+    <item quantity="other">%1$d Teilnehmer anzeigen</item>
+  </plurals>
 </resources>

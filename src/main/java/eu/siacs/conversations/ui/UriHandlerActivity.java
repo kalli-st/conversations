@@ -26,7 +26,7 @@ public class UriHandlerActivity extends AppCompatActivity {
     public static final String ACTION_SCAN_QR_CODE = "scan_qr_code";
     private static final int REQUEST_SCAN_QR_CODE = 0x1234;
     private static final int REQUEST_CAMERA_PERMISSIONS_TO_SCAN = 0x6789;
-
+    private static final Pattern VCARD_XMPP_PATTERN = Pattern.compile("\nIMPP([^:]*):(xmpp:.+)\n");
     private boolean handled = false;
 
     public static void scan(Activity activity) {
@@ -87,8 +87,28 @@ public class UriHandlerActivity extends AppCompatActivity {
         final XmppUri xmppUri = new XmppUri(uri);
         final List<Jid> accounts = DatabaseBackend.getInstance(this).getAccountJids(true);
 
+        if (SignupUtils.isSupportTokenRegistry() && xmppUri.isValidJid()) {
+            final String preauth = xmppUri.getParamater("preauth");
+            final Jid jid = xmppUri.getJid();
+            if (xmppUri.isAction(XmppUri.ACTION_REGISTER)) {
+                if (jid.getEscapedLocal() != null && accounts.contains(jid.asBareJid())) {
+                    Toast.makeText(this, R.string.account_already_exists, Toast.LENGTH_LONG).show();
+                    return;
+                }
+                intent = SignupUtils.getTokenRegistrationIntent(this, jid, preauth);
+                startActivity(intent);
+                return;
+            }
+            if (xmppUri.isAction(XmppUri.ACTION_ROSTER) && "y".equals(xmppUri.getParamater("ibr"))) {
+                intent = SignupUtils.getTokenRegistrationIntent(this, Jid.ofDomain(jid.getDomain()), preauth);
+                intent.putExtra(StartConversationActivity.EXTRA_INVITE_URI, xmppUri.toString());
+                startActivity(intent);
+                return;
+            }
+        }
+
         if (accounts.size() == 0) {
-            if (xmppUri.isJidValid()) {
+            if (xmppUri.isValidJid()) {
                 intent = SignupUtils.getSignUpIntent(this);
                 intent.putExtra(StartConversationActivity.EXTRA_INVITE_URI, xmppUri.toString());
                 startActivity(intent);
@@ -135,7 +155,7 @@ public class UriHandlerActivity extends AppCompatActivity {
             intent.putExtra("jid", xmppUri.getJid().asBareJid().toString());
             intent.setData(uri);
             intent.putExtra("scanned", scanned);
-        } else if (xmppUri.isJidValid()) {
+        } else if (xmppUri.isValidJid()) {
             intent = new Intent(getApplicationContext(), StartConversationActivity.class);
             intent.setAction(Intent.ACTION_VIEW);
             intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -173,8 +193,6 @@ public class UriHandlerActivity extends AppCompatActivity {
 
         finish();
     }
-
-    private static final Pattern VCARD_XMPP_PATTERN = Pattern.compile("\nIMPP([^:]*):(xmpp:.+)\n");
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {

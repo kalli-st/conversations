@@ -70,6 +70,7 @@ import eu.siacs.conversations.utils.CryptoHelper;
 import eu.siacs.conversations.utils.EmojiWrapper;
 import eu.siacs.conversations.utils.Emoticons;
 import eu.siacs.conversations.utils.GeoHelper;
+import eu.siacs.conversations.utils.MessageUtils;
 import eu.siacs.conversations.utils.StylingHelper;
 import eu.siacs.conversations.utils.UIHelper;
 import eu.siacs.conversations.xmpp.mam.MamReference;
@@ -183,7 +184,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 		final Transferable transferable = message.getTransferable();
 		boolean multiReceived = message.getConversation().getMode() == Conversation.MODE_MULTI
 				&& message.getMergedStatus() <= Message.STATUS_RECEIVED;
-		if (message.isFileOrImage() || transferable != null) {
+		if (message.isFileOrImage() || transferable != null || MessageUtils.unInitiatedButKnownSize(message)) {
 			FileParams params = message.getFileParams();
 			filesize = params.size > 0 ? UIHelper.filesizeToString(params.size) : null;
 			if (transferable != null && (transferable.getStatus() == Transferable.STATUS_FAILED || transferable.getStatus() == Transferable.STATUS_CANCELLED)) {
@@ -206,6 +207,8 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 				break;
 			case Message.STATUS_SEND_RECEIVED:
 			case Message.STATUS_SEND_DISPLAYED:
+				viewHolder.indicatorReceived.setImageResource(darkBackground ? R.drawable.ic_done_white_18dp : R.drawable.ic_done_black_18dp);
+				viewHolder.indicatorReceived.setAlpha(darkBackground ? 0.7f : 0.57f);
 				viewHolder.indicatorReceived.setVisibility(View.VISIBLE);
 				break;
 			case Message.STATUS_SEND_FAILED:
@@ -732,8 +735,9 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 		});
 
 		final Transferable transferable = message.getTransferable();
-		if (message.isDeleted() || (transferable != null && transferable.getStatus() != Transferable.STATUS_UPLOADING)) {
-			if (transferable != null && transferable.getStatus() == Transferable.STATUS_OFFER) {
+		final boolean unInitiatedButKnownSize = MessageUtils.unInitiatedButKnownSize(message);
+		if (unInitiatedButKnownSize || message.isDeleted() || (transferable != null && transferable.getStatus() != Transferable.STATUS_UPLOADING)) {
+			if (unInitiatedButKnownSize || transferable != null && transferable.getStatus() == Transferable.STATUS_OFFER) {
 				displayDownloadableMessage(viewHolder, message, activity.getString(R.string.download_x_file, UIHelper.getFileDescriptionString(activity, message)), darkBackground);
 			} else if (transferable != null && transferable.getStatus() == Transferable.STATUS_OFFER_CHECK_FILESIZE) {
 				displayDownloadableMessage(viewHolder, message, activity.getString(R.string.check_x_filesize, UIHelper.getFileDescriptionString(activity, message)), darkBackground);

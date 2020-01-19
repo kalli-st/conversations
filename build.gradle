@@ -6,7 +6,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.0'
+        classpath 'com.android.tools.build:gradle:3.5.3'
     }
 }
 
@@ -22,6 +22,8 @@ configurations {
     playstoreImplementation
     compatImplementation
     conversationsFreeCompatImplementation
+    conversationsPlaystoreCompatImplementation
+    conversationsPlaystoreSystemImplementation
     quicksyFreeCompatImplementation
     quicksyImplementation
 }
@@ -36,8 +38,10 @@ dependencies {
         exclude group: 'com.google.firebase', module: 'firebase-analytics'
         exclude group: 'com.google.firebase', module: 'firebase-measurement-connector'
     }
+    conversationsPlaystoreCompatImplementation("com.android.installreferrer:installreferrer:1.1")
+    conversationsPlaystoreSystemImplementation("com.android.installreferrer:installreferrer:1.1")
     implementation 'org.sufficientlysecure:openpgp-api:10.0'
-    implementation ('com.theartofdev.edmodo:android-image-cropper:2.7.+') {
+    implementation('com.theartofdev.edmodo:android-image-cropper:2.7.+') {
         exclude group: 'com.android.support', module: 'appcompat-v7'
         exclude group: 'com.android.support', module: 'exifinterface'
     }
@@ -61,16 +65,18 @@ dependencies {
     implementation "com.wefika:flowlayout:0.4.1"
     implementation 'net.ypresto.androidtranscoder:android-transcoder:0.3.0'
     implementation project(':libs:xmpp-addr')
-    implementation 'org.osmdroid:osmdroid-android:6.1.0'
+    implementation 'org.osmdroid:osmdroid-android:6.1.5'
     implementation 'org.hsluv:hsluv:0.2'
     implementation 'org.conscrypt:conscrypt-android:2.2.1'
     implementation 'me.drakeet.support:toastcompat:1.1.0'
     implementation "com.leinardi.android:speed-dial:2.0.1"
-    implementation 'com.squareup.retrofit2:retrofit:2.6.1'
-    implementation 'com.squareup.retrofit2:converter-gson:2.6.1'
-    implementation 'com.squareup.okhttp3:okhttp:3.12.6'
+    //retrofit needs to stick with 2.6.x (https://github.com/square/retrofit/blob/master/CHANGELOG.md)
+    implementation "com.squareup.retrofit2:retrofit:2.6.4"
+    implementation "com.squareup.retrofit2:converter-gson:2.6.4"
+    //okhttp needs to stick with 3.12.x
+    implementation 'com.squareup.okhttp3:okhttp:3.12.7'
     implementation 'com.google.guava:guava:27.1-android'
-    quicksyImplementation 'io.michaelrocks:libphonenumber-android:8.10.16'
+    quicksyImplementation 'io.michaelrocks:libphonenumber-android:8.11.1'
 }
 
 ext {
@@ -84,8 +90,8 @@ android {
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 25
-        versionCode 351
-        versionName "2.6.1"
+        versionCode 360
+        versionName "2.6.3"
         archivesBaseName += "-$versionName"
         applicationId "eu.sum7.conversations"
         resValue "string", "applicationId", applicationId
@@ -141,12 +147,12 @@ android {
     sourceSets {
         quicksyFreeCompat {
             java {
-                srcDirs 'src/freeCompat/java'
+                srcDir 'src/freeCompat/java'
             }
         }
         quicksyPlaystoreCompat {
             java {
-                srcDirs 'src/playstoreCompat/java'
+                srcDir 'src/playstoreCompat/java'
             }
             res {
                 srcDir 'src/playstoreCompat/res'
@@ -160,12 +166,19 @@ android {
         }
         conversationsFreeCompat {
             java {
-                srcDirs 'src/freeCompat/java'
+                srcDir 'src/freeCompat/java'
+                srcDir 'src/conversationsFree/java'
+            }
+        }
+        conversationsFreeSystem {
+            java {
+                srcDir 'src/conversationsFree/java'
             }
         }
         conversationsPlaystoreCompat {
             java {
-                srcDirs 'src/playstoreCompat/java'
+                srcDir 'src/playstoreCompat/java'
+                srcDir 'src/conversationsPlaystore/java'
             }
             res {
                 srcDir 'src/playstoreCompat/res'
@@ -173,6 +186,9 @@ android {
             }
         }
         conversationsPlaystoreSystem {
+            java {
+                srcDir 'src/conversationsPlaystore/java'
+            }
             res {
                 srcDir 'src/conversationsPlaystore/res'
             }
@@ -191,7 +207,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
 
 
     if (new File("signing.properties").exists()) {
