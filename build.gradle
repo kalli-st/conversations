@@ -85,13 +85,13 @@ ext {
 }
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
 
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 25
-        versionCode 360
-        versionName "2.6.3"
+        versionCode 362
+        versionName "2.6.4"
         archivesBaseName += "-$versionName"
         applicationId "eu.sum7.conversations"
         resValue "string", "applicationId", applicationId

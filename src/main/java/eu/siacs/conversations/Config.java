@@ -125,7 +125,7 @@ public final class Config {
     public static final long MAM_MAX_CATCHUP = MILLISECONDS_IN_DAY * 5;
     public static final int MAM_MAX_MESSAGES = 750;
 
-    public static final ChatState DEFAULT_CHATSTATE = ChatState.ACTIVE;
+    public static final ChatState DEFAULT_CHAT_STATE = ChatState.ACTIVE;
     public static final int TYPING_TIMEOUT = 8;
 
     public static final int EXPIRY_INTERVAL = 30 * 60 * 1000; // 30 minutes

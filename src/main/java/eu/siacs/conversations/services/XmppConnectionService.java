@@ -34,7 +34,6 @@ import android.provider.ContactsContract;
 import android.security.KeyChain;
 import android.support.annotation.BoolRes;
 import android.support.annotation.IntegerRes;
-import android.support.annotation.NonNull;
 import android.support.v4.app.RemoteInput;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
@@ -1515,7 +1514,7 @@ public class XmppConnectionService extends Service {
             if (delay) {
                 mMessageGenerator.addDelay(packet, message.getTimeSent());
             }
-            if (conversation.setOutgoingChatState(Config.DEFAULT_CHATSTATE)) {
+            if (conversation.setOutgoingChatState(Config.DEFAULT_CHAT_STATE)) {
                 if (this.sendChatStates()) {
                     packet.addChild(ChatState.toElement(conversation.getOutgoingChatState()));
                 }
@@ -1854,6 +1853,9 @@ public class XmppConnectionService extends Service {
         boolean deleted = false;
         for (Conversation conversation : getConversations()) {
             deleted |= conversation.markAsDeleted(uuids);
+        }
+        for(final String uuid : uuids) {
+            evictPreview(uuid);
         }
         if (deleted) {
             updateConversationUi();
@@ -2514,7 +2516,7 @@ public class XmppConnectionService extends Service {
             if (conversation.getMode() == Conversation.MODE_MULTI) {
                 conversation.getMucOptions().resetChatState();
             } else {
-                conversation.setIncomingChatState(Config.DEFAULT_CHATSTATE);
+                conversation.setIncomingChatState(Config.DEFAULT_CHAT_STATE);
             }
         }
         for (Account account : getAccounts()) {
@@ -4574,6 +4576,12 @@ public class XmppConnectionService extends Service {
         IqPacket set = new IqPacket(IqPacket.TYPE.SET);
         set.addChild(prefs);
         sendIqPacket(account, set, null);
+    }
+
+    public void evictPreview(String uuid) {
+        if (mBitmapCache.remove(uuid) != null) {
+            Log.d(Config.LOGTAG,"deleted cached preview");
+        }
     }
 
     public interface OnMamPreferencesFetched {
