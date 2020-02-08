@@ -64,7 +64,9 @@ public class Resolver {
             final Field dnsClientField = ReliableDNSClient.class.getDeclaredField("dnsClient");
             dnsClientField.setAccessible(true);
             final DNSClient dnsClient = (DNSClient) dnsClientField.get(reliableDNSClient);
-            dnsClient.getDataSource().setTimeout(3000);
+            if (dnsClient != null) {
+                dnsClient.getDataSource().setTimeout(3000);
+            }
             final Field useHardcodedDnsServers = DNSClient.class.getDeclaredField("useHardcodedDnsServers");
             useHardcodedDnsServers.setAccessible(true);
             useHardcodedDnsServers.setBoolean(dnsClient, false);
@@ -293,7 +295,7 @@ public class Resolver {
             Log.e(Config.LOGTAG, Resolver.class.getSimpleName() + ": happy eyeball failed: ", e);
             return null;
         } catch (ExecutionException e) {
-            Log.e(Config.LOGTAG, Resolver.class.getSimpleName() + ": happy eyeball failed: ", e);
+            Log.i(Config.LOGTAG, Resolver.class.getSimpleName() + ": happy eyeball unable to connect to one address");
             return null;
         }
     }
@@ -428,7 +430,10 @@ public class Resolver {
         @Override
         public Result call() throws Exception {
             this.connect();
-            return this.socket.isConnected() ? this : null;
+            if (this.socket != null && this.socket.isConnected()) {
+	        return this ;
+            }
+            throw new Exception("Resolver.Result was not possible to connect - should be catched by executor");
         }
 
         public ContentValues toContentValues() {
