@@ -136,14 +136,12 @@ public class Resolver {
                 threads[2].interrupt();
                 synchronized (results) {
                     Collections.sort(results);
-                    Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": " + results.toString());
                     return happyEyeball(results);
                 }
             } else {
                 threads[2].join();
                 synchronized (fallbackResults) {
                     Collections.sort(fallbackResults);
-                    Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": " + fallbackResults.toString());
                     return happyEyeball(fallbackResults);
                 }
             }
@@ -262,16 +260,23 @@ public class Resolver {
     }
 
     private static Result happyEyeball(List<Result> r) {
+        String logID = Long.toHexString(Double.doubleToLongBits(Math.random()));
+        Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": happy eyeball (" + logID + ") with " + r.toString());
         if (r.size() == 0) return null;
 
         Result result;
         if (r.size() == 1) {
             result = r.get(0);
+            result.setLogID(logID);
             result.connect();
             return result;
         }
 
-        ExecutorService executor = (ExecutorService) Executors.newFixedThreadPool(4);
+        for (Result res : r) {
+            res.setLogID(logID);
+        }
+
+        ExecutorService executor = Executors.newFixedThreadPool(4);
 
         try {
             result = executor.invokeAny(r);
@@ -280,22 +285,22 @@ public class Resolver {
                 while (true) {
                     try {
                         if (executor.awaitTermination(5, TimeUnit.SECONDS)) break;
-                        Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": happy eyeball wait for cleanup ...");
+                        Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": happy eyeball (" + logID + ") wait for cleanup ...");
                     } catch (InterruptedException e) {}
                 }
-                Log.i(Config.LOGTAG, Resolver.class.getSimpleName() + ": happy eyeball cleanup");
+                Log.i(Config.LOGTAG, Resolver.class.getSimpleName() + ": happy eyeball (" + logID + ") cleanup");
                 for (Result re : r) {
                     if(!re.equals(result)) re.disconnect();
                 }
             });
             disconnector.start();
-            Log.i(Config.LOGTAG, Resolver.class.getSimpleName() + ": happy eyeball used: " + result.toString());
+            Log.i(Config.LOGTAG, Resolver.class.getSimpleName() + ": happy eyeball (" + logID + ") used: " + result.toString());
             return result;
         } catch (InterruptedException e) {
-            Log.e(Config.LOGTAG, Resolver.class.getSimpleName() + ": happy eyeball failed: ", e);
+            Log.e(Config.LOGTAG, Resolver.class.getSimpleName() + ": happy eyeball (" + logID + ") failed: ", e);
             return null;
         } catch (ExecutionException e) {
-            Log.i(Config.LOGTAG, Resolver.class.getSimpleName() + ": happy eyeball unable to connect to one address");
+            Log.i(Config.LOGTAG, Resolver.class.getSimpleName() + ": happy eyeball (" + logID + ") unable to connect to one address");
             return null;
         }
     }
@@ -319,6 +324,8 @@ public class Resolver {
         private boolean authenticated = false;
         private int priority;
         private Socket socket;
+
+        private String logID;
 
         static Result fromRecord(SRV srv, boolean directTls) {
             Result result = new Result();
@@ -383,7 +390,7 @@ public class Resolver {
         public String toString() {
             return "Result{" +
                     "ip='" + (ip == null ? null : ip.getHostAddress()) + '\'' +
-                    ", hostame='" + (hostname == null ? null : hostname.toString()) + '\'' +
+                    ", hostname='" + (hostname == null ? null : hostname.toString()) + '\'' +
                     ", port=" + port +
                     ", directTls=" + directTls +
                     ", authenticated=" + authenticated +
@@ -401,7 +408,11 @@ public class Resolver {
                 long time = System.currentTimeMillis();
                 this.socket.connect(addr, Config.SOCKET_TIMEOUT * 1000);
                 time = System.currentTimeMillis() - time;
-                Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": Result connect: " + toString() + " after: " + time + " ms");
+                if (!this.logID.isEmpty()) {
+                    Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": Result (" + this.logID + ") connect: " + toString() + " after: " + time + " ms");
+                } else {
+                    Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": Result connect: " + toString() + " after: " + time + " ms");
+                }
             } catch (IOException e) {
                 this.disconnect();
             }
@@ -411,8 +422,16 @@ public class Resolver {
             if (this.socket != null ) {
                 FileBackend.close(this.socket);
                 this.socket = null;
-                Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": Result disconnect: " + toString());
+                if (!this.logID.isEmpty()) {
+                    Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": Result (" + this.logID + ") disconnect: " + toString());
+                } else {
+                    Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": Result disconnect: " + toString());
+                }
             }
+        }
+
+        public void setLogID(String logID) {
+            this.logID = logID;
         }
 
         @Override
@@ -431,7 +450,7 @@ public class Resolver {
         public Result call() throws Exception {
             this.connect();
             if (this.socket != null && this.socket.isConnected()) {
-	        return this ;
+                return this;
             }
             throw new Exception("Resolver.Result was not possible to connect - should be catched by executor");
         }
