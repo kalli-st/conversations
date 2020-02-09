@@ -559,8 +559,6 @@
   <string name="pref_theme_options_summary">Escolla a gama de cores</string>
   <string name="pref_theme_light">Decorado claro</string>
   <string name="pref_theme_dark">Decorado escuro</string>
-  <string name="pref_use_green_background">Fondo verde</string>
-  <string name="pref_use_green_background_summary">Utilizar fondo verde para mensaxes recibidas</string>
   <string name="unable_to_connect_to_keychain">Non se puido conectar con OpenKeychain</string>
   <string name="this_device_is_no_longer_in_use">Este dispositivo xa non está en uso</string>
   <string name="type_pc">Computadora</string>
