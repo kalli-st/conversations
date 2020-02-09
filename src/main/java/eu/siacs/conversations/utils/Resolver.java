@@ -173,7 +173,7 @@ public class Resolver {
         final List<Result> results = new ArrayList<>();
         final List<Thread> threads = new ArrayList<>();
         for (SRV record : result.getAnswersOrEmptySet()) {
-            if (record.name.length() == 0 && record.priority == 0) {
+            if (record.name.length() == 0) {
                 continue;
             }
             threads.add(new Thread(() -> {
