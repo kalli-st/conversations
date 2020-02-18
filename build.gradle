@@ -91,7 +91,7 @@ android {
         minSdkVersion 16
         targetSdkVersion 25
         versionCode 363
-        versionName "2.6.4.1"
+        versionName "2.7.0-beta"
         archivesBaseName += "-$versionName"
         applicationId "eu.sum7.conversations"
         resValue "string", "applicationId", applicationId

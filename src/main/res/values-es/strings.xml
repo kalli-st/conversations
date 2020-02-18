@@ -155,6 +155,7 @@
   <string name="account_status_regis_conflict">El identificador ya está en uso</string>
   <string name="account_status_regis_success">Registro completado</string>
   <string name="account_status_regis_not_sup">El servidor no soporta registros</string>
+  <string name="account_status_regis_invalid_token">Token de registro inválido</string>
   <string name="account_status_tls_error">Error de negociación TLS</string>
   <string name="account_status_policy_violation">Policy violation</string>
   <string name="account_status_incompatible_server">Servidor incompatible</string>
@@ -235,7 +236,6 @@
   <string name="destroy_channel_dialog">¿Estás seguro de que quieres destruir este canal público?\n\n<b>Aviso:</b>El canal será eliminado completamente en el servidor.</string>
   <string name="could_not_destroy_room">No se ha podido destruir la conversación en grupo</string>
   <string name="could_not_destroy_channel">No se ha podido destruir el canal</string>
-  <string name="bookmark_already_exists">Este marcador ya existe</string>
   <string name="action_edit_subject">Editar asunto de la conversación</string>
   <string name="topic">Asunto</string>
   <string name="joining_conference">Uniéndose a conversación...</string>
@@ -556,6 +556,7 @@
   <string name="pref_privacy">Privacidad</string>
   <string name="pref_theme_options">Tema</string>
   <string name="pref_theme_options_summary">Selecciona el color de la paleta</string>
+  <string name="pref_theme_automatic">Automático</string>
   <string name="pref_theme_light">Tema claro</string>
   <string name="pref_theme_dark">Tema oscuro</string>
   <string name="unable_to_connect_to_keychain">No se ha podido conectar a OpenKeychain</string>

@@ -155,6 +155,7 @@
   <string name="account_status_regis_conflict">Nome utente già in uso</string>
   <string name="account_status_regis_success">Registrazione completata</string>
   <string name="account_status_regis_not_sup">Il Server non supporta la registrazione</string>
+  <string name="account_status_regis_invalid_token">Token di registrazione non valido</string>
   <string name="account_status_tls_error">Negoziazione TLS fallita</string>
   <string name="account_status_policy_violation">Violazione della policy</string>
   <string name="account_status_incompatible_server">Server non compatibile</string>
@@ -235,7 +236,6 @@
   <string name="destroy_channel_dialog">Sei sicuro di voler distruggere questo canale pubblico?\n\n<b>Attenzione:</b> il canale verrà completamente rimosso sul server.</string>
   <string name="could_not_destroy_room">Distruzione della chat di gruppo fallita</string>
   <string name="could_not_destroy_channel">Distruzione canale fallita</string>
-  <string name="bookmark_already_exists">Questo segnalibro esiste già</string>
   <string name="action_edit_subject">Modifica titolo chat di gruppo</string>
   <string name="topic">Argomento</string>
   <string name="joining_conference">Ingresso nella chat di gruppo...</string>
@@ -556,6 +556,7 @@
   <string name="pref_privacy">Privacy</string>
   <string name="pref_theme_options">Tema</string>
   <string name="pref_theme_options_summary">Seleziona il colore</string>
+  <string name="pref_theme_automatic">Automatico</string>
   <string name="pref_theme_light">Tema chiaro</string>
   <string name="pref_theme_dark">Tema scuro</string>
   <string name="unable_to_connect_to_keychain">Impossibile connettersi a OpenKeychain</string>
@@ -877,4 +878,8 @@
   <string name="pref_channel_discovery">Metodo di scoperta canali</string>
   <string name="backup">Backup</string>
   <string name="category_about">Al riguardo</string>
+  <plurals name="view_users">
+    <item quantity="one">Vedi %1$d partecipante</item>
+    <item quantity="other">Vedi %1$d partecipanti</item>
+  </plurals>
 </resources>

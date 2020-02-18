@@ -236,7 +236,6 @@
   <string name="destroy_channel_dialog">Bist du sicher, dass du diesen öffentlichen Channel löschen willst?\n\n<b>Achtung:</b> Der Channel wird dabei vollständig auf dem Server gelöscht.</string>
   <string name="could_not_destroy_room">Gruppenchat konnte nicht gelöscht werden</string>
   <string name="could_not_destroy_channel">Channel konnte nicht gelöscht werden</string>
-  <string name="bookmark_already_exists">Die Konferenz befindet sich bereits auf deiner Kontaktliste</string>
   <string name="action_edit_subject">Gruppenchatthema bearbeiten</string>
   <string name="topic">Thema</string>
   <string name="joining_conference">Gruppenchat wird beigetreten…</string>
@@ -557,6 +556,7 @@
   <string name="pref_privacy">Privatsphäre</string>
   <string name="pref_theme_options">Design</string>
   <string name="pref_theme_options_summary">Wähle die Farbpalette aus</string>
+  <string name="pref_theme_automatic">Automatisch</string>
   <string name="pref_theme_light">Helles Design</string>
   <string name="pref_theme_dark">Dunkles Design</string>
   <string name="unable_to_connect_to_keychain">Verbindung zu OpenKeychain nicht möglich</string>
