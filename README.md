@@ -8,15 +8,16 @@
      alt="chat on our conference room">
   </a>
   <a href="https://dev.sum7.eu/sum7/Conversations/pipelines">
-    <img src="https://dev.sum7.eu/sum7/Conversations/badges/develop/build.svg"
+    <img src="https://dev.sum7.eu/sum7/Conversations/badges/develop/pipeline.svg"
      alt="build status">
   </a>
 </a>
 <p align="center">
-  <img src="metadata/en-US/phoneScreenshots/1.jpg" width="20%" alt="screenshot 1"/>
-  <img src="metadata/en-US/phoneScreenshots/2.jpg" width="20%" alt="screenshot 2"/>
-  <img src="metadata/en-US/phoneScreenshots/3.jpg" width="20%" alt="screenshot 3"/>
-  <img src="metadata/en-US/phoneScreenshots/4.jpg" width="20%" alt="screenshot 4"/>
+  <img src="metadata/en-US/phoneScreenshots/1.jpg" width="19%" alt="screenshot 1"/>
+  <img src="metadata/en-US/phoneScreenshots/2.jpg" width="19%" alt="screenshot 2"/>
+  <img src="metadata/en-US/phoneScreenshots/3.jpg" width="19%" alt="screenshot 3"/>
+  <img src="metadata/en-US/phoneScreenshots/4.jpg" width="19%" alt="screenshot 4"/>
+  <img src="metadata/en-US/phoneScreenshots/5.jpg" width="19%" alt="screenshot 5"/>
 </p>
 
 [<img src="https://f-droid.org/badge/get-it-on.png"
