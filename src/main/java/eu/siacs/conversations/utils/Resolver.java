@@ -251,7 +251,7 @@ public class Resolver {
             ResolverResult<D> results = resolveWithFallback(hostname, type, authenticated);
             for (D record : results.getAnswersOrEmptySet()) {
                 Result resolverResult = Result.fromRecord(srv, directTls);
-                resolverResult.authenticated = results.isAuthenticData() && authenticated;
+                resolverResult.authenticated = results.isAuthenticData() && authenticated; //TODO technically it doesn’t matter if the IP was authenticated
                 resolverResult.ip = record.getInetAddress();
                 list.add(resolverResult);
             }

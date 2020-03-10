@@ -115,14 +115,13 @@ public class XmppAxolotlMessage {
             generator.init(128);
             return generator.generateKey().getEncoded();
         } catch (NoSuchAlgorithmException e) {
-            Log.e(Config.LOGTAG, e.getMessage());
-            return null;
+            throw new IllegalStateException(e);
         }
     }
 
     private static byte[] generateIv() {
         final SecureRandom random = new SecureRandom();
-        byte[] iv = new byte[Config.TWELVE_BYTE_IV ? 12 : 16];
+        final byte[] iv = new byte[12];
         random.nextBytes(iv);
         return iv;
     }
