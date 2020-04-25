@@ -1,0 +1,2 @@
+•  Audio/Video calls (Requires server support in form of STUN and TURN servers discoverable via XEP-0215)
+•  Rename App to only Conv6sation 

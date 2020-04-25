@@ -42,6 +42,7 @@ import android.util.Log;
 import android.util.LruCache;
 import android.util.Pair;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 
 import org.conscrypt.Conscrypt;
@@ -71,6 +72,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
@@ -107,6 +109,7 @@ import eu.siacs.conversations.parser.PresenceParser;
 import eu.siacs.conversations.persistance.DatabaseBackend;
 import eu.siacs.conversations.persistance.FileBackend;
 import eu.siacs.conversations.ui.ChooseAccountForProfilePictureActivity;
+import eu.siacs.conversations.ui.RtpSessionActivity;
 import eu.siacs.conversations.ui.SettingsActivity;
 import eu.siacs.conversations.ui.UiCallback;
 import eu.siacs.conversations.ui.interfaces.OnAvatarPublication;
@@ -141,9 +144,10 @@ import eu.siacs.conversations.xmpp.Patches;
 import eu.siacs.conversations.xmpp.XmppConnection;
 import eu.siacs.conversations.xmpp.chatstate.ChatState;
 import eu.siacs.conversations.xmpp.forms.Data;
+import eu.siacs.conversations.xmpp.jingle.AbstractJingleConnection;
 import eu.siacs.conversations.xmpp.jingle.JingleConnectionManager;
-import eu.siacs.conversations.xmpp.jingle.OnJinglePacketReceived;
-import eu.siacs.conversations.xmpp.jingle.stanzas.JinglePacket;
+import eu.siacs.conversations.xmpp.jingle.Media;
+import eu.siacs.conversations.xmpp.jingle.RtpEndUserState;
 import eu.siacs.conversations.xmpp.mam.MamReference;
 import eu.siacs.conversations.xmpp.pep.Avatar;
 import eu.siacs.conversations.xmpp.pep.PublishOptions;
@@ -164,6 +168,8 @@ public class XmppConnectionService extends Service {
     public static final String ACTION_IDLE_PING = "idle_ping";
     public static final String ACTION_FCM_TOKEN_REFRESH = "fcm_token_refresh";
     public static final String ACTION_FCM_MESSAGE_RECEIVED = "fcm_message_received";
+    public static final String ACTION_DISMISS_CALL = "dismiss_call";
+    public static final String ACTION_END_CALL = "end_call";
     private static final String ACTION_POST_CONNECTIVITY_CHANGE = "eu.siacs.conversations.POST_CONNECTIVITY_CHANGE";
 
     private static final String SETTING_LAST_ACTIVITY_TS = "last_activity_timestamp";
@@ -205,6 +211,7 @@ public class XmppConnectionService extends Service {
     private AtomicBoolean mInitialAddressbookSyncCompleted = new AtomicBoolean(false);
     private AtomicBoolean mForceForegroundService = new AtomicBoolean(false);
     private AtomicBoolean mForceDuringOnCreate = new AtomicBoolean(false);
+    private AtomicReference<OngoingCall> ongoingCall = new AtomicReference<>();
     private OnMessagePacketReceived mMessageParser = new MessageParser(this);
     private OnPresencePacketReceived mPresenceParser = new PresenceParser(this);
     private IqParser mIqParser = new IqParser(this);
@@ -221,15 +228,7 @@ public class XmppConnectionService extends Service {
     };
     private PresenceGenerator mPresenceGenerator = new PresenceGenerator(this);
     private List<Account> accounts;
-    private JingleConnectionManager mJingleConnectionManager = new JingleConnectionManager(
-            this);
-    private final OnJinglePacketReceived jingleListener = new OnJinglePacketReceived() {
-
-        @Override
-        public void onJinglePacketReceived(Account account, JinglePacket packet) {
-            mJingleConnectionManager.deliverPacket(account, packet);
-        }
-    };
+    private JingleConnectionManager mJingleConnectionManager = new JingleConnectionManager(this);
     private HttpConnectionManager mHttpConnectionManager = new HttpConnectionManager(this);
     private AvatarService mAvatarService = new AvatarService(this);
     private MessageArchiveService mMessageArchiveService = new MessageArchiveService(this);
@@ -275,6 +274,7 @@ public class XmppConnectionService extends Service {
     private final Set<OnUpdateBlocklist> mOnUpdateBlocklist = Collections.newSetFromMap(new WeakHashMap<OnUpdateBlocklist, Boolean>());
     private final Set<OnMucRosterUpdate> mOnMucRosterUpdate = Collections.newSetFromMap(new WeakHashMap<OnMucRosterUpdate, Boolean>());
     private final Set<OnKeyStatusUpdated> mOnKeyStatusUpdated = Collections.newSetFromMap(new WeakHashMap<OnKeyStatusUpdated, Boolean>());
+    private final Set<OnJingleRtpConnectionUpdate> onJingleRtpConnectionUpdate = Collections.newSetFromMap(new WeakHashMap<OnJingleRtpConnectionUpdate, Boolean>());
 
     private final Object LISTENER_LOCK = new Object();
 
@@ -314,7 +314,7 @@ public class XmppConnectionService extends Service {
             synchronized (account.inProgressConferencePings) {
                 account.inProgressConferencePings.clear();
             }
-            mJingleConnectionManager.cancelInTransmission();
+            mJingleConnectionManager.notifyRebound();
             mQuickConversationsService.considerSyncBackground(false);
             fetchRosterFromServer(account);
 
@@ -644,6 +644,18 @@ public class XmppConnectionService extends Service {
                         }
                     });
                     break;
+                case ACTION_DISMISS_CALL: {
+                    final String sessionId = intent.getStringExtra(RtpSessionActivity.EXTRA_SESSION_ID);
+                    Log.d(Config.LOGTAG, "received intent to dismiss call with session id " + sessionId);
+                    mJingleConnectionManager.rejectRtpSession(sessionId);
+                }
+                break;
+                case ACTION_END_CALL: {
+                    final String sessionId = intent.getStringExtra(RtpSessionActivity.EXTRA_SESSION_ID);
+                    Log.d(Config.LOGTAG, "received intent to end call with session id " + sessionId);
+                    mJingleConnectionManager.endRtpSession(sessionId);
+                }
+                break;
                 case ACTION_DISMISS_ERROR_NOTIFICATIONS:
                     dismissErrorNotifications();
                     break;
@@ -1218,11 +1230,30 @@ public class XmppConnectionService extends Service {
         toggleForegroundService(false);
     }
 
+    public void setOngoingCall(AbstractJingleConnection.Id id, Set<Media> media) {
+        ongoingCall.set(new OngoingCall(id, media));
+        toggleForegroundService(false);
+    }
+
+    public void removeOngoingCall() {
+        ongoingCall.set(null);
+        toggleForegroundService(false);
+    }
+
     private void toggleForegroundService(boolean force) {
         final boolean status;
-        if (force || mForceDuringOnCreate.get() || mForceForegroundService.get() || (Compatibility.keepForegroundService(this) && hasEnabledAccounts())) {
-            final Notification notification = this.mNotificationService.createForegroundNotification();
-            startForeground(NotificationService.FOREGROUND_NOTIFICATION_ID, notification);
+        final OngoingCall ongoing = ongoingCall.get();
+        if (force || mForceDuringOnCreate.get() || mForceForegroundService.get() || ongoing != null || (Compatibility.keepForegroundService(this) && hasEnabledAccounts())) {
+            final Notification notification;
+            if (ongoing != null) {
+                notification = this.mNotificationService.getOngoingCallNotification(ongoing.id, ongoing.media);
+                startForeground(NotificationService.ONGOING_CALL_NOTIFICATION_ID, notification);
+                mNotificationService.cancel(NotificationService.FOREGROUND_NOTIFICATION_ID);
+            } else {
+                notification = this.mNotificationService.createForegroundNotification();
+                startForeground(NotificationService.FOREGROUND_NOTIFICATION_ID, notification);
+            }
+
             if (!mForceForegroundService.get()) {
                 mNotificationService.notify(NotificationService.FOREGROUND_NOTIFICATION_ID, notification);
             }
@@ -1232,19 +1263,22 @@ public class XmppConnectionService extends Service {
             status = false;
         }
         if (!mForceForegroundService.get()) {
-            mNotificationService.dismissForcedForegroundNotification(); //if the channel was changed the previous call might fail
+            mNotificationService.cancel(NotificationService.FOREGROUND_NOTIFICATION_ID);
+        }
+        if (ongoing == null) {
+            mNotificationService.cancel(NotificationService.ONGOING_CALL_NOTIFICATION_ID);
         }
         Log.d(Config.LOGTAG, "ForegroundService: " + (status ? "on" : "off"));
     }
 
     public boolean foregroundNotificationNeedsUpdatingWhenErrorStateChanges() {
-        return !mForceForegroundService.get() && Compatibility.keepForegroundService(this) && hasEnabledAccounts();
+        return !mForceForegroundService.get() && ongoingCall.get() == null && Compatibility.keepForegroundService(this) && hasEnabledAccounts();
     }
 
     @Override
     public void onTaskRemoved(final Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
-        if ((Compatibility.keepForegroundService(this) && hasEnabledAccounts()) || mForceForegroundService.get()) {
+        if ((Compatibility.keepForegroundService(this) && hasEnabledAccounts()) || mForceForegroundService.get() || ongoingCall.get() != null) {
             Log.d(Config.LOGTAG, "ignoring onTaskRemoved because foreground service is activated");
         } else {
             this.logoutAndSave(false);
@@ -1327,7 +1361,7 @@ public class XmppConnectionService extends Service {
         connection.setOnStatusChangedListener(this.statusListener);
         connection.setOnPresencePacketReceivedListener(this.mPresenceParser);
         connection.setOnUnregisteredIqPacketReceivedListener(this.mIqParser);
-        connection.setOnJinglePacketReceivedListener(this.jingleListener);
+        connection.setOnJinglePacketReceivedListener(((a, jp) -> mJingleConnectionManager.deliverPacket(a, jp)));
         connection.setOnBindListener(this.mOnBindListener);
         connection.setOnMessageAcknowledgeListener(this.mOnMessageAcknowledgedListener);
         connection.addOnAdvancedStreamFeaturesAvailableListener(this.mMessageArchiveService);
@@ -1353,7 +1387,7 @@ public class XmppConnectionService extends Service {
                 || message.getConversation().getMode() == Conversation.MODE_MULTI) {
             mHttpConnectionManager.createNewUploadConnection(message, delay);
         } else {
-            mJingleConnectionManager.createNewConnection(message);
+            mJingleConnectionManager.startJingleFileTransfer(message);
         }
     }
 
@@ -2475,6 +2509,30 @@ public class XmppConnectionService extends Service {
         }
     }
 
+    public void setOnRtpConnectionUpdateListener(final OnJingleRtpConnectionUpdate listener) {
+        final boolean remainingListeners;
+        synchronized (LISTENER_LOCK) {
+            remainingListeners = checkListeners();
+            if (!this.onJingleRtpConnectionUpdate.add(listener)) {
+                Log.w(Config.LOGTAG, listener.getClass().getName() + " is already registered as OnJingleRtpConnectionUpdate");
+            }
+        }
+        if (remainingListeners) {
+            switchToForeground();
+        }
+    }
+
+    public void removeRtpConnectionUpdateListener(final OnJingleRtpConnectionUpdate listener) {
+        final boolean remainingListeners;
+        synchronized (LISTENER_LOCK) {
+            this.onJingleRtpConnectionUpdate.remove(listener);
+            remainingListeners = checkListeners();
+        }
+        if (remainingListeners) {
+            switchToBackground();
+        }
+    }
+
     public void setOnMucRosterUpdateListener(OnMucRosterUpdate listener) {
         final boolean remainingListeners;
         synchronized (LISTENER_LOCK) {
@@ -2507,6 +2565,7 @@ public class XmppConnectionService extends Service {
                 && this.mOnMucRosterUpdate.size() == 0
                 && this.mOnUpdateBlocklist.size() == 0
                 && this.mOnShowErrorToasts.size() == 0
+                && this.onJingleRtpConnectionUpdate.size() == 0
                 && this.mOnKeyStatusUpdated.size() == 0);
     }
 
@@ -3951,6 +4010,18 @@ public class XmppConnectionService extends Service {
         }
     }
 
+    public void notifyJingleRtpConnectionUpdate(final Account account, final Jid with, final String sessionId, final RtpEndUserState state) {
+        for (OnJingleRtpConnectionUpdate listener : threadSafeList(this.onJingleRtpConnectionUpdate)) {
+            listener.onJingleRtpConnectionUpdate(account, with, sessionId, state);
+        }
+    }
+
+    public void notifyJingleRtpConnectionUpdate(AppRTCAudioManager.AudioDevice selectedAudioDevice, Set<AppRTCAudioManager.AudioDevice> availableAudioDevices) {
+        for (OnJingleRtpConnectionUpdate listener : threadSafeList(this.onJingleRtpConnectionUpdate)) {
+            listener.onAudioDeviceChanged(selectedAudioDevice, availableAudioDevices);
+        }
+    }
+
     public void updateAccountUi() {
         for (OnAccountUpdate listener : threadSafeList(this.mOnAccountUpdates)) {
             listener.onAccountUpdate();
@@ -3994,9 +4065,9 @@ public class XmppConnectionService extends Service {
         }
     }
 
-    public Account findAccountByJid(final Jid accountJid) {
-        for (Account account : this.accounts) {
-            if (account.getJid().asBareJid().equals(accountJid.asBareJid())) {
+    public Account findAccountByJid(final Jid jid) {
+        for (final Account account : this.accounts) {
+            if (account.getJid().asBareJid().equals(jid.asBareJid())) {
                 return account;
             }
         }
@@ -4628,6 +4699,12 @@ public class XmppConnectionService extends Service {
         void onConversationUpdate();
     }
 
+    public interface OnJingleRtpConnectionUpdate {
+        void onJingleRtpConnectionUpdate(final Account account, final Jid with, final String sessionId, final RtpEndUserState state);
+
+        void onAudioDeviceChanged(AppRTCAudioManager.AudioDevice selectedAudioDevice, Set<AppRTCAudioManager.AudioDevice> availableAudioDevices);
+    }
+
     public interface OnAccountUpdate {
         void onAccountUpdate();
     }
@@ -4675,6 +4752,29 @@ public class XmppConnectionService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             onStartCommand(intent, 0, 0);
+        }
+    }
+
+    public static class OngoingCall {
+        private final AbstractJingleConnection.Id id;
+        private final Set<Media> media;
+
+        public OngoingCall(AbstractJingleConnection.Id id, Set<Media> media) {
+            this.id = id;
+            this.media = media;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            OngoingCall that = (OngoingCall) o;
+            return Objects.equal(id, that.id);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(id);
         }
     }
 }

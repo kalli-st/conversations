@@ -30,8 +30,13 @@ public class Compatibility {
             "led",
             "notification_ringtone",
             "notification_headsup",
-            "vibrate_on_notification");
-    private static final List<String> UNUESD_SETTINGS_PRE_TWENTYSIX = Collections.singletonList("more_notification_settings");
+            "vibrate_on_notification",
+            "call_ringtone"
+    );
+    private static final List<String> UNUESD_SETTINGS_PRE_TWENTYSIX = Arrays.asList(
+            "message_notification_settings",
+            "call_notification_settings"
+    );
 
 
     public static boolean hasStoragePermission(Context context) {
@@ -131,7 +136,7 @@ public class Compatibility {
                 context.startService(intent);
             }
         } catch (RuntimeException e) {
-            Log.d(Config.LOGTAG, context.getClass().getSimpleName()+" was unable to start service");
+            Log.d(Config.LOGTAG, context.getClass().getSimpleName() + " was unable to start service");
         }
     }
 }

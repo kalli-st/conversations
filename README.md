@@ -43,6 +43,7 @@
 
 * End-to-end encryption with [OMEMO](http://conversations.im/omemo/) or [OpenPGP](http://openpgp.org/about/)
 * Send and receive images as well as other kind of files
+* Make audio and video calls
 * Share your location
 * Send voice messages
 * Indication when your contact has read your message
@@ -150,7 +151,7 @@ However you can disable the notification via settings of the operating system. (
 
 **The battery consumption and the entire behaviour of Conversations will remain the same (as good or as bad as it was before). Why is Google doing this to you? We have no idea.**
 
-##### Android &lt;= 7.1
+##### Android &lt;= 7.1 or Conversations from F-Droid (all Android versions)
 The foreground notification is still controlled over the expert settings within Conversations as it always has been. Whether or not you need to enable it depends on how aggressive the non-standard 'power saving' features are that your phone vendor has built into the operating system.
 
 ##### Android 8.x
@@ -367,6 +368,12 @@ Unfortunately we don‘t have a recommendation for iPhones right now. There are 
 
 #### How do I build Conversations
 
+**Note:** Starting with version 2.8.0 you will need to compile libwebrtc.
+[Instructions](https://webrtc.github.io/webrtc-org/native-code/android/) can be found on the WebRTC
+website. Place the resulting libwebrtc.aar in the `libs/` directory. The PlayStore release currently
+uses the stable M81 release and renamed the file name to `libwebrtc-m81.aar` put potentially you can
+reference any file name by modifying `build.gradle`.
+
 Make sure to have ANDROID_HOME point to your Android SDK. Use the Android SDK Manager to install missing dependencies.
 
     git clone https://github.com/siacs/Conversations.git
@@ -412,7 +419,7 @@ Debian/Ubuntu for example it is called `android-tools-adb`.
 Furthermore you might have to enable 'USB debugging' in the Developer options of your
 phone. After that you can just execute the following on your computer:
 
-    adb -d logcat -v time -s conversations
+    adb -d logcat -v time -s conver6ations
 
 If need be there are also some Apps on the PlayStore that can be used to show the logcat
 directly on your rooted phone. (Search for logcat). However in regards to further processing
