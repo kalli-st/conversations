@@ -6,6 +6,7 @@ import android.util.Log;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -48,15 +49,12 @@ import rocks.xmpp.addr.Jid;
 
 public class JingleRtpConnection extends AbstractJingleConnection implements WebRTCWrapper.EventCallback {
 
-    private static final long BUSY_TIME_OUT = 30;
-
     public static final List<State> STATES_SHOWING_ONGOING_CALL = Arrays.asList(
             State.PROCEED,
-            State.SESSION_INITIALIZED,
             State.SESSION_INITIALIZED_PRE_APPROVED,
             State.SESSION_ACCEPTED
     );
-
+    private static final long BUSY_TIME_OUT = 30;
     private static final List<State> TERMINATED = Arrays.asList(
             State.TERMINATED_SUCCESS,
             State.TERMINATED_DECLINED_OR_BUSY,
@@ -236,31 +234,40 @@ public class JingleRtpConnection extends AbstractJingleConnection implements Web
             if (identificationTags.size() == 0) {
                 Log.w(Config.LOGTAG, id.account.getJid().asBareJid() + ": no identification tags found in initial offer. we won't be able to calculate mLineIndices");
             }
-            for (final Map.Entry<String, RtpContentMap.DescriptionTransport> content : contentMap.contents.entrySet()) {
-                final String ufrag = content.getValue().transport.getAttribute("ufrag");
-                for (final IceUdpTransportInfo.Candidate candidate : content.getValue().transport.getCandidates()) {
-                    final String sdp;
-                    try {
-                        sdp = candidate.toSdpAttribute(ufrag);
-                    } catch (IllegalArgumentException e) {
-                        Log.d(Config.LOGTAG, id.account.getJid().asBareJid() + ": ignoring invalid ICE candidate " + e.getMessage());
-                        continue;
-                    }
-                    final String sdpMid = content.getKey();
-                    final int mLineIndex = identificationTags.indexOf(sdpMid);
-                    final IceCandidate iceCandidate = new IceCandidate(sdpMid, mLineIndex, sdp);
-                    if (isInState(State.SESSION_ACCEPTED)) {
-                        Log.d(Config.LOGTAG, "received candidate: " + iceCandidate);
-                        this.webRTCWrapper.addIceCandidate(iceCandidate);
-                    } else {
-                        this.pendingIceCandidates.offer(iceCandidate);
-                        Log.d(Config.LOGTAG, id.account.getJid().asBareJid() + ": put ICE candidate on backlog");
-                    }
+            receiveCandidates(identificationTags, contentMap.contents.entrySet());
+        } else {
+            if (isTerminated()) {
+                respondOk(jinglePacket);
+                Log.d(Config.LOGTAG, id.account.getJid().asBareJid() + ": ignoring out-of-order transport info; we where already terminated");
+            } else {
+                Log.d(Config.LOGTAG, id.account.getJid().asBareJid() + ": received transport info while in state=" + this.state);
+                terminateWithOutOfOrder(jinglePacket);
+            }
+        }
+    }
+
+    private void receiveCandidates(final List<String> identificationTags, final Set<Map.Entry<String, RtpContentMap.DescriptionTransport>> contents) {
+        for (final Map.Entry<String, RtpContentMap.DescriptionTransport> content : contents) {
+            final String ufrag = content.getValue().transport.getAttribute("ufrag");
+            for (final IceUdpTransportInfo.Candidate candidate : content.getValue().transport.getCandidates()) {
+                final String sdp;
+                try {
+                    sdp = candidate.toSdpAttribute(ufrag);
+                } catch (IllegalArgumentException e) {
+                    Log.d(Config.LOGTAG, id.account.getJid().asBareJid() + ": ignoring invalid ICE candidate " + e.getMessage());
+                    continue;
+                }
+                final String sdpMid = content.getKey();
+                final int mLineIndex = identificationTags.indexOf(sdpMid);
+                final IceCandidate iceCandidate = new IceCandidate(sdpMid, mLineIndex, sdp);
+                if (isInState(State.SESSION_ACCEPTED)) {
+                    Log.d(Config.LOGTAG, "received candidate: " + iceCandidate);
+                    this.webRTCWrapper.addIceCandidate(iceCandidate);
+                } else {
+                    this.pendingIceCandidates.offer(iceCandidate);
+                    Log.d(Config.LOGTAG, id.account.getJid().asBareJid() + ": put ICE candidate on backlog");
                 }
             }
-        } else {
-            Log.d(Config.LOGTAG, id.account.getJid().asBareJid() + ": received transport info while in state=" + this.state);
-            terminateWithOutOfOrder(jinglePacket);
         }
     }
 
@@ -276,9 +283,9 @@ public class JingleRtpConnection extends AbstractJingleConnection implements Web
             contentMap.requireContentDescriptions();
             contentMap.requireDTLSFingerprint();
         } catch (final RuntimeException e) {
+            Log.d(Config.LOGTAG, id.account.getJid().asBareJid() + ": improperly formatted contents", Throwables.getRootCause(e));
             respondOk(jinglePacket);
             sendSessionTerminate(Reason.of(e), e.getMessage());
-            Log.d(Config.LOGTAG, id.account.getJid().asBareJid() + ": improperly formatted contents", e);
             return;
         }
         Log.d(Config.LOGTAG, "processing session-init with " + contentMap.contents.size() + " contents");
@@ -302,6 +309,8 @@ public class JingleRtpConnection extends AbstractJingleConnection implements Web
         }
         if (transition(target, () -> this.initiatorRtpContentMap = contentMap)) {
             respondOk(jinglePacket);
+            final List<String> identificationTags = contentMap.group == null ? Collections.emptyList() : contentMap.group.getIdentificationTags();
+            receiveCandidates(identificationTags, contentMap.contents.entrySet());
             if (target == State.SESSION_INITIALIZED_PRE_APPROVED) {
                 Log.d(Config.LOGTAG, id.account.getJid().asBareJid() + ": automatically accepting session-initiate");
                 sendSessionAccept();
@@ -346,6 +355,8 @@ public class JingleRtpConnection extends AbstractJingleConnection implements Web
         if (transition(State.SESSION_ACCEPTED)) {
             respondOk(jinglePacket);
             receiveSessionAccept(contentMap);
+            final List<String> identificationTags = contentMap.group == null ? Collections.emptyList() : contentMap.group.getIdentificationTags();
+            receiveCandidates(identificationTags, contentMap.contents.entrySet());
         } else {
             Log.d(Config.LOGTAG, String.format("%s: received session-accept while in state %s", id.account.getJid().asBareJid(), state));
             respondOk(jinglePacket);
@@ -369,8 +380,8 @@ public class JingleRtpConnection extends AbstractJingleConnection implements Web
         );
         try {
             this.webRTCWrapper.setRemoteDescription(answer).get();
-        } catch (Exception e) {
-            Log.d(Config.LOGTAG, id.account.getJid().asBareJid() + ": unable to set remote description after receiving session-accept", e);
+        } catch (final Exception e) {
+            Log.d(Config.LOGTAG, id.account.getJid().asBareJid() + ": unable to set remote description after receiving session-accept", Throwables.getRootCause(e));
             webRTCWrapper.close();
             sendSessionTerminate(Reason.FAILED_APPLICATION);
         }
@@ -419,10 +430,11 @@ public class JingleRtpConnection extends AbstractJingleConnection implements Web
             final SessionDescription sessionDescription = SessionDescription.parse(webRTCSessionDescription.description);
             final RtpContentMap respondingRtpContentMap = RtpContentMap.of(sessionDescription);
             sendSessionAccept(respondingRtpContentMap);
-            this.webRTCWrapper.setLocalDescription(webRTCSessionDescription);
-        } catch (Exception e) {
-            Log.d(Config.LOGTAG, "unable to send session accept", e);
-
+            this.webRTCWrapper.setLocalDescription(webRTCSessionDescription).get();
+        } catch (final Exception e) {
+            Log.d(Config.LOGTAG, "unable to send session accept", Throwables.getRootCause(e));
+            webRTCWrapper.close();
+            sendSessionTerminate(Reason.FAILED_APPLICATION);
         }
     }
 
@@ -635,7 +647,7 @@ public class JingleRtpConnection extends AbstractJingleConnection implements Web
             sendSessionInitiate(rtpContentMap, targetState);
             this.webRTCWrapper.setLocalDescription(webRTCSessionDescription).get();
         } catch (final Exception e) {
-            Log.d(Config.LOGTAG, id.account.getJid().asBareJid() + ": unable to sendSessionInitiate", e);
+            Log.d(Config.LOGTAG, id.account.getJid().asBareJid() + ": unable to sendSessionInitiate", Throwables.getRootCause(e));
             webRTCWrapper.close();
             if (isInState(targetState)) {
                 sendSessionTerminate(Reason.FAILED_APPLICATION);
@@ -657,9 +669,12 @@ public class JingleRtpConnection extends AbstractJingleConnection implements Web
     }
 
     private void sendSessionTerminate(final Reason reason, final String text) {
+        final State previous = this.state;
         final State target = reasonToState(reason);
         transitionOrThrow(target);
-        writeLogMessage(target);
+        if (previous != State.NULL) {
+            writeLogMessage(target);
+        }
         final JinglePacket jinglePacket = new JinglePacket(JinglePacket.Action.SESSION_TERMINATE, id.sessionId);
         jinglePacket.setReason(reason, text);
         Log.d(Config.LOGTAG, jinglePacket.toString());
@@ -672,7 +687,7 @@ public class JingleRtpConnection extends AbstractJingleConnection implements Web
         try {
             final RtpContentMap rtpContentMap = isInitiator() ? this.initiatorRtpContentMap : this.responderRtpContentMap;
             transportInfo = rtpContentMap.transportInfo(contentName, candidate);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             Log.d(Config.LOGTAG, id.account.getJid().asBareJid() + ": unable to prepare transport-info from candidate for content=" + contentName);
             return;
         }
@@ -788,15 +803,18 @@ public class JingleRtpConnection extends AbstractJingleConnection implements Web
     }
 
     public Set<Media> getMedia() {
-        if (isInState(State.NULL)) {
+        final State current = getState();
+        if (current == State.NULL) {
             throw new IllegalStateException("RTP connection has not been initialized yet");
         }
-        if (isInState(State.PROPOSED, State.PROCEED)) {
+        if (Arrays.asList(State.PROPOSED, State.PROCEED).contains(current)) {
             return Preconditions.checkNotNull(this.proposedMedia, "RTP connection has not been initialized properly");
         }
         final RtpContentMap initiatorContentMap = initiatorRtpContentMap;
         if (initiatorContentMap != null) {
             return initiatorContentMap.getMedia();
+        } else if (isTerminated()) {
+            return Collections.emptySet(); //we might fail before we ever got a chance to set media
         } else {
             return Preconditions.checkNotNull(this.proposedMedia, "RTP connection has not been initialized properly");
         }
@@ -1024,7 +1042,9 @@ public class JingleRtpConnection extends AbstractJingleConnection implements Web
     }
 
     private void updateEndUserState() {
-        xmppConnectionService.notifyJingleRtpConnectionUpdate(id.account, id.with, id.sessionId, getEndUserState());
+        final RtpEndUserState endUserState = getEndUserState();
+        jingleConnectionManager.toneManager.transition(isInitiator(), endUserState, getMedia());
+        xmppConnectionService.notifyJingleRtpConnectionUpdate(id.account, id.with, id.sessionId, endUserState);
     }
 
     private void updateOngoingCallNotification() {
@@ -1140,7 +1160,7 @@ public class JingleRtpConnection extends AbstractJingleConnection implements Web
         return TERMINATED.contains(this.state);
     }
 
-    public Optional<VideoTrack> geLocalVideoTrack() {
+    public Optional<VideoTrack> getLocalVideoTrack() {
         return webRTCWrapper.getLocalVideoTrack();
     }
 
