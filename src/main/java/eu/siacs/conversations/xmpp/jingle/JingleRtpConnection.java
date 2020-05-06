@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.webrtc.EglBase;
 import org.webrtc.IceCandidate;
@@ -415,7 +416,9 @@ public class JingleRtpConnection extends AbstractJingleConnection implements Web
         }
         try {
             setupWebRTC(media, iceServers);
-        } catch (WebRTCWrapper.InitializationException e) {
+        } catch (final WebRTCWrapper.InitializationException e) {
+            Log.d(Config.LOGTAG, id.account.getJid().asBareJid() + ": unable to initialize WebRTC");
+            webRTCWrapper.close();
             sendSessionTerminate(Reason.FAILED_APPLICATION);
             return;
         }
@@ -561,9 +564,11 @@ public class JingleRtpConnection extends AbstractJingleConnection implements Web
         Log.d(Config.LOGTAG, id.account.getJid().asBareJid() + ": timeout reached for ringing");
         switch (this.state) {
             case PROPOSED:
+                message.markUnread();
                 rejectCallFromProposed();
                 break;
             case SESSION_INITIALIZED:
+                message.markUnread();
                 rejectCallFromSessionInitiate();
                 break;
         }
@@ -613,6 +618,7 @@ public class JingleRtpConnection extends AbstractJingleConnection implements Web
                     this.message.setServerMsgId(serverMsgId);
                 }
                 this.message.setTime(timestamp);
+                this.message.markUnread();
                 writeLogMessageMissed();
                 finish();
             } else {
@@ -636,7 +642,10 @@ public class JingleRtpConnection extends AbstractJingleConnection implements Web
         try {
             setupWebRTC(media, iceServers);
         } catch (WebRTCWrapper.InitializationException e) {
-            Log.d(Config.LOGTAG, id.account.getJid().asBareJid() + ": unable to initialize webrtc");
+            Log.d(Config.LOGTAG, id.account.getJid().asBareJid() + ": unable to initialize WebRTC");
+            webRTCWrapper.close();
+            //todo we haven’t actually initiated the session yet; so sending sessionTerminate makes no sense
+            //todo either we don’t ring ever at all or maybe we should send a retract or something
             transitionOrThrow(State.TERMINATED_APPLICATION_FAILURE);
             return;
         }
@@ -1032,6 +1041,19 @@ public class JingleRtpConnection extends AbstractJingleConnection implements Web
         return webRTCWrapper.isVideoEnabled();
     }
 
+
+    public boolean isCameraSwitchable() {
+        return webRTCWrapper.isCameraSwitchable();
+    }
+
+    public boolean isFrontCamera() {
+        return webRTCWrapper.isFrontCamera();
+    }
+
+    public ListenableFuture<Boolean> switchCamera() {
+        return webRTCWrapper.switchCamera();
+    }
+
     public void setVideoEnabled(final boolean enabled) {
         webRTCWrapper.setVideoEnabled(enabled);
     }
@@ -1086,7 +1108,9 @@ public class JingleRtpConnection extends AbstractJingleConnection implements Web
                                     continue;
                                 }
                                 //TODO wrap ipv6 addresses
-                                PeerConnection.IceServer.Builder iceServerBuilder = PeerConnection.IceServer.builder(String.format("%s:%s:%s?transport=%s", type, host, port, transport));
+                                final PeerConnection.IceServer.Builder iceServerBuilder = PeerConnection.IceServer
+                                        .builder(String.format("%s:%s:%s?transport=%s", type, host, port, transport));
+                                iceServerBuilder.setTlsCertPolicy(PeerConnection.TlsCertPolicy.TLS_CERT_POLICY_INSECURE_NO_CHECK);
                                 if (username != null && password != null) {
                                     iceServerBuilder.setUsername(username);
                                     iceServerBuilder.setPassword(password);

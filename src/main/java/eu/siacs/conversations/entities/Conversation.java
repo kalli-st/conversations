@@ -196,13 +196,14 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
     public void findUnreadMessages(OnMessageFound onMessageFound) {
         final ArrayList<Message> results = new ArrayList<>();
         synchronized (this.messages) {
-            for (Message message : this.messages) {
-                if (!message.isRead()) {
-                    results.add(message);
+            for (final Message message : this.messages) {
+                if (message.isRead() || message.getType() == Message.TYPE_RTP_SESSION) {
+                    continue;
                 }
+                results.add(message);
             }
         }
-        for (Message result : results) {
+        for (final Message result : results) {
             onMessageFound.onMessageFound(result);
         }
     }
@@ -338,10 +339,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                 if (mcp == null) {
                     continue;
                 }
-                final boolean counterpartMatch = mode == MODE_SINGLE ?
-                        counterpart.asBareJid().equals(mcp.asBareJid()) :
-                        counterpart.equals(mcp);
-                if (counterpartMatch && ((message.getStatus() == Message.STATUS_RECEIVED) == received)
+                if (mcp.equals(counterpart) && ((message.getStatus() == Message.STATUS_RECEIVED) == received)
                         && (carbon == message.isCarbon() || received)) {
                     final boolean idMatch = id.equals(message.getRemoteMsgId()) || message.remoteMsgIdMatchInEdit(id);
                     if (idMatch && !message.isFileOrImage() && !message.treatAsDownloadable()) {

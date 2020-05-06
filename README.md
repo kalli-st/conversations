@@ -376,7 +376,7 @@ reference any file name by modifying `build.gradle`.
 
 Make sure to have ANDROID_HOME point to your Android SDK. Use the Android SDK Manager to install missing dependencies.
 
-    git clone https://github.com/siacs/Conversations.git
+    git clone https://github.com/inputmice/Conversations.git
     cd Conversations
     ./gradlew assembleConversationsFreeSystemDebug
 
