@@ -75,7 +75,7 @@ import eu.siacs.conversations.xmpp.XmppConnection;
 import eu.siacs.conversations.xmpp.XmppConnection.Features;
 import eu.siacs.conversations.xmpp.forms.Data;
 import eu.siacs.conversations.xmpp.pep.Avatar;
-import rocks.xmpp.addr.Jid;
+import eu.siacs.conversations.xmpp.Jid;
 
 public class EditAccountActivity extends OmemoActivity implements OnAccountUpdate, OnUpdateBlocklist,
         OnKeyStatusUpdated, OnCaptchaRequested, KeyChainAliasCallback, XmppConnectionService.OnShowErrorToast, XmppConnectionService.OnMamPreferencesFetched {
@@ -201,9 +201,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
             final Jid jid;
             try {
                 if (mUsernameMode) {
-                    jid = Jid.of(binding.accountJid.getText().toString(), getUserModeDomain(), null);
+                    jid = Jid.ofEscaped(binding.accountJid.getText().toString(), getUserModeDomain(), null);
                 } else {
-                    jid = Jid.of(binding.accountJid.getText().toString());
+                    jid = Jid.ofEscaped(binding.accountJid.getText().toString());
                 }
             } catch (final NullPointerException | IllegalArgumentException e) {
                 if (mUsernameMode) {
@@ -577,9 +577,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
     protected boolean jidEdited() {
         final String unmodified;
         if (mUsernameMode) {
-            unmodified = this.mAccount.getJid().getLocal();
+            unmodified = this.mAccount.getJid().getEscapedLocal();
         } else {
-            unmodified = this.mAccount.getJid().asBareJid().toString();
+            unmodified = this.mAccount.getJid().asBareJid().toEscapedString();
         }
         return !unmodified.equals(this.binding.accountJid.getText().toString());
     }
@@ -784,12 +784,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
             this.mInitMode |= this.mAccount.isOptionSet(Account.OPTION_REGISTER);
             this.mUsernameMode |= mAccount.isOptionSet(Account.OPTION_MAGIC_CREATE) && mAccount.isOptionSet(Account.OPTION_REGISTER);
-            if (this.mAccount.getPrivateKeyAlias() != null) {
-                this.binding.accountPassword.setHint(R.string.authenticate_with_certificate);
-                if (this.mInitMode) {
-                    this.binding.accountPassword.requestFocus();
-                }
-            }
             if (mPendingFingerprintVerificationUri != null) {
                 processFingerprintVerification(mPendingFingerprintVerificationUri, false);
                 mPendingFingerprintVerificationUri = null;
@@ -822,7 +816,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
     private String getUserModeDomain() {
         if (mAccount != null && mAccount.getJid().getDomain() != null) {
-            return mAccount.getJid().getDomain();
+            return mAccount.getServer();
         } else {
             return Config.DOMAIN_LOCK;
         }
@@ -965,9 +959,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
         if (init) {
             this.binding.accountJid.getEditableText().clear();
             if (mUsernameMode) {
-                this.binding.accountJid.getEditableText().append(this.mAccount.getJid().getLocal());
+                this.binding.accountJid.getEditableText().append(this.mAccount.getJid().getEscapedLocal());
             } else {
-                this.binding.accountJid.getEditableText().append(this.mAccount.getJid().asBareJid().toString());
+                this.binding.accountJid.getEditableText().append(this.mAccount.getJid().asBareJid().toEscapedString());
             }
             this.binding.accountPassword.getEditableText().clear();
             this.binding.accountPassword.getEditableText().append(this.mAccount.getPassword());

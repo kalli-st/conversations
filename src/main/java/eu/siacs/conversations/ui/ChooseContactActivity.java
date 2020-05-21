@@ -39,7 +39,7 @@ import eu.siacs.conversations.ui.interfaces.OnBackendConnected;
 import eu.siacs.conversations.ui.util.ActivityResult;
 import eu.siacs.conversations.ui.util.PendingItem;
 import eu.siacs.conversations.utils.XmppUri;
-import rocks.xmpp.addr.Jid;
+import eu.siacs.conversations.xmpp.Jid;
 
 public class ChooseContactActivity extends AbstractSearchableListItemActivity implements MultiChoiceModeListener, AdapterView.OnItemClickListener {
     public static final String EXTRA_TITLE_RES_ID = "extra_title_res_id";
@@ -361,9 +361,9 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
         for (Account account : xmppConnectionService.getAccounts()) {
             if (account.getStatus() != Account.State.DISABLED) {
                 if (Config.DOMAIN_LOCK != null) {
-                    this.mActivatedAccounts.add(account.getJid().getLocal());
+                    this.mActivatedAccounts.add(account.getJid().getEscapedLocal());
                 } else {
-                    this.mActivatedAccounts.add(account.getJid().asBareJid().toString());
+                    this.mActivatedAccounts.add(account.getJid().asBareJid().toEscapedString());
                 }
             }
         }

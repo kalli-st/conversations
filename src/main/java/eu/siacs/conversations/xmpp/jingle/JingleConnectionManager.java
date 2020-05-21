@@ -48,7 +48,7 @@ import eu.siacs.conversations.xmpp.jingle.stanzas.Reason;
 import eu.siacs.conversations.xmpp.jingle.stanzas.RtpDescription;
 import eu.siacs.conversations.xmpp.stanzas.IqPacket;
 import eu.siacs.conversations.xmpp.stanzas.MessagePacket;
-import rocks.xmpp.addr.Jid;
+import eu.siacs.conversations.xmpp.Jid;
 
 public class JingleConnectionManager extends AbstractConnectionManager {
     static final ScheduledExecutorService SCHEDULED_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor();
@@ -601,7 +601,7 @@ public class JingleConnectionManager extends AbstractConnectionManager {
     }
 
     public WeakReference<JingleRtpConnection> findJingleRtpConnection(Account account, Jid with, String sessionId) {
-        final AbstractJingleConnection.Id id = AbstractJingleConnection.Id.of(account, Jid.ofEscaped(with), sessionId);
+        final AbstractJingleConnection.Id id = AbstractJingleConnection.Id.of(account, with, sessionId);
         final AbstractJingleConnection connection = connections.get(id);
         if (connection instanceof JingleRtpConnection) {
             return new WeakReference<>((JingleRtpConnection) connection);

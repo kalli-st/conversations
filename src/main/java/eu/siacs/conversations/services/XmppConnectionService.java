@@ -155,7 +155,7 @@ import eu.siacs.conversations.xmpp.stanzas.IqPacket;
 import eu.siacs.conversations.xmpp.stanzas.MessagePacket;
 import eu.siacs.conversations.xmpp.stanzas.PresencePacket;
 import me.leolin.shortcutbadger.ShortcutBadger;
-import rocks.xmpp.addr.Jid;
+import eu.siacs.conversations.xmpp.Jid;
 
 public class XmppConnectionService extends Service {
 
@@ -2196,15 +2196,16 @@ public class XmppConnectionService extends Service {
                     return;
                 }
                 if (findAccountByJid(info.first) == null) {
-                    Account account = new Account(info.first, "");
+                    final Account account = new Account(info.first, "");
                     account.setPrivateKeyAlias(alias);
                     account.setOption(Account.OPTION_DISABLED, true);
+                    account.setOption(Account.OPTION_FIXED_USERNAME, true);
                     account.setDisplayName(info.second);
                     createAccount(account);
                     callback.onAccountCreated(account);
                     if (Config.X509_VERIFICATION) {
                         try {
-                            getMemorizingTrustManager().getNonInteractive(account.getJid().getDomain()).checkClientTrusted(chain, "RSA");
+                            getMemorizingTrustManager().getNonInteractive(account.getServer()).checkClientTrusted(chain, "RSA");
                         } catch (CertificateException e) {
                             callback.informUser(R.string.certificate_chain_is_not_trusted);
                         }
@@ -2213,7 +2214,6 @@ public class XmppConnectionService extends Service {
                     callback.informUser(R.string.account_already_exists);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
                 callback.informUser(R.string.unable_to_parse_certificate);
             }
         }).start();
@@ -2821,7 +2821,7 @@ public class XmppConnectionService extends Service {
                         boolean changed = false;
                         for (ListIterator<Jid> iterator = cryptoTargets.listIterator(); iterator.hasNext(); ) {
                             Jid jid = iterator.next();
-                            if (!members.contains(jid) && !members.contains(Jid.ofDomain(jid.getDomain()))) {
+                            if (!members.contains(jid) && !members.contains(jid.getDomain())) {
                                 iterator.remove();
                                 Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": removed " + jid + " from crypto targets of " + conversation.getName());
                                 changed = true;
@@ -3751,7 +3751,7 @@ public class XmppConnectionService extends Service {
         if (account.getStatus() == Account.State.ONLINE) {
             IqPacket iq = new IqPacket(IqPacket.TYPE.SET);
             Element item = iq.query(Namespace.ROSTER).addChild("item");
-            item.setAttribute("jid", contact.getJid().toString());
+            item.setAttribute("jid", contact.getJid());
             item.setAttribute("subscription", "remove");
             account.getXmppConnection().sendIqPacket(iq, mDefaultIqHandler);
         }
@@ -4160,7 +4160,7 @@ public class XmppConnectionService extends Service {
                 mucServers.addAll(account.getXmppConnection().getMucServers());
                 for (Bookmark bookmark : account.getBookmarks()) {
                     final Jid jid = bookmark.getJid();
-                    final String s = jid == null ? null : jid.getDomain();
+                    final String s = jid == null ? null : jid.getDomain().toEscapedString();
                     if (s != null) {
                         mucServers.add(s);
                     }

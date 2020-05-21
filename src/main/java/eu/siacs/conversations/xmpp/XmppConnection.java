@@ -100,7 +100,6 @@ import eu.siacs.conversations.xmpp.stanzas.streammgmt.AckPacket;
 import eu.siacs.conversations.xmpp.stanzas.streammgmt.EnablePacket;
 import eu.siacs.conversations.xmpp.stanzas.streammgmt.RequestPacket;
 import eu.siacs.conversations.xmpp.stanzas.streammgmt.ResumePacket;
-import rocks.xmpp.addr.Jid;
 
 public class XmppConnection implements Runnable {
 
@@ -290,8 +289,7 @@ public class XmppConnection implements Runnable {
                     throw new IOException(e.getMessage());
                 }
             } else {
-                final String domain = account.getJid().getDomain();
-                final Resolver.Result storedBackupResult = mXmppConnectionService.databaseBackend.findResolverResult(domain);
+                final String domain = account.getServer();
                 Resolver.Result result = null;
                 final boolean hardcoded = extended && !account.getHostname().isEmpty();
                 if (hardcoded) {
@@ -405,14 +403,14 @@ public class XmppConnection implements Runnable {
 
     private TlsFactoryVerifier getTlsFactoryVerifier() throws NoSuchAlgorithmException, KeyManagementException, IOException {
         final SSLContext sc = SSLSocketHelper.getSSLContext();
-        MemorizingTrustManager trustManager = this.mXmppConnectionService.getMemorizingTrustManager();
-        KeyManager[] keyManager;
-        if (account.getPrivateKeyAlias() != null && account.getPassword().isEmpty()) {
+        final MemorizingTrustManager trustManager = this.mXmppConnectionService.getMemorizingTrustManager();
+        final KeyManager[] keyManager;
+        if (account.getPrivateKeyAlias() != null) {
             keyManager = new KeyManager[]{new MyKeyManager()};
         } else {
             keyManager = null;
         }
-        String domain = account.getJid().getDomain();
+        final String domain = account.getServer();
         sc.init(keyManager, new X509TrustManager[]{mInteractive ? trustManager.getInteractive(domain) : trustManager.getNonInteractive(domain)}, mXmppConnectionService.getRNG());
         final SSLSocketFactory factory = sc.getSocketFactory();
         final DomainHostnameVerifier verifier = trustManager.wrapHostnameVerifier(new XmppDomainVerifier(), mInteractive);
@@ -908,7 +906,7 @@ public class XmppConnection implements Runnable {
     private void sendRegistryRequest() {
         final IqPacket register = new IqPacket(IqPacket.TYPE.GET);
         register.query(Namespace.REGISTER);
-        register.setTo(Jid.of(account.getServer()));
+        register.setTo(account.getDomain());
         sendUnmodifiedIqPacket(register, (account, packet) -> {
             if (packet.getType() == IqPacket.TYPE.TIMEOUT) {
                 return;
@@ -1150,18 +1148,18 @@ public class XmppConnection implements Runnable {
         }
         final boolean requestDiscoItemsFirst = !account.isOptionSet(Account.OPTION_LOGGED_IN_SUCCESSFULLY);
         if (requestDiscoItemsFirst) {
-            sendServiceDiscoveryItems(Jid.of(account.getServer()));
+            sendServiceDiscoveryItems(account.getDomain());
         }
         if (discoveryResult == null) {
-            sendServiceDiscoveryInfo(Jid.of(account.getServer()));
+            sendServiceDiscoveryInfo(account.getDomain());
         } else {
             Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": server caps came from cache");
-            disco.put(Jid.of(account.getServer()), discoveryResult);
+            disco.put(account.getDomain(), discoveryResult);
         }
         discoverMamPreferences();
         sendServiceDiscoveryInfo(account.getJid().asBareJid());
         if (!requestDiscoItemsFirst) {
-            sendServiceDiscoveryItems(Jid.of(account.getServer()));
+            sendServiceDiscoveryItems(account.getDomain());
         }
 
         if (!mWaitForDisco.get()) {
@@ -1180,24 +1178,24 @@ public class XmppConnection implements Runnable {
                 boolean advancedStreamFeaturesLoaded;
                 synchronized (XmppConnection.this.disco) {
                     ServiceDiscoveryResult result = new ServiceDiscoveryResult(packet);
-                    if (jid.equals(Jid.of(account.getServer()))) {
+                    if (jid.equals(account.getDomain())) {
                         mXmppConnectionService.databaseBackend.insertDiscoveryResult(result);
                     }
                     disco.put(jid, result);
-                    advancedStreamFeaturesLoaded = disco.containsKey(Jid.of(account.getServer()))
+                    advancedStreamFeaturesLoaded = disco.containsKey(account.getDomain())
                             && disco.containsKey(account.getJid().asBareJid());
                 }
-                if (advancedStreamFeaturesLoaded && (jid.equals(Jid.of(account.getServer())) || jid.equals(account.getJid().asBareJid()))) {
+                if (advancedStreamFeaturesLoaded && (jid.equals(account.getDomain()) || jid.equals(account.getJid().asBareJid()))) {
                     enableAdvancedStreamFeatures();
                 }
             } else if (packet.getType() == IqPacket.TYPE.ERROR) {
                 Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": could not query disco info for " + jid.toString());
-                final boolean serverOrAccount = jid.equals(Jid.of(account.getServer())) || jid.equals(account.getJid().asBareJid());
+                final boolean serverOrAccount = jid.equals(account.getDomain()) || jid.equals(account.getJid().asBareJid());
                 final boolean advancedStreamFeaturesLoaded;
                 if (serverOrAccount) {
                     synchronized (XmppConnection.this.disco) {
                         disco.put(jid, ServiceDiscoveryResult.empty());
-                        advancedStreamFeaturesLoaded = disco.containsKey(Jid.of(account.getServer())) && disco.containsKey(account.getJid().asBareJid());
+                        advancedStreamFeaturesLoaded = disco.containsKey(account.getDomain()) && disco.containsKey(account.getJid().asBareJid());
                     }
                 } else {
                     advancedStreamFeaturesLoaded = false;
@@ -1254,7 +1252,7 @@ public class XmppConnection implements Runnable {
     private void sendServiceDiscoveryItems(final Jid server) {
         mPendingServiceDiscoveries.incrementAndGet();
         final IqPacket iq = new IqPacket(IqPacket.TYPE.GET);
-        iq.setTo(Jid.ofDomain(server.getDomain()));
+        iq.setTo(server.getDomain());
         iq.query("http://jabber.org/protocol/disco#items");
         this.sendIqPacket(iq, (account, packet) -> {
             if (packet.getType() == IqPacket.TYPE.RESULT) {
@@ -1263,7 +1261,7 @@ public class XmppConnection implements Runnable {
                 for (final Element element : elements) {
                     if (element.getName().equals("item")) {
                         final Jid jid = InvalidJid.getNullForInvalid(element.getAttributeAsJid("jid"));
-                        if (jid != null && !jid.equals(Jid.of(account.getServer()))) {
+                        if (jid != null && !jid.equals(account.getDomain())) {
                             items.add(jid);
                         }
                     }
@@ -1537,7 +1535,7 @@ public class XmppConnection implements Runnable {
 
     public List<String> getMucServersWithholdAccount() {
         List<String> servers = getMucServers();
-        servers.remove(account.getServer());
+        servers.remove(account.getDomain());
         return servers;
     }
 
@@ -1619,7 +1617,7 @@ public class XmppConnection implements Runnable {
 
     public Identity getServerIdentity() {
         synchronized (this.disco) {
-            ServiceDiscoveryResult result = disco.get(Jid.ofDomain(account.getJid().getDomain()));
+            ServiceDiscoveryResult result = disco.get(account.getJid().getDomain());
             if (result == null) {
                 return Identity.UNKNOWN;
             }
@@ -1742,7 +1740,7 @@ public class XmppConnection implements Runnable {
         }
 
         public boolean carbons() {
-            return hasDiscoFeature(Jid.of(account.getServer()), "urn:xmpp:carbons:2");
+            return hasDiscoFeature(account.getDomain(), "urn:xmpp:carbons:2");
         }
 
         public boolean bookmarksConversion() {
@@ -1754,19 +1752,19 @@ public class XmppConnection implements Runnable {
         }
 
         public boolean blocking() {
-            return hasDiscoFeature(Jid.of(account.getServer()), Namespace.BLOCKING);
+            return hasDiscoFeature(account.getDomain(), Namespace.BLOCKING);
         }
 
         public boolean spamReporting() {
-            return hasDiscoFeature(Jid.of(account.getServer()), "urn:xmpp:reporting:reason:spam:0");
+            return hasDiscoFeature(account.getDomain(), "urn:xmpp:reporting:reason:spam:0");
         }
 
         public boolean flexibleOfflineMessageRetrieval() {
-            return hasDiscoFeature(Jid.of(account.getServer()), Namespace.FLEXIBLE_OFFLINE_MESSAGE_RETRIEVAL);
+            return hasDiscoFeature(account.getDomain(), Namespace.FLEXIBLE_OFFLINE_MESSAGE_RETRIEVAL);
         }
 
         public boolean register() {
-            return hasDiscoFeature(Jid.of(account.getServer()), Namespace.REGISTER);
+            return hasDiscoFeature(account.getDomain(), Namespace.REGISTER);
         }
 
         public boolean invite() {
@@ -1815,7 +1813,7 @@ public class XmppConnection implements Runnable {
 
         public boolean push() {
             return hasDiscoFeature(account.getJid().asBareJid(), Namespace.PUSH)
-                    || hasDiscoFeature(Jid.of(account.getServer()), Namespace.PUSH);
+                    || hasDiscoFeature(account.getDomain(), Namespace.PUSH);
         }
 
         public boolean rosterVersioning() {
@@ -1827,7 +1825,7 @@ public class XmppConnection implements Runnable {
         }
 
         public boolean p1S3FileTransfer() {
-            return hasDiscoFeature(Jid.of(account.getServer()), Namespace.P1_S3_FILE_TRANSFER);
+            return hasDiscoFeature(account.getDomain(), Namespace.P1_S3_FILE_TRANSFER);
         }
 
         public boolean httpUpload(long filesize) {
@@ -1881,7 +1879,7 @@ public class XmppConnection implements Runnable {
         }
 
         public boolean externalServiceDiscovery() {
-            return hasDiscoFeature(Jid.of(account.getServer()),Namespace.EXTERNAL_SERVICE_DISCOVERY);
+            return hasDiscoFeature(account.getDomain(),Namespace.EXTERNAL_SERVICE_DISCOVERY);
         }
     }
 }

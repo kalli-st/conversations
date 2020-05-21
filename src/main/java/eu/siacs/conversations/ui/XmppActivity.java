@@ -79,7 +79,7 @@ import eu.siacs.conversations.utils.ExceptionHelper;
 import eu.siacs.conversations.utils.ThemeHelper;
 import eu.siacs.conversations.xmpp.OnKeyStatusUpdated;
 import eu.siacs.conversations.xmpp.OnUpdateBlocklist;
-import rocks.xmpp.addr.Jid;
+import eu.siacs.conversations.xmpp.Jid;
 
 public abstract class XmppActivity extends ActionBarActivity {
 
@@ -870,7 +870,7 @@ public abstract class XmppActivity extends ActionBarActivity {
 	protected Account extractAccount(Intent intent) {
 		final String jid = intent != null ? intent.getStringExtra(EXTRA_ACCOUNT) : null;
 		try {
-			return jid != null ? xmppConnectionService.findAccountByJid(Jid.of(jid)) : null;
+			return jid != null ? xmppConnectionService.findAccountByJid(Jid.ofEscaped(jid)) : null;
 		} catch (IllegalArgumentException e) {
 			return null;
 		}
