@@ -290,6 +290,7 @@ public class XmppConnection implements Runnable {
                 }
             } else {
                 final String domain = account.getServer();
+		final Resolver.Result storedBackupResult = mXmppConnectionService.databaseBackend.findResolverResult(domain);
                 Resolver.Result result = null;
                 final boolean hardcoded = extended && !account.getHostname().isEmpty();
                 if (hardcoded) {
