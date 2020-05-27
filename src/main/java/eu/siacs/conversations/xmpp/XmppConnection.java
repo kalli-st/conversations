@@ -111,7 +111,7 @@ public class XmppConnection implements Runnable {
         public void onIqPacketReceived(Account account, IqPacket packet) {
             if (packet.getType() == IqPacket.TYPE.RESULT) {
                 account.setOption(Account.OPTION_REGISTER, false);
-                Log.d(Config.LOGTAG, account.getJid().asBareJid()+": successfully registered new account on server");
+                Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": successfully registered new account on server");
                 throw new StateChangingError(Account.State.REGISTRATION_SUCCESSFUL);
             } else {
                 final List<String> PASSWORD_TOO_WEAK_MSGS = Arrays.asList(
@@ -272,7 +272,7 @@ public class XmppConnection implements Runnable {
                 final int port = account.getPort();
                 final boolean directTls = Resolver.useDirectTls(port);
 
-                Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": connect to " + destination + " via Tor. directTls="+directTls);
+                Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": connect to " + destination + " via Tor. directTls=" + directTls);
                 localSocket = SocksSocketFactory.createSocketOverTor(destination, port);
 
                 if (directTls) {
@@ -356,12 +356,8 @@ public class XmppConnection implements Runnable {
             this.changeStatus(Account.State.SERVER_NOT_FOUND);
         } catch (final SocksSocketFactory.SocksProxyNotFoundException e) {
             this.changeStatus(Account.State.TOR_NOT_AVAILABLE);
-        } catch (final IOException e) {
-            Log.d(Config.LOGTAG, account.getJid().asBareJid().toString() + ": socket io :" + e.getMessage());
-            this.changeStatus(Account.State.OFFLINE);
-            this.attempt = Math.max(0, this.attempt - 1);
-        } catch (final XmlPullParserException  e) {
-            Log.d(Config.LOGTAG, account.getJid().asBareJid().toString() + ": xml parser :" + e.getMessage());
+        } catch (final IOException | XmlPullParserException e) {
+            Log.d(Config.LOGTAG, account.getJid().asBareJid().toString() + ": " + e.getMessage());
             this.changeStatus(Account.State.OFFLINE);
             this.attempt = Math.max(0, this.attempt - 1);
         } finally {
@@ -567,7 +563,7 @@ public class XmppConnection implements Runnable {
                     if (mWaitingForSmCatchup.compareAndSet(true, false)) {
                         final int messageCount = mSmCatchupMessageCounter.get();
                         final int pendingIQs = packetCallbacks.size();
-                        Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": SM catchup complete (messages=" + messageCount + ", pending IQs="+pendingIQs+")");
+                        Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": SM catchup complete (messages=" + messageCount + ", pending IQs=" + pendingIQs + ")");
                         accountUiNeedsRefresh = true;
                         if (messageCount > 0) {
                             mXmppConnectionService.getNotificationService().finishBacklog(true, account);
@@ -812,7 +808,7 @@ public class XmppConnection implements Runnable {
             if (isSecure) {
                 register();
             } else {
-                Log.d(Config.LOGTAG,account.getJid().asBareJid()+": unable to find STARTTLS for registration process "+ XmlHelper.printElementNames(this.streamFeatures));
+                Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": unable to find STARTTLS for registration process " + XmlHelper.printElementNames(this.streamFeatures));
                 throw new StateChangingException(Account.State.INCOMPATIBLE_SERVER);
             }
         } else if (!this.streamFeatures.hasChild("register") && account.isOptionSet(Account.OPTION_REGISTER)) {
@@ -831,7 +827,7 @@ public class XmppConnection implements Runnable {
             if (this.streamFeatures.hasChild("bind") && isSecure) {
                 sendBindRequest();
             } else {
-                Log.d(Config.LOGTAG,account.getJid().asBareJid()+": unable to find bind feature "+ XmlHelper.printElementNames(this.streamFeatures));
+                Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": unable to find bind feature " + XmlHelper.printElementNames(this.streamFeatures));
                 throw new StateChangingException(Account.State.INCOMPATIBLE_SERVER);
             }
         }
@@ -847,7 +843,7 @@ public class XmppConnection implements Runnable {
             saslMechanism = new ScramSha256(tagWriter, account, mXmppConnectionService.getRNG());
         } else if (mechanisms.contains("SCRAM-SHA-1")) {
             saslMechanism = new ScramSha1(tagWriter, account, mXmppConnectionService.getRNG());
-        } else if (mechanisms.contains("PLAIN") && !account.getJid().getDomain().equals("nimbuzz.com")) {
+        } else if (mechanisms.contains("PLAIN") && !account.getJid().getDomain().toEscapedString().equals("nimbuzz.com")) {
             saslMechanism = new Plain(tagWriter, account);
         } else if (mechanisms.contains("DIGEST-MD5")) {
             saslMechanism = new DigestMd5(tagWriter, account, mXmppConnectionService.getRNG());
@@ -870,7 +866,7 @@ public class XmppConnection implements Runnable {
             }
             tagWriter.writeElement(auth);
         } else {
-            Log.d(Config.LOGTAG,account.getJid().asBareJid()+": unable to find supported SASL mechanism in "+mechanisms);
+            Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": unable to find supported SASL mechanism in " + mechanisms);
             throw new StateChangingException(Account.State.INCOMPATIBLE_SERVER);
         }
     }
@@ -895,7 +891,7 @@ public class XmppConnection implements Runnable {
                     sendRegistryRequest();
                 } else {
                     final Element error = response.getError();
-                    Log.d(Config.LOGTAG,account.getJid().asBareJid()+": failed to pre auth. "+error);
+                    Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": failed to pre auth. " + error);
                     throw new StateChangingError(Account.State.REGISTRATION_INVALID_TOKEN);
                 }
             }, true);
@@ -1132,7 +1128,7 @@ public class XmppConnection implements Runnable {
         }
         Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": starting service discovery");
         mPendingServiceDiscoveries.set(0);
-        if (smVersion == 0 || Patches.DISCO_EXCEPTIONS.contains(account.getJid().getDomain())) {
+        if (smVersion == 0 || Patches.DISCO_EXCEPTIONS.contains(account.getJid().getDomain().toEscapedString())) {
             Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": do not wait for service discovery");
             mWaitForDisco.set(false);
         } else {
@@ -1218,10 +1214,10 @@ public class XmppConnection implements Runnable {
         IqPacket request = new IqPacket(IqPacket.TYPE.GET);
         request.addChild("prefs", MessageArchiveService.Version.MAM_2.namespace);
         sendIqPacket(request, (account, response) -> {
-           if (response.getType() == IqPacket.TYPE.RESULT) {
-               Element prefs = response.findChild("prefs", MessageArchiveService.Version.MAM_2.namespace);
-               isMamPreferenceAlways = "always".equals(prefs == null ? null : prefs.getAttribute("default"));
-           }
+            if (response.getType() == IqPacket.TYPE.RESULT) {
+                Element prefs = response.findChild("prefs", MessageArchiveService.Version.MAM_2.namespace);
+                isMamPreferenceAlways = "always".equals(prefs == null ? null : prefs.getAttribute("default"));
+            }
         });
     }
 
@@ -1315,11 +1311,30 @@ public class XmppConnection implements Runnable {
         } else if (streamError.hasChild("policy-violation")) {
             this.lastConnect = SystemClock.elapsedRealtime();
             final String text = streamError.findChildContent("text");
-            Log.d(Config.LOGTAG,account.getJid().asBareJid()+": policy violation. "+text);
+            Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": policy violation. " + text);
+            failPendingMessages(text);
             throw new StateChangingException(Account.State.POLICY_VIOLATION);
         } else {
             Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": stream error " + streamError.toString());
             throw new StateChangingException(Account.State.STREAM_ERROR);
+        }
+    }
+
+    private void failPendingMessages(final String error) {
+        synchronized (this.mStanzaQueue) {
+            for (int i = 0; i < mStanzaQueue.size(); ++i) {
+                final AbstractAcknowledgeableStanza stanza = mStanzaQueue.valueAt(i);
+                if (stanza instanceof MessagePacket) {
+                    final MessagePacket packet = (MessagePacket) stanza;
+                    final String id = packet.getId();
+                    final Jid to = packet.getTo();
+                    mXmppConnectionService.markMessage(account,
+                            to.asBareJid(),
+                            id,
+                            Message.STATUS_SEND_FAILED,
+                            error);
+                }
+            }
         }
     }
 
@@ -1880,7 +1895,7 @@ public class XmppConnection implements Runnable {
         }
 
         public boolean externalServiceDiscovery() {
-            return hasDiscoFeature(account.getDomain(),Namespace.EXTERNAL_SERVICE_DISCOVERY);
+            return hasDiscoFeature(account.getDomain(), Namespace.EXTERNAL_SERVICE_DISCOVERY);
         }
     }
 }

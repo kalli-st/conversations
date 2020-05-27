@@ -43,7 +43,7 @@
 
 * End-to-end encryption with [OMEMO](http://conversations.im/omemo/) or [OpenPGP](http://openpgp.org/about/)
 * Send and receive images as well as other kind of files
-* Make audio and video calls
+* Encrypted audio and video calls (DLTS-SRTP)
 * Share your location
 * Send voice messages
 * Indication when your contact has read your message
@@ -361,7 +361,7 @@ There are XMPP Clients available for all major platforms.
 #### Windows / Linux
 For your desktop computer we recommend that you use [Gajim](https://gajim.org). You need to install the plugins `OMEMO`, `HTTP Upload` and `URL image preview` to get the best compatibility with Conversations. Plugins can be installed from within the app.
 #### iOS
-Unfortunately we don‘t have a recommendation for iPhones right now. There are two clients available [ChatSecure](https://chatsecure.org/) and [Monal](https://monal.im/). Both with their own pros and cons.
+Unfortunately we don‘t have a recommendation for iPhones right now. There are three clients available [Siskin](https://siskin.im/), [ChatSecure](https://chatsecure.org/) and [Monal](https://monal.im/). Each with their own pros and cons.
 
 
 ### Development
@@ -384,25 +384,6 @@ There are two build flavors available. *free* and *playstore*. Unless you know w
 
 
 [![Build Status](https://dev.sum7.eu/sum7/Conversations/badges/develop/build.svg)](https://dev.sum7.eu/sum7/Conversations/pipelines)
-
-#### How do I update/add external libraries?
-
-If the library you want to update is in Maven Central or JCenter (or has its own
-Maven repo), add it or update its version in `build.gradle`. If the library is
-in the `libs/` directory, you can update it using a subtree merge by doing the
-following (using `minidns` as an example):
-
-    git remote add minidns https://github.com/rtreffer/minidns.git
-    git fetch minidns
-    git merge -s subtree minidns master
-
-To add a new dependency to the `libs/` directory (replacing "name", "branch" and
-"url" as necessary):
-
-    git remote add name url
-    git merge -s ours --no-commit name/branch
-    git read-tree --prefix=libs/name -u name/branch
-    git commit -m "Subtree merged in name"
 
 #### How do I debug Conversations
 

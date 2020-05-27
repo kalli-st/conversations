@@ -772,7 +772,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
                 contacts[i] = targets.get(i).toString();
             }
             intent.putExtra("contacts", contacts);
-            intent.putExtra(EXTRA_ACCOUNT, conversation.getAccount().getJid().asBareJid().toString());
+            intent.putExtra(EXTRA_ACCOUNT, conversation.getAccount().getJid().asBareJid().toEscapedString());
             intent.putExtra("conversation", conversation.getUuid());
             startActivityForResult(intent, requestCode);
             return true;
@@ -1313,6 +1313,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
         final boolean pinned = conversation.getBooleanAttribute(Conversation.ATTRIBUTE_PINNED_ON_TOP, false);
         conversation.setAttribute(Conversation.ATTRIBUTE_PINNED_ON_TOP, !pinned);
         activity.xmppConnectionService.updateConversation(conversation);
+        activity.invalidateOptionsMenu();
     }
 
     private void checkPermissionAndTriggerAudioCall() {
@@ -2205,7 +2206,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
                     updateSnackBar(conversation);
                     return true;
                 case R.id.block_domain:
-                    blockable = conversation.getAccount().getRoster().getContact(Jid.ofDomain(jid.getDomain()));
+                    blockable = conversation.getAccount().getRoster().getContact(jid.getDomain());
                     break;
                 default:
                     blockable = conversation;

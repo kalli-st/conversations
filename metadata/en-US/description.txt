@@ -4,8 +4,7 @@ Changes to origin:
 • replace the hardcoded IPv4 preference to easy Happy Eyeball, for faster connection and fair to both IP version.
 • rebrands it as chat.sum7.eu (to run both version together)
 
-Easy to use, reliable, battery friendly. With built-in support for images, group
-chats and e2e encryption.
+Easy to use, reliable, battery friendly. With built-in support for images, group chats and e2e encryption.
 
 Design principles:
 
@@ -18,6 +17,7 @@ Features:
 
 • End-to-end encryption with either <a href="https://conversations.im/omemo/">OMEMO</a> or <a href="https://openpgp.org/about/">OpenPGP</a>
 • Sending and receiving images
+• Encrypted audio and video calls (DLTS-SRTP)
 • Intuitive UI that follows Android Design guidelines
 • Pictures / Avatars for your Contacts
 • Syncs with desktop client
@@ -26,19 +26,11 @@ Features:
 • Multiple accounts / unified inbox
 • Very low impact on battery life
 
-Conversations makes it very easy to create an account on the chat.sum7.eu
-server. However Conversations will work with any other XMPP server as
-well. A lot of XMPP servers are run by volunteers and are free of charge.
+Conversations makes it very easy to create an account on the chat.sum7.eu server. However Conversations will work with any other XMPP server as well. A lot of XMPP servers are run by volunteers and are free of charge.
 
 XMPP Features:
 
-Conversations works with every XMPP server out there. However XMPP is an
-extensible protocol. These extensions are standardized as well in so called
-XEP’s. Conversations supports a couple of those to make the overall user
-experience better. There is a chance that your current XMPP server does not
-support these extensions. Therefore to get the most out of Conversations you
-should consider either switching to an XMPP server that does or - even better -
-run your own XMPP server for you and your friends.
+Conversations works with every XMPP server out there. However XMPP is an extensible protocol. These extensions are standardized as well in so called XEP’s. Conversations supports a couple of those to make the overall user experience better. There is a chance that your current XMPP server does not support these extensions. Therefore to get the most out of Conversations you should consider either switching to an XMPP server that does or - even better - run your own XMPP server for you and your friends.
 
 These XEPs are - as of now:
 
