@@ -1,5 +1,6 @@
 package eu.siacs.conversations.xmpp.jingle;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
@@ -61,6 +62,10 @@ public abstract class AbstractJingleConnection {
             return new Id(account, with, sessionId);
         }
 
+        public static Id of(Account account, Jid with) {
+            return new Id(account, with, JingleConnectionManager.nextRandomId());
+        }
+
         public static Id of(Message message) {
             return new Id(
                     message.getConversation().getAccount(),
@@ -78,14 +83,14 @@ public abstract class AbstractJingleConnection {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             Id id = (Id) o;
-            return Objects.equal(account.getJid(), id.account.getJid()) &&
+            return Objects.equal(account.getUuid(), id.account.getUuid()) &&
                     Objects.equal(with, id.with) &&
                     Objects.equal(sessionId, id.sessionId);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hashCode(account.getJid(), with, sessionId);
+            return Objects.hashCode(account.getUuid(), with, sessionId);
         }
 
         @Override
@@ -101,6 +106,15 @@ public abstract class AbstractJingleConnection {
         @Override
         public String getSessionId() {
             return sessionId;
+        }
+
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(this)
+                    .add("account", account.getJid())
+                    .add("with", with)
+                    .add("sessionId", sessionId)
+                    .toString();
         }
     }
 

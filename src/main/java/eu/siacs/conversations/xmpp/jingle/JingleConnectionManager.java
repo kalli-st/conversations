@@ -11,6 +11,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableSet;
+import com.google.j2objc.annotations.Weak;
 
 import java.lang.ref.WeakReference;
 import java.security.SecureRandom;
@@ -134,7 +135,7 @@ public class JingleConnectionManager extends AbstractConnectionManager {
         }
     }
 
-    public Optional<RtpSessionProposal> findMatchingSessionProposal(final Account account, final Jid with, final Set<Media> media) {
+    private Optional<RtpSessionProposal> findMatchingSessionProposal(final Account account, final Jid with, final Set<Media> media) {
         synchronized (this.rtpSessionProposals) {
             for (Map.Entry<RtpSessionProposal, DeviceDiscoveryState> entry : this.rtpSessionProposals.entrySet()) {
                 final RtpSessionProposal proposal = entry.getKey();
@@ -446,7 +447,10 @@ public class JingleConnectionManager extends AbstractConnectionManager {
     }
 
     void finishConnection(final AbstractJingleConnection connection) {
-        this.connections.remove(connection.getId());
+        final AbstractJingleConnection.Id id = connection.getId();
+        if (this.connections.remove(id) == null) {
+            throw new IllegalStateException(String.format("Unable to finish connection with id=%s", id.toString()));
+        }
     }
 
     void getPrimaryCandidate(final Account account, final boolean initiator, final OnPrimaryCandidateFound listener) {
@@ -518,6 +522,15 @@ public class JingleConnectionManager extends AbstractConnectionManager {
         final MessagePacket messagePacket = mXmppConnectionService.getMessageGenerator().sessionRetract(rtpSessionProposal);
         writeLogMissedOutgoing(account, rtpSessionProposal.with, rtpSessionProposal.sessionId, null, System.currentTimeMillis());
         mXmppConnectionService.sendMessagePacket(account, messagePacket);
+    }
+
+    public String initializeRtpSession(final Account account, final Jid with, final Set<Media> media) {
+        final AbstractJingleConnection.Id id = AbstractJingleConnection.Id.of(account, with);
+        final JingleRtpConnection rtpConnection = new JingleRtpConnection(this, id, account.getJid());
+        rtpConnection.setProposedMedia(media);
+        this.connections.put(id, rtpConnection);
+        rtpConnection.sendSessionInitiate();
+        return id.sessionId;
     }
 
     public void proposeJingleRtpSession(final Account account, final Jid with, final Set<Media> media) {
@@ -667,7 +680,7 @@ public class JingleConnectionManager extends AbstractConnectionManager {
         throw e;
     }
 
-    public void endSession(AbstractJingleConnection.Id id, final AbstractJingleConnection.State state) {
+    void endSession(AbstractJingleConnection.Id id, final AbstractJingleConnection.State state) {
         this.endedSessions.put(PersistableSessionId.of(id), state);
     }
 

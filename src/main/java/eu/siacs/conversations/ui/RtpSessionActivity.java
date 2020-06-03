@@ -44,12 +44,14 @@ import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ActivityRtpSessionBinding;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Contact;
+import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.services.AppRTCAudioManager;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.ui.util.AvatarWorkerTask;
 import eu.siacs.conversations.ui.util.MainThreadExecutor;
 import eu.siacs.conversations.utils.PermissionUtils;
 import eu.siacs.conversations.utils.TimeFrameUtils;
+import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xmpp.jingle.AbstractJingleConnection;
 import eu.siacs.conversations.xmpp.jingle.JingleRtpConnection;
 import eu.siacs.conversations.xmpp.jingle.Media;
@@ -98,6 +100,14 @@ public class RtpSessionActivity extends XmppActivity implements XmppConnectionSe
             return ImmutableSet.of(Media.AUDIO, Media.VIDEO);
         } else {
             return ImmutableSet.of(Media.AUDIO);
+        }
+    }
+
+    private static void addSink(final VideoTrack videoTrack, final SurfaceViewRenderer surfaceViewRenderer) {
+        try {
+            videoTrack.addSink(surfaceViewRenderer);
+        } catch (final IllegalStateException e) {
+            Log.e(Config.LOGTAG, "possible race condition on trying to display video track. ignoring", e);
         }
     }
 
@@ -297,7 +307,13 @@ public class RtpSessionActivity extends XmppActivity implements XmppConnectionSe
 
     private void proposeJingleRtpSession(final Account account, final Jid with, final Set<Media> media) {
         checkMicrophoneAvailability();
-        xmppConnectionService.getJingleConnectionManager().proposeJingleRtpSession(account, with, media);
+        if (with.isBareJid()) {
+            xmppConnectionService.getJingleConnectionManager().proposeJingleRtpSession(account, with, media);
+        } else {
+            final String sessionId = xmppConnectionService.getJingleConnectionManager().initializeRtpSession(account, with, media);
+            initializeActivityWithRunningRtpSession(account, with, sessionId);
+            resetIntent(account, with, sessionId);
+        }
         putScreenInCallMode(media);
     }
 
@@ -372,7 +388,6 @@ public class RtpSessionActivity extends XmppActivity implements XmppConnectionSe
         }
     }
 
-
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void startPictureInPicture() {
         try {
@@ -412,12 +427,12 @@ public class RtpSessionActivity extends XmppActivity implements XmppConnectionSe
         final WeakReference<JingleRtpConnection> reference = xmppConnectionService.getJingleConnectionManager()
                 .findJingleRtpConnection(account, with, sessionId);
         if (reference == null || reference.get() == null) {
-            finish();
-            return true;
+            throw new IllegalStateException("failed to initialize activity with running rtp session. session not found");
         }
         this.rtpConnectionReference = reference;
         final RtpEndUserState currentState = requireRtpConnection().getEndUserState();
         if (currentState == RtpEndUserState.ENDED) {
+            reference.get().throwStateTransitionException();
             finish();
             return true;
         }
@@ -436,8 +451,12 @@ public class RtpSessionActivity extends XmppActivity implements XmppConnectionSe
         return false;
     }
 
-    private void reInitializeActivityWithRunningRapSession(final Account account, Jid with, String sessionId) {
+    private void reInitializeActivityWithRunningRtpSession(final Account account, Jid with, String sessionId) {
         runOnUiThread(() -> initializeActivityWithRunningRtpSession(account, with, sessionId));
+        resetIntent(account, with, sessionId);
+    }
+
+    private void resetIntent(final Account account, final Jid with, final String sessionId) {
         final Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.putExtra(EXTRA_ACCOUNT, account.getJid().toEscapedString());
         intent.putExtra(EXTRA_WITH, with.toEscapedString());
@@ -551,11 +570,13 @@ public class RtpSessionActivity extends XmppActivity implements XmppConnectionSe
             this.binding.acceptCall.setImageResource(R.drawable.ic_call_white_48dp);
             this.binding.acceptCall.setVisibility(View.VISIBLE);
         } else if (state == RtpEndUserState.DECLINED_OR_BUSY) {
-            this.binding.rejectCall.setVisibility(View.INVISIBLE);
-            this.binding.endCall.setOnClickListener(this::exit);
-            this.binding.endCall.setImageResource(R.drawable.ic_clear_white_48dp);
-            this.binding.endCall.setVisibility(View.VISIBLE);
-            this.binding.acceptCall.setVisibility(View.INVISIBLE);
+            this.binding.rejectCall.setOnClickListener(this::exit);
+            this.binding.rejectCall.setImageResource(R.drawable.ic_clear_white_48dp);
+            this.binding.rejectCall.setVisibility(View.VISIBLE);
+            this.binding.endCall.setVisibility(View.INVISIBLE);
+            this.binding.acceptCall.setOnClickListener(this::recordVoiceMail);
+            this.binding.acceptCall.setImageResource(R.drawable.ic_voicemail_white_24dp);
+            this.binding.acceptCall.setVisibility(View.VISIBLE);
         } else if (asList(RtpEndUserState.CONNECTIVITY_ERROR, RtpEndUserState.APPLICATION_ERROR, RtpEndUserState.RETRACTED).contains(state)) {
             this.binding.rejectCall.setOnClickListener(this::exit);
             this.binding.rejectCall.setImageResource(R.drawable.ic_clear_white_48dp);
@@ -762,14 +783,14 @@ public class RtpSessionActivity extends XmppActivity implements XmppConnectionSe
             //paint local view over remote view
             binding.localVideo.setZOrderMediaOverlay(true);
             binding.localVideo.setMirror(requireRtpConnection().isFrontCamera());
-            localVideoTrack.get().addSink(binding.localVideo);
+            addSink(localVideoTrack.get(), binding.localVideo);
         } else {
             binding.localVideo.setVisibility(View.GONE);
         }
         final Optional<VideoTrack> remoteVideoTrack = getRemoteVideoTrack();
         if (remoteVideoTrack.isPresent()) {
             ensureSurfaceViewRendererIsSetup(binding.remoteVideo);
-            remoteVideoTrack.get().addSink(binding.remoteVideo);
+            addSink(remoteVideoTrack.get(), binding.remoteVideo);
             if (state == RtpEndUserState.CONNECTED) {
                 binding.appBarLayout.setVisibility(View.GONE);
                 getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -828,7 +849,6 @@ public class RtpSessionActivity extends XmppActivity implements XmppConnectionSe
     }
 
     private void retry(View view) {
-        Log.d(Config.LOGTAG, "attempting retry");
         final Intent intent = getIntent();
         final Account account = extractAccount(intent);
         final Jid with = Jid.ofEscaped(intent.getStringExtra(EXTRA_WITH));
@@ -836,10 +856,25 @@ public class RtpSessionActivity extends XmppActivity implements XmppConnectionSe
         final String action = intent.getAction();
         final Set<Media> media = actionToMedia(lastAction == null ? action : lastAction);
         this.rtpConnectionReference = null;
+        Log.d(Config.LOGTAG, "attempting retry with " + with.toEscapedString());
         proposeJingleRtpSession(account, with, media);
     }
 
-    private void exit(View view) {
+    private void exit(final View view) {
+        finish();
+    }
+
+    private void recordVoiceMail(final View view) {
+        final Intent intent = getIntent();
+        final Account account = extractAccount(intent);
+        final Jid with = Jid.ofEscaped(intent.getStringExtra(EXTRA_WITH));
+        final Conversation conversation = xmppConnectionService.findOrCreateConversation(account, with, false, true);
+        final Intent launchIntent = new Intent(this, ConversationsActivity.class);
+        launchIntent.setAction(ConversationsActivity.ACTION_VIEW_CONVERSATION);
+        launchIntent.putExtra(ConversationsActivity.EXTRA_CONVERSATION, conversation.getUuid());
+        launchIntent.setFlags(intent.getFlags() | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        launchIntent.putExtra(ConversationsActivity.EXTRA_POST_INIT_ACTION, ConversationsActivity.POST_ACTION_RECORD_VOICE);
+        startActivity(launchIntent);
         finish();
     }
 
@@ -875,7 +910,7 @@ public class RtpSessionActivity extends XmppActivity implements XmppConnectionSe
                 return;
             }
             //this happens when going from proposed session to actual session
-            reInitializeActivityWithRunningRapSession(account, with, sessionId);
+            reInitializeActivityWithRunningRtpSession(account, with, sessionId);
             return;
         }
         final AbstractJingleConnection.Id id = requireRtpConnection().getId();
@@ -952,8 +987,12 @@ public class RtpSessionActivity extends XmppActivity implements XmppConnectionSe
 
     private void resetIntent(final Account account, Jid with, final RtpEndUserState state, final Set<Media> media) {
         final Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.putExtra(EXTRA_WITH, with.asBareJid().toEscapedString());
         intent.putExtra(EXTRA_ACCOUNT, account.getJid().toEscapedString());
+        if (account.getRoster().getContact(with).getPresences().anySupport(Namespace.JINGLE_MESSAGE)) {
+            intent.putExtra(EXTRA_WITH, with.asBareJid().toEscapedString());
+        } else {
+            intent.putExtra(EXTRA_WITH, with.toEscapedString());
+        }
         intent.putExtra(EXTRA_LAST_REPORTED_STATE, state.toString());
         intent.putExtra(EXTRA_LAST_ACTION, media.contains(Media.VIDEO) ? ACTION_MAKE_VIDEO_CALL : ACTION_MAKE_VOICE_CALL);
         setIntent(intent);
