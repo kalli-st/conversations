@@ -41,7 +41,7 @@
   <string name="moderator">Moderator</string>
   <string name="participant">Teilnehmer</string>
   <string name="visitor">Besucher</string>
-  <string name="remove_contact_text">Möchtest du  %svon deiner Kontaktliste entfernen? Unterhaltungen mit diesem Kontakt werden dabei nicht entfernt.</string>
+  <string name="remove_contact_text">Möchtest du  %s von deiner Kontaktliste entfernen? Unterhaltungen mit diesem Kontakt werden dabei nicht entfernt.</string>
   <string name="block_contact_text">Möchtest du %s sperren und keine Nachrichten mehr erhalten?</string>
   <string name="unblock_contact_text">Möchtest du %s entsperren und wieder Nachrichten empfangen?</string>
   <string name="block_domain_text">Alle Kontakte von %s sperren?</string>
@@ -901,7 +901,8 @@
   <string name="rtp_state_ringing">Klingelt</string>
   <string name="rtp_state_declined_or_busy">Besetzt</string>
   <string name="rtp_state_connectivity_error">Verbindungsaufbau fehlgeschlagen</string>
-  <string name="rtp_state_retracted">Rückrufruf</string>
+  <string name="rtp_state_connectivity_lost_error">Verbindung unterbrochen</string>
+  <string name="rtp_state_retracted">Anruf zurückgenommen</string>
   <string name="rtp_state_application_failure">App-Fehler</string>
   <string name="hang_up">Auflegen</string>
   <string name="ongoing_call">Laufender Anruf</string>
@@ -914,6 +915,7 @@
   <string name="missed_call">Entgangener Anruf</string>
   <string name="audio_call">Audioanruf</string>
   <string name="video_call">Videoanruf</string>
+  <string name="help">Hilfe</string>
   <string name="microphone_unavailable">Dein Mikrofon ist nicht verfügbar</string>
   <string name="only_one_call_at_a_time">Du kannst immer nur einen Anruf zur gleichen Zeit machen.</string>
   <string name="return_to_ongoing_call">Zurück zum laufenden Aufruf</string>

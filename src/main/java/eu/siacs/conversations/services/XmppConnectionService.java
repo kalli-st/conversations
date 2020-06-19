@@ -567,19 +567,23 @@ public class XmppConnectionService extends Service {
         mFileAddingExecutor.execute(() -> {
             try {
                 getFileBackend().copyImageToPrivateStorage(message, uri);
-                if (conversation.getNextEncryption() == Message.ENCRYPTION_PGP) {
-                    final PgpEngine pgpEngine = getPgpEngine();
-                    if (pgpEngine != null) {
-                        pgpEngine.encrypt(message, callback);
-                    } else if (callback != null) {
-                        callback.error(R.string.unable_to_connect_to_keychain, null);
-                    }
-                } else {
-                    sendMessage(message);
-                    callback.success(message);
-                }
+            } catch (FileBackend.NotAnImageFileException e) {
+                attachFileToConversation(conversation, uri, mimeType, callback);
+                return;
             } catch (final FileBackend.FileCopyException e) {
                 callback.error(e.getResId(), message);
+                return;
+            }
+            if (conversation.getNextEncryption() == Message.ENCRYPTION_PGP) {
+                final PgpEngine pgpEngine = getPgpEngine();
+                if (pgpEngine != null) {
+                    pgpEngine.encrypt(message, callback);
+                } else if (callback != null) {
+                    callback.error(R.string.unable_to_connect_to_keychain, null);
+                }
+            } else {
+                sendMessage(message);
+                callback.success(message);
             }
         });
     }
@@ -2774,6 +2778,7 @@ public class XmppConnectionService extends Service {
             updateConversationUi();
         }
     }
+
     private void fetchConferenceMembers(final Conversation conversation) {
         final Account account = conversation.getAccount();
         final AxolotlService axolotlService = account.getAxolotlService();
@@ -3297,6 +3302,10 @@ public class XmppConnectionService extends Service {
     public void updateMessage(Message message, boolean includeBody) {
         databaseBackend.updateMessage(message, includeBody);
         updateConversationUi();
+    }
+
+    public void createMessageAsync(final Message message) {
+        mDatabaseWriterExecutor.execute(() -> databaseBackend.createMessage(message));
     }
 
     public void updateMessage(Message message, String uuid) {
@@ -4137,7 +4146,7 @@ public class XmppConnectionService extends Service {
             }
         }
         if (Config.QUICKSY_DOMAIN != null) {
-            hosts.remove(Config.QUICKSY_DOMAIN); //we only want to show this when we type a e164 number
+            hosts.remove(Config.QUICKSY_DOMAIN.toEscapedString()); //we only want to show this when we type a e164 number
         }
         if (Config.DOMAIN_LOCK != null) {
             hosts.add(Config.DOMAIN_LOCK);
@@ -4436,34 +4445,38 @@ public class XmppConnectionService extends Service {
 
     public void fetchCaps(Account account, final Jid jid, final Presence presence) {
         final Pair<String, String> key = new Pair<>(presence.getHash(), presence.getVer());
-        ServiceDiscoveryResult disco = getCachedServiceDiscoveryResult(key);
+        final ServiceDiscoveryResult disco = getCachedServiceDiscoveryResult(key);
         if (disco != null) {
             presence.setServiceDiscoveryResult(disco);
         } else {
-            if (!account.inProgressDiscoFetches.contains(key)) {
-                account.inProgressDiscoFetches.add(key);
-                IqPacket request = new IqPacket(IqPacket.TYPE.GET);
-                request.setTo(jid);
-                final String node = presence.getNode();
-                final String ver = presence.getVer();
-                final Element query = request.query(Namespace.DISCO_INFO);
-                if (node != null && ver != null) {
-                    query.setAttribute("node", node + "#" + ver);
-                }
-                Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": making disco request for " + key.second + " to " + jid);
-                sendIqPacket(account, request, (a, response) -> {
-                    if (response.getType() == IqPacket.TYPE.RESULT) {
-                        ServiceDiscoveryResult discoveryResult = new ServiceDiscoveryResult(response);
-                        if (presence.getVer().equals(discoveryResult.getVer())) {
-                            databaseBackend.insertDiscoveryResult(discoveryResult);
-                            injectServiceDiscoveryResult(a.getRoster(), presence.getHash(), presence.getVer(), discoveryResult);
-                        } else {
-                            Log.d(Config.LOGTAG, a.getJid().asBareJid() + ": mismatch in caps for contact " + jid + " " + presence.getVer() + " vs " + discoveryResult.getVer());
-                        }
-                    }
-                    a.inProgressDiscoFetches.remove(key);
-                });
+            if (account.inProgressDiscoFetches.contains(key)) {
+                Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": skipping duplicate disco request for " + key.second + " to " + jid);
+                return;
             }
+            account.inProgressDiscoFetches.add(key);
+            final IqPacket request = new IqPacket(IqPacket.TYPE.GET);
+            request.setTo(jid);
+            final String node = presence.getNode();
+            final String ver = presence.getVer();
+            final Element query = request.query(Namespace.DISCO_INFO);
+            if (node != null && ver != null) {
+                query.setAttribute("node", node + "#" + ver);
+            }
+            Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": making disco request for " + key.second + " to " + jid);
+            sendIqPacket(account, request, (a, response) -> {
+                if (response.getType() == IqPacket.TYPE.RESULT) {
+                    ServiceDiscoveryResult discoveryResult = new ServiceDiscoveryResult(response);
+                    if (presence.getVer().equals(discoveryResult.getVer())) {
+                        databaseBackend.insertDiscoveryResult(discoveryResult);
+                        injectServiceDiscoveryResult(a.getRoster(), presence.getHash(), presence.getVer(), discoveryResult);
+                    } else {
+                        Log.d(Config.LOGTAG, a.getJid().asBareJid() + ": mismatch in caps for contact " + jid + " " + presence.getVer() + " vs " + discoveryResult.getVer());
+                    }
+                } else {
+                    Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": unable to fetch caps from " + jid);
+                }
+                a.inProgressDiscoFetches.remove(key);
+            });
         }
     }
 

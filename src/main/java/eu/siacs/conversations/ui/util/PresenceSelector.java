@@ -106,10 +106,22 @@ public class PresenceSelector {
         builder.setPositiveButton(
                 R.string.ok,
                 (dialog, which) -> onFullJidSelected.onFullJidSelected(
-                        Jid.of(contact.getJid().getLocal(), contact.getJid().getDomain(), resourceArray[selectedResource.get()])
+                        getNextCounterpart(contact, resourceArray[selectedResource.get()])
                 )
         );
         builder.create().show();
+    }
+
+    public static Jid getNextCounterpart(final Contact contact, final String resource) {
+        return getNextCounterpart(contact.getJid(), resource);
+    }
+
+    public static Jid getNextCounterpart(final Jid jid, final String resource) {
+        if (resource.isEmpty()) {
+            return jid.asBareJid();
+        } else {
+            return jid.withResource(resource);
+        }
     }
 
     public static void warnMutualPresenceSubscription(Activity activity, final Conversation conversation, final OnPresenceSelected listener) {

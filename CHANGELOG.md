@@ -1,5 +1,11 @@
 # Changelog
 
+### Version 2.8.7
+
+* Show help button if A/V call fails
+* Fixed some annoying crashes
+* Fixed Jingle connections (file transfer + calls) with bare JIDs
+
 ### Version 2.8.6
 
 * Offer to record voice message when callee is busy

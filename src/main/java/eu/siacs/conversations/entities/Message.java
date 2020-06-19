@@ -6,6 +6,9 @@ import android.graphics.Color;
 import android.text.SpannableStringBuilder;
 import android.util.Log;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableSet;
+
 import org.json.JSONException;
 
 import java.lang.ref.WeakReference;
@@ -21,6 +24,7 @@ import java.util.Set;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.crypto.axolotl.FingerprintStatus;
 import eu.siacs.conversations.services.AvatarService;
+import eu.siacs.conversations.ui.util.PresenceSelector;
 import eu.siacs.conversations.utils.CryptoHelper;
 import eu.siacs.conversations.utils.Emoticons;
 import eu.siacs.conversations.utils.GeoHelper;
@@ -531,7 +535,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 	}
 
 	public Set<ReadByMarker> getReadByMarkers() {
-		return Collections.unmodifiableSet(this.readByMarkers);
+		return ImmutableSet.copyOf(this.readByMarkers);
 	}
 
 	boolean similar(Message message) {
@@ -745,19 +749,12 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 	}
 
 	public boolean fixCounterpart() {
-		Presences presences = conversation.getContact().getPresences();
-		if (counterpart != null && presences.has(counterpart.getResource())) {
+		final Presences presences = conversation.getContact().getPresences();
+		if (counterpart != null && presences.has(Strings.nullToEmpty(counterpart.getResource()))) {
 			return true;
 		} else if (presences.size() >= 1) {
-			try {
-				counterpart = Jid.of(conversation.getJid().getLocal(),
-						conversation.getJid().getDomain(),
-						presences.toResourceArray()[0]);
-				return true;
-			} catch (IllegalArgumentException e) {
-				counterpart = null;
-				return false;
-			}
+			counterpart = PresenceSelector.getNextCounterpart(getContact(),presences.toResourceArray()[0]);
+			return true;
 		} else {
 			counterpart = null;
 			return false;

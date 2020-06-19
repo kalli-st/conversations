@@ -903,6 +903,7 @@
     <string name="rtp_state_ringing">Ringing</string>
     <string name="rtp_state_declined_or_busy">Busy</string>
     <string name="rtp_state_connectivity_error">Could not connect call</string>
+    <string name="rtp_state_connectivity_lost_error">Connection lost</string>
     <string name="rtp_state_retracted">Retracted call</string>
     <string name="rtp_state_application_failure">App failure</string>
     <string name="hang_up">Hang up</string>
@@ -916,6 +917,7 @@
     <string name="missed_call">Missed call</string>
     <string name="audio_call">Audio call</string>
     <string name="video_call">Video call</string>
+    <string name="help">Help</string>
     <string name="microphone_unavailable">Your microphone is unavailable</string>
     <string name="only_one_call_at_a_time">You can only have one call at a time.</string>
     <string name="return_to_ongoing_call">Return to ongoing call</string>
