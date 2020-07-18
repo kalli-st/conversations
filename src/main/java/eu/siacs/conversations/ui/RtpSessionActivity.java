@@ -88,6 +88,10 @@ public class RtpSessionActivity extends XmppActivity implements XmppConnectionSe
             RtpEndUserState.APPLICATION_ERROR,
             RtpEndUserState.CONNECTIVITY_ERROR
     );
+    private static final List<RtpEndUserState> STATES_SHOWING_SWITCH_TO_CHAT = Arrays.asList(
+            RtpEndUserState.CONNECTING,
+            RtpEndUserState.CONNECTED
+    );
     private static final String PROXIMITY_WAKE_LOCK_TAG = "conversations:in-rtp-session";
     private static final int REQUEST_ACCEPT_CALL = 0x1111;
     private WeakReference<JingleRtpConnection> rtpConnectionReference;
@@ -135,7 +139,9 @@ public class RtpSessionActivity extends XmppActivity implements XmppConnectionSe
     public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.activity_rtp_session, menu);
         final MenuItem help = menu.findItem(R.id.action_help);
+        final MenuItem gotoChat = menu.findItem(R.id.action_goto_chat);
         help.setVisible(isHelpButtonVisible());
+        gotoChat.setVisible(isSwitchToConversationVisible());
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -153,10 +159,25 @@ public class RtpSessionActivity extends XmppActivity implements XmppConnectionSe
         }
     }
 
+    private boolean isSwitchToConversationVisible() {
+        final JingleRtpConnection connection = this.rtpConnectionReference != null ? this.rtpConnectionReference.get() : null;
+        return connection != null && STATES_SHOWING_SWITCH_TO_CHAT.contains(connection.getEndUserState());
+    }
+
+    private void switchToConversation() {
+        final Contact contact = getWith();
+        final Conversation conversation = xmppConnectionService.findOrCreateConversation(contact.getAccount(), contact.getJid(), false, true);
+        switchToConversation(conversation);
+    }
+
     public boolean onOptionsItemSelected(final MenuItem item) {
-        if (item.getItemId() == R.id.action_help) {
-            launchHelpInBrowser();
-            return true;
+        switch (item.getItemId()) {
+            case R.id.action_help:
+                launchHelpInBrowser();
+                break;
+            case R.id.action_goto_chat:
+                switchToConversation();
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -308,6 +329,7 @@ public class RtpSessionActivity extends XmppActivity implements XmppConnectionSe
             return;
         }
         final Account account = extractAccount(intent);
+        final String action = intent.getAction();
         final Jid with = Jid.ofEscaped(intent.getStringExtra(EXTRA_WITH));
         final String sessionId = intent.getStringExtra(EXTRA_SESSION_ID);
         if (sessionId != null) {
@@ -320,6 +342,9 @@ public class RtpSessionActivity extends XmppActivity implements XmppConnectionSe
                 requestPermissionsAndAcceptCall();
                 resetIntent(intent.getExtras());
             }
+        } else if (asList(ACTION_MAKE_VIDEO_CALL, ACTION_MAKE_VOICE_CALL).contains(action)) {
+            proposeJingleRtpSession(account, with, actionToMedia(action));
+            binding.with.setText(account.getRoster().getContact(with).getDisplayName());
         } else {
             throw new IllegalStateException("received onNewIntent without sessionId");
         }
@@ -437,7 +462,11 @@ public class RtpSessionActivity extends XmppActivity implements XmppConnectionSe
                 return;
             }
         }
-        retractSessionProposal();
+        //TODO apparently this method is not getting called on Android 10 when using the task switcher
+        final boolean emptyReference = rtpConnectionReference == null || rtpConnectionReference.get() == null;
+        if (emptyReference && xmppConnectionService != null) {
+            retractSessionProposal();
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -910,15 +939,17 @@ public class RtpSessionActivity extends XmppActivity implements XmppConnectionSe
     }
 
     private void disableMicrophone(View view) {
-        JingleRtpConnection rtpConnection = requireRtpConnection();
-        rtpConnection.setMicrophoneEnabled(false);
-        updateInCallButtonConfiguration();
+        final JingleRtpConnection rtpConnection = requireRtpConnection();
+        if (rtpConnection.setMicrophoneEnabled(false)) {
+            updateInCallButtonConfiguration();
+        }
     }
 
     private void enableMicrophone(View view) {
-        JingleRtpConnection rtpConnection = requireRtpConnection();
-        rtpConnection.setMicrophoneEnabled(true);
-        updateInCallButtonConfiguration();
+        final JingleRtpConnection rtpConnection = requireRtpConnection();
+        if (rtpConnection.setMicrophoneEnabled(true)) {
+            updateInCallButtonConfiguration();
+        }
     }
 
     private void switchToEarpiece(View view) {

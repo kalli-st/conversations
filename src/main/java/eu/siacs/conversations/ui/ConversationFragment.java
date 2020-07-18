@@ -32,6 +32,7 @@ import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -2733,15 +2734,26 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
     }
 
     @Override
-    public boolean onEnterPressed() {
-        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        final boolean enterIsSend = p.getBoolean("enter_is_send", getResources().getBoolean(R.bool.enter_is_send));
-        if (enterIsSend) {
+    public boolean onEnterPressed(final boolean isCtrlPressed) {
+        if (isCtrlPressed || enterIsSend()) {
             sendMessage();
             return true;
-        } else {
-            return false;
         }
+        return false;
+    }
+
+    private boolean enterIsSend() {
+        final SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        return p.getBoolean("enter_is_send", getResources().getBoolean(R.bool.enter_is_send));
+    }
+
+    public boolean onArrowUpCtrlPressed() {
+        final Message lastEditableMessage = conversation == null ? null : conversation.getLastEditableMessage();
+        if (lastEditableMessage != null) {
+            correctMessage(lastEditableMessage);
+            return true;
+        }
+        return false;
     }
 
     @Override

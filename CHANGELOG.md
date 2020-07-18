@@ -1,6 +1,13 @@
 # Changelog
 
+### Version 2.8.9
+
+* add 'Return to chat' to audio call screen
+* Improve keyboard shortcuts
+* bug fixes
+
 ### Version 2.8.8
+
 * Fixed notifications not showing up under certain conditions
 * Fixed compatibility issues and crashes related to A/V calls
 
@@ -33,7 +40,7 @@
 
 ### Version 2.8.2
 
-* Add button to switch camea during video call
+* Add button to switch camera during video call
 * Fixed voice calls on tablets
 
 ### Version 2.8.1

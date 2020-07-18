@@ -96,8 +96,8 @@ android {
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 25
-        versionCode 394
-        versionName "2.8.8"
+        versionCode 395
+        versionName "2.8.9"
         archivesBaseName += "-$versionName"
         applicationId "eu.sum7.conversations"
         resValue "string", "applicationId", applicationId
@@ -232,7 +232,7 @@ android {
     }
 
     lintOptions {
-        disable 'ExtraTranslation', 'MissingTranslation', 'InvalidPackage', 'MissingQuantity', 'AppCompatResource'
+        disable 'MissingTranslation', 'InvalidPackage', 'AppCompatResource'
         abortOnError false
     }
 
