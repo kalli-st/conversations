@@ -90,7 +90,6 @@ public class Resolver {
         return happyEyeball(resolveNoSrvRecords(DNSName.from(hostname), port, true));
     }
 
-
     public static boolean useDirectTls(final int port) {
         return port == 443 || port == 5223;
     }

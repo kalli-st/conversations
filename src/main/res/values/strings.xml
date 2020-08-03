@@ -461,11 +461,11 @@
     <string name="server_info_broken">Broken</string>
     <string name="pref_presence_settings">Availability</string>
     <string name="pref_away_when_screen_off">Away when screen is off</string>
-    <string name="pref_away_when_screen_off_summary">Marks your resource as away when the screen is turned off</string>
-    <string name="pref_dnd_on_silent_mode">“Do not disturb” in silent mode</string>
-    <string name="pref_dnd_on_silent_mode_summary">Marks your resource as “Do not disturb” when device is in silent mode</string>
+    <string name="pref_away_when_screen_off_summary">Show as Away when the screen is turned off</string>
+    <string name="pref_dnd_on_silent_mode">Busy in silent mode</string>
+    <string name="pref_dnd_on_silent_mode_summary">Show as Busy when device is in silent mode</string>
     <string name="pref_treat_vibrate_as_silent">Treat vibrate as silent mode</string>
-    <string name="pref_treat_vibrate_as_dnd_summary">Marks your resource as “Do not disturb” when device is on vibrate</string>
+    <string name="pref_treat_vibrate_as_dnd_summary">Show as Busy when device is on vibrate</string>
     <string name="pref_show_connection_options">Extended connection settings</string>
     <string name="pref_show_connection_options_summary">Show hostname and port settings when setting up an account</string>
     <string name="hostname_example">xmpp.example.com</string>
@@ -925,6 +925,8 @@
     <string name="could_not_switch_camera">Could not switch camera</string>
     <string name="add_to_favorites">Add to favorites</string>
     <string name="remove_from_favorites">Remove from favorites</string>
+    <string name="gpx_track">GPX track</string>
+    <string name="could_not_correct_message">Could not correct message</string>
     <plurals name="view_users">
         <item quantity="one">View %1$d Participant</item>
         <item quantity="other">View %1$d Participants</item>
