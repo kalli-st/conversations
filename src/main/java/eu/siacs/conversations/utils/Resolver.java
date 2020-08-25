@@ -81,7 +81,7 @@ public class Resolver {
         }
     }
 
-    public static Result fromHardCoded(String hostname, int port) {
+    public static Result fromHardCoded(final String hostname, final int port) {
         final Result ipResult = fromIpAddress(hostname, port);
         if (ipResult != null) {
             ipResult.connect();
@@ -92,6 +92,15 @@ public class Resolver {
 
     public static boolean useDirectTls(final int port) {
         return port == 443 || port == 5223;
+    }
+
+    public static boolean invalidHostname(final String hostname) {
+        try {
+            DNSName.from(hostname);
+            return false;
+        } catch (IllegalArgumentException e) {
+            return true;
+        }
     }
 
     public static Result resolve(String domain) {
@@ -163,6 +172,7 @@ public class Resolver {
         try {
             Result result = new Result();
             result.ip = InetAddress.getByName(domain);
+            result.hostname = DNSName.from(domain);
             result.port = port;
             result.authenticated = true;
             return result;
