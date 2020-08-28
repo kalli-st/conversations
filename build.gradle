@@ -81,7 +81,7 @@ dependencies {
     implementation 'com.google.guava:guava:27.1-android'
     quicksyImplementation 'io.michaelrocks:libphonenumber-android:8.11.1'
     //implementation fileTree(include: ['libwebrtc-m83.aar'], dir: 'libs')
-    implementation 'org.webrtc:google-webrtc:1.0.30039'
+    implementation 'org.webrtc:google-webrtc:1.0.32006'
 }
 
 ext {
@@ -94,7 +94,7 @@ android {
     compileSdkVersion 29
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 21
         targetSdkVersion 28
         versionCode 397
         versionName "2.8.10"
