@@ -4,11 +4,9 @@
   <string name="action_add">Nouvelle conversation</string>
   <string name="action_accounts">Gérer les comptes</string>
   <string name="action_account">Gérer le compte</string>
-  <string name="action_end_conversation">Fermer cette conversation</string>
   <string name="action_contact_details">Détails du contact</string>
   <string name="action_muc_details">Détails du groupe</string>
   <string name="channel_details">Détails du canal</string>
-  <string name="action_secure">Conversation sécurisée</string>
   <string name="action_add_account">Ajouter un compte</string>
   <string name="action_edit_contact">Modifier le nom</string>
   <string name="action_add_phone_book">Ajouter au carnet d\'adresses</string>
@@ -913,8 +911,6 @@
   <string name="only_one_call_at_a_time">Vous ne pouvez prendre qu\'un appel à la fois.</string>
   <string name="return_to_ongoing_call">Reprendre l\'appel en cours</string>
   <string name="could_not_switch_camera">Impossible de changer de caméra</string>
-  <string name="add_to_favorites">Ajouter aux favoris</string>
-  <string name="remove_from_favorites">Enlever des favoris</string>
   <plurals name="view_users">
     <item quantity="one">Voir %1$d participant</item>
     <item quantity="other">Voir %1$d participants</item>

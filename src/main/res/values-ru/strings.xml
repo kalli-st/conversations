@@ -4,11 +4,9 @@
   <string name="action_add">Новая беседа</string>
   <string name="action_accounts">Управление аккаунтами</string>
   <string name="action_account">Управление аккаунтом</string>
-  <string name="action_end_conversation">Закрыть текущую беседу</string>
   <string name="action_contact_details">Сведения о контакте</string>
   <string name="action_muc_details">Подробности конференции</string>
   <string name="channel_details">Сведения о канале</string>
-  <string name="action_secure">Защищённая беседа</string>
   <string name="action_add_account">Добавить аккаунт</string>
   <string name="action_edit_contact">Редактировать контакт</string>
   <string name="action_add_phone_book">Добавить в адресную книгу</string>
@@ -933,8 +931,6 @@
   <string name="only_one_call_at_a_time">Нельзя одновременно совершать больше одного звонка.</string>
   <string name="return_to_ongoing_call">Вернуться к текущему звонку</string>
   <string name="could_not_switch_camera">Не удалось переключить камеру</string>
-  <string name="add_to_favorites">Добавить в избранные</string>
-  <string name="remove_from_favorites">Убрать из избранных</string>
   <plurals name="view_users">
     <item quantity="one">Просмотр %1$d участника</item>
     <item quantity="few">Просмотр %1$d участников</item>

@@ -186,6 +186,18 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
         return null;
     }
 
+    public int countFailedDeliveries() {
+        int count = 0;
+        synchronized (this.messages) {
+            for(final Message message : this.messages) {
+                if (message.getStatus() == Message.STATUS_SEND_FAILED) {
+                    ++count;
+                }
+            }
+        }
+        return count;
+    }
+
     public Message getLastEditableMessage() {
         synchronized (this.messages) {
             for (final Message message : Lists.reverse(this.messages)) {
@@ -1064,6 +1076,11 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
     @Override
     public int getAvatarBackgroundColor() {
         return UIHelper.getColorForName(getName().toString());
+    }
+
+    @Override
+    public String getAvatarName() {
+        return getName().toString();
     }
 
     public interface OnMessageFound {

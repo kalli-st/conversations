@@ -300,6 +300,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
         } else {
             Contact contact = account.getRoster().getContact(user);
             if (contact.setPresenceName(nick)) {
+                mXmppConnectionService.syncRoster(account);
                 mXmppConnectionService.getAvatarService().clear(contact);
             }
         }
@@ -307,8 +308,14 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
         mXmppConnectionService.updateAccountUi();
     }
 
-    private boolean handleErrorMessage(Account account, MessagePacket packet) {
+    private boolean handleErrorMessage(final Account account, final MessagePacket packet) {
         if (packet.getType() == MessagePacket.TYPE_ERROR) {
+            if (packet.fromServer(account)) {
+                final Pair<MessagePacket, Long> forwarded = packet.getForwardedMessagePacket("received", "urn:xmpp:carbons:2");
+                if (forwarded != null) {
+                    return handleErrorMessage(account, forwarded.first);
+                }
+            }
             final Jid from = packet.getFrom();
             final String id = packet.getId();
             if (from != null && id != null) {
@@ -362,7 +369,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
         final Element result = MessageArchiveService.Version.findResult(original);
         final MessageArchiveService.Query query = result == null ? null : mXmppConnectionService.getMessageArchiveService().findQuery(result.getAttribute("queryid"));
         if (query != null && query.validFrom(original.getFrom())) {
-            Pair<MessagePacket, Long> f = original.getForwardedMessagePacket("result", query.version.namespace);
+            final Pair<MessagePacket, Long> f = original.getForwardedMessagePacket("result", query.version.namespace);
             if (f == null) {
                 return;
             }
@@ -370,6 +377,9 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
             packet = f.first;
             serverMsgId = result.getAttribute("id");
             query.incrementMessageCount();
+            if (handleErrorMessage(account, packet)) {
+                return;
+            }
         } else if (query != null) {
             Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": received mam result from invalid sender");
             return;
@@ -1011,8 +1021,9 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 
         final String nick = packet.findChildContent("nick", Namespace.NICK);
         if (nick != null && InvalidJid.hasValidFrom(original)) {
-            Contact contact = account.getRoster().getContact(from);
+            final Contact contact = account.getRoster().getContact(from);
             if (contact.setPresenceName(nick)) {
+                mXmppConnectionService.syncRoster(account);
                 mXmppConnectionService.getAvatarService().clear(contact);
             }
         }

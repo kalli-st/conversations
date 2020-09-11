@@ -266,8 +266,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
     }
 
     private boolean processViewIntent(Intent intent) {
-        String uuid = intent.getStringExtra(EXTRA_CONVERSATION);
-        Conversation conversation = uuid != null ? xmppConnectionService.findConversationByUuid(uuid) : null;
+        final String uuid = intent.getStringExtra(EXTRA_CONVERSATION);
+        final Conversation conversation = uuid != null ? xmppConnectionService.findConversationByUuid(uuid) : null;
         if (conversation == null) {
             Log.d(Config.LOGTAG, "unable to view conversation with uuid:" + uuid);
             return false;
@@ -380,8 +380,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_conversations, menu);
-        AccountUtils.showHideMenuItems(menu);
-        MenuItem qrCodeScanMenuItem = menu.findItem(R.id.action_scan_qr_code);
+        final MenuItem qrCodeScanMenuItem = menu.findItem(R.id.action_scan_qr_code);
         if (qrCodeScanMenuItem != null) {
             if (isCameraFeatureAvailable()) {
                 Fragment fragment = getFragmentManager().findFragmentById(R.id.main_fragment);
@@ -488,6 +487,18 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 break;
             case R.id.action_scan_qr_code:
                 UriHandlerActivity.scan(this);
+                return true;
+            case R.id.action_search_all_conversations:
+                startActivity(new Intent(this, SearchActivity.class));
+                return true;
+            case R.id.action_search_this_conversation:
+                final Conversation conversation = ConversationFragment.getConversation(this);
+                if (conversation == null) {
+                    return true;
+                }
+                final Intent intent = new Intent(this, SearchActivity.class);
+                intent.putExtra(SearchActivity.EXTRA_CONVERSATION_UUID, conversation.getUuid());
+                startActivity(intent);
                 return true;
         }
         return super.onOptionsItemSelected(item);

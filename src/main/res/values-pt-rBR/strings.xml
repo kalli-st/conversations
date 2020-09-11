@@ -4,11 +4,9 @@
   <string name="action_add">Nova conversa</string>
   <string name="action_accounts">Gerenciar contas</string>
   <string name="action_account">Gerenciar conta</string>
-  <string name="action_end_conversation">Encerrar essa conversa</string>
   <string name="action_contact_details">Detalhes do contato</string>
   <string name="action_muc_details">Detalhes da conversa em grupo</string>
   <string name="channel_details">Detalhes do canal</string>
-  <string name="action_secure">Conversa segura</string>
   <string name="action_add_account">Adicionar conta</string>
   <string name="action_edit_contact">Editar o nome</string>
   <string name="action_add_phone_book">Adicionar ao livro de endereços</string>
@@ -921,8 +919,6 @@
   <string name="only_one_call_at_a_time">Você só pode ter uma chamada de cada vez</string>
   <string name="return_to_ongoing_call">Retornar para a chamada em andamento</string>
   <string name="could_not_switch_camera">Não foi possível trocar a câmera</string>
-  <string name="add_to_favorites">Adicionar aos favoritos</string>
-  <string name="remove_from_favorites">Remover dos favoritos</string>
   <string name="gpx_track">Trilha GPX</string>
   <string name="could_not_correct_message">Não foi possível corrigir a mensagem</string>
   <plurals name="view_users">

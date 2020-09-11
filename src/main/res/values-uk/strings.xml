@@ -4,11 +4,9 @@
   <string name="action_add">Нова розмова</string>
   <string name="action_accounts">Мої облікові записи</string>
   <string name="action_account">Мій обліковий запис</string>
-  <string name="action_end_conversation">Завершити розмову</string>
   <string name="action_contact_details">Деталі контакту</string>
   <string name="action_muc_details">Деталі групи</string>
   <string name="channel_details">Деталі каналу</string>
-  <string name="action_secure">Захищена розмова</string>
   <string name="action_add_account">Додати обліковий запис</string>
   <string name="action_edit_contact">Редагувати ім\'я</string>
   <string name="action_add_phone_book">Додати до контактів</string>
@@ -933,8 +931,6 @@
   <string name="only_one_call_at_a_time">Водночас можливо здійснювати лише один виклик.</string>
   <string name="return_to_ongoing_call">Назад до активного виклику</string>
   <string name="could_not_switch_camera">Неможливо перемкнути камеру</string>
-  <string name="add_to_favorites">Додати до обраного</string>
-  <string name="remove_from_favorites">Вилучити з обраного</string>
   <plurals name="view_users">
     <item quantity="one">Перегляд %1$d учасника</item>
     <item quantity="few">Перегляд %1$d учасників</item>

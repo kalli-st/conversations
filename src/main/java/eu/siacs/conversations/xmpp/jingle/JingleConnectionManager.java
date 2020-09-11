@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableSet;
 
 import java.lang.ref.WeakReference;
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -90,7 +91,7 @@ public class JingleConnectionManager extends AbstractConnectionManager {
             final AbstractJingleConnection connection;
             if (FileTransferDescription.NAMESPACES.contains(descriptionNamespace)) {
                 connection = new JingleFileTransferConnection(this, id, from);
-            } else if (Namespace.JINGLE_APPS_RTP.equals(descriptionNamespace) && !usesTor(account)) {
+            } else if (Namespace.JINGLE_APPS_RTP.equals(descriptionNamespace) && isUsingClearNet(account)) {
                 final boolean sessionEnded = this.terminatedSessions.asMap().containsKey(PersistableSessionId.of(id));
                 final boolean stranger = isWithStrangerAndStrangerNotificationsAreOff(account, id.with);
                 if (isBusy() || sessionEnded || stranger) {
@@ -116,11 +117,14 @@ public class JingleConnectionManager extends AbstractConnectionManager {
         }
     }
 
-    private boolean usesTor(final Account account) {
-        return account.isOnion() || mXmppConnectionService.useTorToConnect();
+    private boolean isUsingClearNet(final Account account) {
+        return !account.isOnion() && !mXmppConnectionService.useTorToConnect();
     }
 
     public boolean isBusy() {
+        if (mXmppConnectionService.isPhoneInCall()) {
+            return true;
+        }
         for (AbstractJingleConnection connection : this.connections.values()) {
             if (connection instanceof JingleRtpConnection) {
                 if (((JingleRtpConnection) connection).isTerminated()) {
@@ -131,6 +135,18 @@ public class JingleConnectionManager extends AbstractConnectionManager {
         }
         synchronized (this.rtpSessionProposals) {
             return this.rtpSessionProposals.containsValue(DeviceDiscoveryState.DISCOVERED) || this.rtpSessionProposals.containsValue(DeviceDiscoveryState.SEARCHING);
+        }
+    }
+
+    public void notifyPhoneCallStarted() {
+        for (AbstractJingleConnection connection : connections.values()) {
+            if (connection instanceof JingleRtpConnection) {
+                final JingleRtpConnection rtpConnection = (JingleRtpConnection) connection;
+                if (rtpConnection.isTerminated()) {
+                    continue;
+                }
+                rtpConnection.notifyPhoneCall();
+            }
         }
     }
 
@@ -257,7 +273,7 @@ public class JingleConnectionManager extends AbstractConnectionManager {
                     Collections2.filter(descriptions, d -> d instanceof RtpDescription),
                     input -> (RtpDescription) input
             );
-            if (rtpDescriptions.size() > 0 && rtpDescriptions.size() == descriptions.size() && !usesTor(account)) {
+            if (rtpDescriptions.size() > 0 && rtpDescriptions.size() == descriptions.size() && isUsingClearNet(account)) {
                 final Collection<Media> media = Collections2.transform(rtpDescriptions, RtpDescription::getMedia);
                 if (media.contains(Media.UNKNOWN)) {
                     Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": encountered unknown media in session proposal. " + propose);
