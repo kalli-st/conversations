@@ -120,6 +120,7 @@ import eu.siacs.conversations.ui.interfaces.OnSearchResultsAvailable;
 import eu.siacs.conversations.utils.Compatibility;
 import eu.siacs.conversations.utils.ConversationsFileObserver;
 import eu.siacs.conversations.utils.CryptoHelper;
+import eu.siacs.conversations.utils.EasyOnboardingInvite;
 import eu.siacs.conversations.utils.ExceptionHelper;
 import eu.siacs.conversations.utils.MimeUtils;
 import eu.siacs.conversations.utils.PhoneHelper;
@@ -1126,6 +1127,7 @@ public class XmppConnectionService extends Service {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
             startContactObserver();
         }
+        mFileAddingExecutor.execute(fileBackend::deleteHistoricAvatarPath);
         if (Compatibility.hasStoragePermission(this)) {
             Log.d(Config.LOGTAG, "starting file observer");
             mFileAddingExecutor.execute(this.fileObserver::startWatching);
@@ -1617,6 +1619,43 @@ public class XmppConnectionService extends Service {
 
     public void resendMessage(final Message message, final boolean delay) {
         sendMessage(message, true, delay);
+    }
+
+    public void requestEasyOnboardingInvite(final Account account, final EasyOnboardingInvite.OnInviteRequested callback) {
+        final XmppConnection connection = account.getXmppConnection();
+        final Jid jid = connection == null ? null : connection.getJidForCommand(Namespace.EASY_ONBOARDING_INVITE);
+        if (jid == null) {
+            callback.inviteRequestFailed(getString(R.string.server_does_not_support_easy_onboarding_invites));
+            return;
+        }
+        final IqPacket request = new IqPacket(IqPacket.TYPE.SET);
+        request.setTo(jid);
+        final Element command = request.addChild("command", Namespace.COMMANDS);
+        command.setAttribute("node", Namespace.EASY_ONBOARDING_INVITE);
+        command.setAttribute("action", "execute");
+        sendIqPacket(account, request, (a, response) -> {
+            if (response.getType() == IqPacket.TYPE.RESULT) {
+                final Element resultCommand = response.findChild("command", Namespace.COMMANDS);
+                final Element x = resultCommand == null ? null : resultCommand.findChild("x", Namespace.DATA);
+                if (x != null) {
+                    final Data data = Data.parse(x);
+                    final String uri = data.getValue("uri");
+                    final String landingUrl = data.getValue("landing-url");
+                    if (uri != null) {
+                        final EasyOnboardingInvite invite = new EasyOnboardingInvite(jid.getDomain().toEscapedString(), uri, landingUrl);
+                        callback.inviteRequested(invite);
+                        return;
+                    }
+                }
+                callback.inviteRequestFailed(getString(R.string.unable_to_parse_invite));
+                Log.d(Config.LOGTAG, response.toString());
+            } else if (response.getType() == IqPacket.TYPE.ERROR) {
+                callback.inviteRequestFailed(IqParser.errorMessage(response));
+            } else {
+                callback.inviteRequestFailed(getString(R.string.remote_server_timeout));
+            }
+        });
+
     }
 
     public void fetchRosterFromServer(final Account account) {
@@ -3658,19 +3697,17 @@ public class XmppConnectionService extends Service {
                             updateConversationUi();
                             updateAccountUi();
                         } else {
-                            Contact contact = a.getRoster().getContact(avatar.owner);
-                            if (contact.setAvatar(avatar)) {
-                                syncRoster(account);
-                                getAvatarService().clear(contact);
-                                updateConversationUi();
-                                updateRosterUi();
-                            }
+                            final Contact contact = a.getRoster().getContact(avatar.owner);
+                            contact.setAvatar(avatar);
+                            syncRoster(account);
+                            getAvatarService().clear(contact);
+                            updateConversationUi();
+                            updateRosterUi();
                         }
                         if (callback != null) {
                             callback.success(avatar);
                         }
-                        Log.d(Config.LOGTAG, a.getJid().asBareJid()
-                                + ": successfully fetched pep avatar for " + avatar.owner);
+                        Log.d(Config.LOGTAG, a.getJid().asBareJid() + ": successfully fetched pep avatar for " + avatar.owner);
                         return;
                     }
                 } else {
@@ -3720,12 +3757,11 @@ public class XmppConnectionService extends Service {
                                     getAvatarService().clear(account);
                                     updateAccountUi();
                                 } else {
-                                    Contact contact = account.getRoster().getContact(avatar.owner);
-                                    if (contact.setAvatar(avatar, previouslyOmittedPepFetch)) {
-                                        syncRoster(account);
-                                        getAvatarService().clear(contact);
-                                        updateRosterUi();
-                                    }
+                                    final Contact contact = account.getRoster().getContact(avatar.owner);
+                                    contact.setAvatar(avatar, previouslyOmittedPepFetch);
+                                    syncRoster(account);
+                                    getAvatarService().clear(contact);
+                                    updateRosterUi();
                                 }
                                 updateConversationUi();
                             } else {
@@ -3740,11 +3776,10 @@ public class XmppConnectionService extends Service {
                                         }
                                         if (user.getRealJid() != null) {
                                             Contact contact = account.getRoster().getContact(user.getRealJid());
-                                            if (contact.setAvatar(avatar)) {
-                                                syncRoster(account);
-                                                getAvatarService().clear(contact);
-                                                updateRosterUi();
-                                            }
+                                            contact.setAvatar(avatar);
+                                            syncRoster(account);
+                                            getAvatarService().clear(contact);
+                                            updateRosterUi();
                                         }
                                     }
                                 }

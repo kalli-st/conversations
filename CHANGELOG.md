@@ -1,5 +1,16 @@
 # Changelog
 
+### Version 2.9.2
+
+* Offer Easy Invite generation on supporting servers
+* Display GIFs send from Movim
+* store avatars in cache
+
+### Version 2.9.1
+
+* fixed search on Android <= 5
+* optimize memory consumption
+
 ### Version 2.9.0
 
 * Search individual conversations
@@ -419,9 +430,8 @@
 * Icons for attach menu
 
 ### Version 1.16.2
-* change mam catchup strategie. support mam:1
+* change mam catchup strategy. support mam:1
 * bug fixes
-
 
 ### Version 1.16.1
 * UI performance fixes
@@ -472,7 +482,7 @@
 * bug fixes
 
 ### Version 1.14.6
-* make error notification dismissable
+* make error notification dismissible
 * bug fixes
 
 
@@ -496,7 +506,7 @@
 * bug fixes
 
 ### Version 1.14.0
-* Improvments for N
+* Improvements for N
 * Quick Reply to Notifications on N
 * Don't download avatars and files when data saver is on
 * bug fixes
@@ -674,7 +684,7 @@
 
 ### Version 1.7.0
 * CAPTCHA support
-* SASL EXTERNAL (client certifiates)
+* SASL EXTERNAL (client certificates)
 * fetching MUC history via MAM
 * redownload deleted files from HTTP hosts
 * Expert setting to automatically set presence
@@ -782,7 +792,7 @@
 * accept more ciphers
 
 ### Version 1.0
-* MUC controls (Affiliaton changes)
+* MUC controls (Affiliation changes)
 * Added download button to notification
 * Added check box to hide offline contacts
 * Use Material theme and icons on Android L
@@ -888,7 +898,7 @@
 * XEP-0333. Mark whether the other party has read your messages
 * Delayed messages are now tagged properly
 * Share images from the Gallery
-* Infinit history scrolling
+* Infinite history scrolling
 * Mark the last used presence in presence selection dialog
 
 ### Version 0.3
