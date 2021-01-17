@@ -1,5 +1,14 @@
 # Changelog
 
+### Version 2.9.4
+* minor stability improvements for A/V calls
+
+### Version 2.9.3
+
+* Fixed connectivity issues when different accounts used different SCRAM mechanisms
+* Add support for SCRAM-SHA-512
+* Allow P2P (Jingle) file transfer with self contact
+
 ### Version 2.9.2
 
 * Offer Easy Invite generation on supporting servers
