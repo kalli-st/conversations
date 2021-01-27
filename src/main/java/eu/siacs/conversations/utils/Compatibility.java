@@ -10,12 +10,12 @@ import android.os.Build;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
-import android.support.annotation.BoolRes;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
+import androidx.annotation.BoolRes;
+import androidx.core.content.ContextCompat;
+
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import eu.siacs.conversations.Config;

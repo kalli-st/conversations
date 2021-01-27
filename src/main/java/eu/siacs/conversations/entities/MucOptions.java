@@ -1,8 +1,9 @@
 package eu.siacs.conversations.entities;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,11 +18,11 @@ import eu.siacs.conversations.services.AvatarService;
 import eu.siacs.conversations.services.MessageArchiveService;
 import eu.siacs.conversations.utils.JidHelper;
 import eu.siacs.conversations.utils.UIHelper;
+import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.chatstate.ChatState;
 import eu.siacs.conversations.xmpp.forms.Data;
 import eu.siacs.conversations.xmpp.forms.Field;
 import eu.siacs.conversations.xmpp.pep.Avatar;
-import eu.siacs.conversations.xmpp.Jid;
 
 public class MucOptions {
 
@@ -37,7 +38,7 @@ public class MucOptions {
     private final Conversation conversation;
     public OnRenameListener onRenameListener = null;
     private boolean mAutoPushConfiguration = true;
-    private Account account;
+    private final Account account;
     private ServiceDiscoveryResult serviceDiscoveryResult;
     private boolean isOnline = false;
     private Error error = Error.NONE;
@@ -158,11 +159,8 @@ public class MucOptions {
     }
 
     public boolean allowInvites() {
-        final Field allowInvitesField = getRoomInfoForm().getFieldByName("muc#roomconfig_allowinvites");
-        final boolean allowInvites = allowInvitesField != null && "1".equals(allowInvitesField.getValue());
-        final Field allowMemberInvitesField = getRoomInfoForm().getFieldByName("muc#roomconfig_allowmemberinvites");
-        final boolean allowMemberInvites = allowMemberInvitesField != null && "1".equals(allowMemberInvitesField.getValue());
-        return allowInvites || allowMemberInvites;
+        final Field field = getRoomInfoForm().getFieldByName("muc#roomconfig_allowinvites");
+        return field != null && "1".equals(field.getValue());
     }
 
     public boolean canChangeSubject() {
@@ -636,8 +634,8 @@ public class MucOptions {
         OUTCAST(0, R.string.outcast),
         NONE(1, R.string.no_affiliation);
 
-        private int resId;
-        private int rank;
+        private final int resId;
+        private final int rank;
 
         Affiliation(int rank, int resId) {
             this.resId = resId;
@@ -679,8 +677,8 @@ public class MucOptions {
         PARTICIPANT(R.string.participant, 2),
         NONE(R.string.no_role, 0);
 
-        private int resId;
-        private int rank;
+        private final int resId;
+        private final int rank;
 
         Role(int resId, int rank) {
             this.resId = resId;
@@ -747,7 +745,7 @@ public class MucOptions {
         private Jid fullJid;
         private long pgpKeyId = 0;
         private Avatar avatar;
-        private MucOptions options;
+        private final MucOptions options;
         private ChatState chatState = Config.DEFAULT_CHAT_STATE;
 
         public User(MucOptions options, Jid fullJid) {
@@ -858,7 +856,7 @@ public class MucOptions {
 
         @Override
         public String toString() {
-            return "[fulljid:" + String.valueOf(fullJid) + ",realjid:" + String.valueOf(realJid) + ",affiliation" + affiliation.toString() + "]";
+            return "[fulljid:" + fullJid + ",realjid:" + realJid + ",affiliation" + affiliation.toString() + "]";
         }
 
         public boolean realJidMatchesAccount() {

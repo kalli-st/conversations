@@ -3,36 +3,28 @@ package eu.siacs.conversations.ui;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.FragmentManager;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.databinding.DataBindingUtil;
-import android.net.Uri;
-import android.os.Build;
-import android.preference.PreferenceManager;
-import android.provider.MediaStore;
-import android.support.annotation.IdRes;
-import android.support.annotation.NonNull;
-import android.support.annotation.StringRes;
-import android.support.v7.app.AlertDialog;
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.support.v13.view.inputmethod.InputConnectionCompat;
-import android.support.v13.view.inputmethod.InputContentInfoCompat;
+import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -52,6 +44,14 @@ import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
+
+import androidx.annotation.IdRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.view.inputmethod.InputConnectionCompat;
+import androidx.core.view.inputmethod.InputContentInfoCompat;
+import androidx.databinding.DataBindingUtil;
 
 import com.google.common.base.Optional;
 
@@ -118,6 +118,7 @@ import eu.siacs.conversations.utils.StylingHelper;
 import eu.siacs.conversations.utils.TimeFrameUtils;
 import eu.siacs.conversations.utils.UIHelper;
 import eu.siacs.conversations.xml.Namespace;
+import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.XmppConnection;
 import eu.siacs.conversations.xmpp.chatstate.ChatState;
 import eu.siacs.conversations.xmpp.jingle.AbstractJingleConnection;
@@ -126,7 +127,6 @@ import eu.siacs.conversations.xmpp.jingle.JingleFileTransferConnection;
 import eu.siacs.conversations.xmpp.jingle.Media;
 import eu.siacs.conversations.xmpp.jingle.OngoingRtpSession;
 import eu.siacs.conversations.xmpp.jingle.RtpCapability;
-import eu.siacs.conversations.xmpp.Jid;
 
 import static eu.siacs.conversations.ui.XmppActivity.EXTRA_ACCOUNT;
 import static eu.siacs.conversations.ui.XmppActivity.REQUEST_INVITE_TO_CONVERSATION;
@@ -849,7 +849,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
             case ATTACHMENT_CHOICE_LOCATION:
                 double latitude = data.getDoubleExtra("latitude", 0);
                 double longitude = data.getDoubleExtra("longitude", 0);
-                Uri geo = Uri.parse("geo:" + String.valueOf(latitude) + "," + String.valueOf(longitude));
+                Uri geo = Uri.parse("geo:" + latitude + "," + longitude);
                 mediaPreviewAdapter.addMediaPreviews(Attachment.of(getActivity(), geo, Attachment.Type.LOCATION));
                 toggleInputMethod();
                 break;
@@ -1121,8 +1121,9 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
             MenuItem cancelTransmission = menu.findItem(R.id.cancel_transmission);
             MenuItem deleteFile = menu.findItem(R.id.delete_file);
             MenuItem showErrorMessage = menu.findItem(R.id.show_error_message);
+            final boolean unInitiatedButKnownSize = MessageUtils.unInitiatedButKnownSize(m);
             final boolean showError = m.getStatus() == Message.STATUS_SEND_FAILED && m.getErrorMessage() != null && !Message.ERROR_MESSAGE_CANCELLED.equals(m.getErrorMessage());
-            if (!m.isFileOrImage() && !encrypted && !m.isGeoUri() && !m.treatAsDownloadable()) {
+            if (!m.isFileOrImage() && !encrypted && !m.isGeoUri() && !m.treatAsDownloadable() && !unInitiatedButKnownSize && t == null) {
                 copyMessage.setVisible(true);
                 quoteMessage.setVisible(!showError && MessageUtils.prepareQuote(m).length() > 0);
                 String body = m.getMergedBody().toString();
@@ -1143,7 +1144,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
                     && m.getConversation() instanceof Conversation) {
                 correctMessage.setVisible(true);
             }
-            if ((m.isFileOrImage() && !deleted && !receiving) || (m.getType() == Message.TYPE_TEXT && !m.treatAsDownloadable())) {
+            if ((m.isFileOrImage() && !deleted && !receiving) || (m.getType() == Message.TYPE_TEXT && !m.treatAsDownloadable()) && !unInitiatedButKnownSize && t == null) {
                 shareWith.setVisible(true);
             }
             if (m.getStatus() == Message.STATUS_SEND_FAILED) {
@@ -1152,6 +1153,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
             if (m.hasFileOnRemoteHost()
                     || m.isGeoUri()
                     || m.treatAsDownloadable()
+                    || unInitiatedButKnownSize
                     || t instanceof HttpDownloadConnection) {
                 copyUrl.setVisible(true);
             }
@@ -2098,7 +2100,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
         }
 
         stopScrolling();
-        Log.d(Config.LOGTAG, "reInit(hasExtras=" + Boolean.toString(hasExtras) + ")");
+        Log.d(Config.LOGTAG, "reInit(hasExtras=" + hasExtras + ")");
 
         if (this.conversation.isRead() && hasExtras) {
             Log.d(Config.LOGTAG, "trimming conversation");
@@ -2120,7 +2122,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
         refresh(false);
         activity.invalidateOptionsMenu();
         this.conversation.messagesLoaded.set(true);
-        Log.d(Config.LOGTAG, "scrolledToBottomAndNoPending=" + Boolean.toString(scrolledToBottomAndNoPending));
+        Log.d(Config.LOGTAG, "scrolledToBottomAndNoPending=" + scrolledToBottomAndNoPending);
 
         if (hasExtras || scrolledToBottomAndNoPending) {
             resetUnreadMessagesCount();

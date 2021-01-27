@@ -29,7 +29,6 @@
   <string name="just_now">adesso</string>
   <string name="minute_ago">1 min fa</string>
   <string name="minutes_ago">%d min fa</string>
-  <string name="x_unread_conversations">%d conversazioni non lette</string>
   <string name="sending">invio…</string>
   <string name="message_decrypting">Decifrazione messaggio. Attendere prego...</string>
   <string name="pgp_message">Messaggio cifrato con OpenPGP</string>
@@ -951,4 +950,5 @@
   <string name="invite_to_app">Invita su Conversations</string>
   <string name="unable_to_parse_invite">Impossibile analizzare l\'invito</string>
   <string name="server_does_not_support_easy_onboarding_invites">Il server non supporta la generazione di inviti</string>
+  <string name="no_active_accounts_support_this">Nessun account attivo supporta questa funzione</string>
 </resources>

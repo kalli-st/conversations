@@ -29,7 +29,10 @@
   <string name="just_now">agora</string>
   <string name="minute_ago">Hai 1 min</string>
   <string name="minutes_ago">hai %d minutos</string>
-  <string name="x_unread_conversations">%d conversas non lidas</string>
+  <plurals name="x_unread_conversations">
+    <item quantity="one">%d conversa sen ler</item>
+    <item quantity="other">%d conversas sen ler</item>
+  </plurals>
   <string name="sending">enviando…</string>
   <string name="message_decrypting">Descifrando a mensaxe. Por favor agarde...</string>
   <string name="pgp_message">Mensaxe cifrado con OpenPGP</string>
@@ -254,7 +257,7 @@
   <string name="error_publish_avatar_server_reject">O servidor rexeitou a túa publicación</string>
   <string name="error_publish_avatar_converting">Non se puido converter a imaxe</string>
   <string name="error_saving_avatar">Non se puido salvar o avatar no disco</string>
-  <string name="or_long_press_for_default">(ou pulsación longa para voltar ao valor por omisión)</string>
+  <string name="or_long_press_for_default">(ou pulsación longa para volver ao valor por defecto)</string>
   <string name="error_publish_avatar_no_server_support">O servidor non soporta a publicación de avatares</string>
   <string name="private_message">murmurado</string>
   <string name="private_message_to">a %s</string>

@@ -9,22 +9,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.TextInputLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
@@ -49,6 +36,20 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -77,9 +78,9 @@ import eu.siacs.conversations.ui.util.SoftKeyboardUtils;
 import eu.siacs.conversations.ui.widget.SwipeRefreshListFragment;
 import eu.siacs.conversations.utils.AccountUtils;
 import eu.siacs.conversations.utils.XmppUri;
+import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.OnUpdateBlocklist;
 import eu.siacs.conversations.xmpp.XmppConnection;
-import eu.siacs.conversations.xmpp.Jid;
 
 public class StartConversationActivity extends XmppActivity implements XmppConnectionService.OnConversationUpdate, OnRosterUpdate, OnUpdateBlocklist, CreatePrivateGroupChatDialog.CreateConferenceDialogListener, JoinConferenceDialog.JoinConferenceDialogListener, SwipeRefreshLayout.OnRefreshListener, CreatePublicChannelDialog.CreatePublicChannelDialogListener {
 
@@ -93,17 +94,17 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 	public int conference_context_id;
 	public int contact_context_id;
 	private ListPagerAdapter mListPagerAdapter;
-	private List<ListItem> contacts = new ArrayList<>();
+	private final List<ListItem> contacts = new ArrayList<>();
 	private ListItemAdapter mContactsAdapter;
-	private List<ListItem> conferences = new ArrayList<>();
+	private final List<ListItem> conferences = new ArrayList<>();
 	private ListItemAdapter mConferenceAdapter;
-	private List<String> mActivatedAccounts = new ArrayList<>();
+	private final List<String> mActivatedAccounts = new ArrayList<>();
 	private EditText mSearchEditText;
-	private AtomicBoolean mRequestedContactsPermission = new AtomicBoolean(false);
-	private AtomicBoolean mOpenedFab = new AtomicBoolean(false);
+	private final AtomicBoolean mRequestedContactsPermission = new AtomicBoolean(false);
+	private final AtomicBoolean mOpenedFab = new AtomicBoolean(false);
 	private boolean mHideOfflineContacts = false;
 	private boolean createdByViewIntent = false;
-	private MenuItem.OnActionExpandListener mOnActionExpandListener = new MenuItem.OnActionExpandListener() {
+	private final MenuItem.OnActionExpandListener mOnActionExpandListener = new MenuItem.OnActionExpandListener() {
 
 		@Override
 		public boolean onMenuItemActionExpand(MenuItem item) {
@@ -132,7 +133,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 			return true;
 		}
 	};
-	private TextWatcher mSearchTextWatcher = new TextWatcher() {
+	private final TextWatcher mSearchTextWatcher = new TextWatcher() {
 
 		@Override
 		public void afterTextChanged(Editable editable) {
@@ -148,7 +149,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 		}
 	};
 	private MenuItem mMenuSearchView;
-	private ListItemAdapter.OnTagClickedListener mOnTagClickedListener = new ListItemAdapter.OnTagClickedListener() {
+	private final ListItemAdapter.OnTagClickedListener mOnTagClickedListener = new ListItemAdapter.OnTagClickedListener() {
 		@Override
 		public void onTagClicked(String tag) {
 			if (mMenuSearchView != null) {
@@ -161,7 +162,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 	};
 	private Pair<Integer, Intent> mPostponedActivityResult;
 	private Toast mToast;
-	private UiCallback<Conversation> mAdhocConferenceCallback = new UiCallback<Conversation>() {
+	private final UiCallback<Conversation> mAdhocConferenceCallback = new UiCallback<Conversation>() {
 		@Override
 		public void success(final Conversation conversation) {
 			runOnUiThread(() -> {
@@ -181,7 +182,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 		}
 	};
 	private ActivityStartConversationBinding binding;
-	private TextView.OnEditorActionListener mSearchDone = new TextView.OnEditorActionListener() {
+	private final TextView.OnEditorActionListener mSearchDone = new TextView.OnEditorActionListener() {
 		@Override
 		public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 			int pos = binding.startConversationViewPager.getCurrentItem();
@@ -261,8 +262,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		this.binding = DataBindingUtil.setContentView(this, R.layout.activity_start_conversation);
-		Toolbar toolbar = (Toolbar) binding.toolbar;
-		setSupportActionBar(toolbar);
+		setSupportActionBar(binding.toolbar);
 		configureActionBar(getSupportActionBar());
 
 		binding.speedDial.inflate(R.menu.start_conversation_fab_submenu);
@@ -376,6 +376,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 
 	@Override
 	public void onNewIntent(final Intent intent) {
+		super.onNewIntent(intent);
 		if (xmppConnectionServiceBound) {
 			processViewIntent(intent);
 		} else {
@@ -759,7 +760,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 	}
 
 	@Override
-	public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 		if (grantResults.length > 0)
 			if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 				ScanActivity.onRequestPermissionResult(this, requestCode, grantResults);
