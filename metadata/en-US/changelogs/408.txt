@@ -1,0 +1,1 @@
+• fix crashes (error on internal database migration)

@@ -62,7 +62,7 @@ import eu.siacs.conversations.xmpp.mam.MamReference;
 public class DatabaseBackend extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "history";
-    private static final int DATABASE_VERSION = 48;
+    private static final int DATABASE_VERSION = 49;
     private static DatabaseBackend instance = null;
     private static final String CREATE_CONTATCS_STATEMENT = "create table "
             + Contact.TABLENAME + "(" + Contact.ACCOUNT + " TEXT, "
@@ -563,7 +563,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         if (oldVersion < 48 && newVersion >= 48) {
             db.execSQL("ALTER TABLE " + Contact.TABLENAME + " ADD COLUMN " + Contact.PRESENCE_NAME + " TEXT");
         }
-        if (oldVersion < 48 && newVersion >= 48) {
+        if (oldVersion < 49 && newVersion >= 49) {
             db.execSQL("ALTER TABLE " + Contact.TABLENAME + " ADD COLUMN " + Contact.RTP_CAPABILITY + " TEXT");
         }
     }
