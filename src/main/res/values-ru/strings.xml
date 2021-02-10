@@ -528,7 +528,7 @@
   <string name="share_uri_with">Отправить URI…</string>
   <string name="welcome_text_quicksy"><![CDATA[Quicksy — это ответвление XMPP-клиента Conversations с автоматическим обнаружением контактов.<br><br>После авторизации по номеру телефона Quicksy автоматически, основываясь на вашей адресной книге, предложит добавить возможные контакты.<br><br>Регистрируясь, вы соглашаетесь с нашей <a href="https://quicksy.im/#privacy">политикой конфиденциальности</a>.]]></string>
   <string name="agree_and_continue">Согласиться и продолжить</string>
-  <string name="magic_create_text">Мы поможем Вам создать аккаунт на conversations.im¹.\nВыбрав conversations.im в качестве провайдера, вы сможете общаться с пользователями других провайдеров, сообщив им свой полный XMPP-адрес.</string>
+  <string name="magic_create_text">Мы поможем Вам создать аккаунт на chat.sum7.eu.\nВыбрав chat.sum7.eu в качестве провайдера, вы сможете общаться с пользователями других провайдеров, сообщив им свой полный XMPP-адрес.</string>
   <string name="your_full_jid_will_be">Ваш полный XMPP-адрес будет: %s</string>
   <string name="create_account">Создать аккаунт</string>
   <string name="use_own_provider">Использовать свой провайдер</string>
