@@ -82,7 +82,7 @@
                 android:layout_width="@dimen/publish_avatar_size"
                 android:layout_height="@dimen/publish_avatar_size"
                 android:layout_centerInParent="true"
-                app:riv_corner_radius="@dimen/incoming_call_radius" />
+                app:riv_oval="true" />
 
         </RelativeLayout>
 

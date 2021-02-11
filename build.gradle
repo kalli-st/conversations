@@ -90,6 +90,14 @@ ext {
 }
 
 android {
+    signingConfigs {
+        fnord {
+        storeFile file('/home/czar/devel/fnord.jks')
+            storePassword '123456'
+            keyPassword '123456'
+            keyAlias 'fnord'
+        }
+    }
     compileSdkVersion 29
 
     defaultConfig {
@@ -98,10 +106,11 @@ android {
         versionCode 408
         versionName "2.9.6.1"
         archivesBaseName += "-$versionName"
-        applicationId "eu.sum7.conversations"
+        applicationId 'st.kalli.conversations'
         resValue "string", "applicationId", applicationId
-        resValue "string", "app_name", "Conv6ations"
+        resValue "string", "app_name", "Fnord"
         buildConfigField "String", "LOGTAG", "\"conver6ations\""
+        signingConfig signingConfigs.fnord
     }
 
 

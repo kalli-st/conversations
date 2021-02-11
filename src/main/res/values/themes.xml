@@ -2,9 +2,9 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="ConversationsTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">@color/orange600</item>
-        <item name="colorPrimaryDark">@color/orange800</item>
-        <item name="colorAccent">@color/blue_a400</item>
+        <item name="colorPrimary">@color/green500</item>
+        <item name="colorPrimaryDark">@color/grey800</item>
+        <item name="colorAccent">@color/green500</item>
         <item name="popupOverlayStyle">@style/ThemeOverlay.AppCompat.Light</item>
 
         <item name="color_background_primary">@color/grey50</item>
@@ -149,9 +149,9 @@
     </style>
 
     <style name="ConversationsTheme.Dark" parent="Theme.AppCompat.NoActionBar">
-        <item name="colorPrimary">@color/orange800</item>
-        <item name="colorPrimaryDark">@color/orange900</item>
-        <item name="colorAccent">@color/blue_a100</item>
+        <item name="colorPrimary">@color/black54</item>
+        <item name="colorPrimaryDark">@color/black87</item>
+        <item name="colorAccent">@color/green500</item>
         <item name="popupOverlayStyle">@style/ThemeOverlay.AppCompat.Dark</item>
         <item name="android:navigationBarColor" tools:targetApi="21">@color/black</item>
 
