@@ -613,6 +613,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         final Conversational conversation = message.getConversation();
         final Account account = conversation.getAccount();
         final int type = getItemViewType(position);
+        final boolean isPrivateMessage = conversation.getMode() == Conversational.MODE_SINGLE  || message.isPrivateMessage();
         ViewHolder viewHolder;
         if (view == null) {
             viewHolder = new ViewHolder();
@@ -632,7 +633,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 case SENT:
                     view = activity.getLayoutInflater().inflate(R.layout.message_sent, parent, false);
                     viewHolder.message_box = view.findViewById(R.id.message_box);
-                    viewHolder.contact_picture = view.findViewById(R.id.message_photo);
+                    //viewHolder.contact_picture = view.findViewById(R.id.message_photo);
                     viewHolder.download_button = view.findViewById(R.id.download_button);
                     viewHolder.indicator = view.findViewById(R.id.security_indicator);
                     viewHolder.edit_indicator = view.findViewById(R.id.edit_indicator);
@@ -643,9 +644,13 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     viewHolder.audioPlayer = view.findViewById(R.id.audio_player);
                     break;
                 case RECEIVED:
-                    view = activity.getLayoutInflater().inflate(R.layout.message_received, parent, false);
+                    if (isPrivateMessage) {
+                        view = activity.getLayoutInflater().inflate(R.layout.message_received, parent, false);
+                    } else {
+                        view = activity.getLayoutInflater().inflate(R.layout.message_received_muc, parent, false);
+                        viewHolder.contact_picture = view.findViewById(R.id.message_photo);
+                    }
                     viewHolder.message_box = view.findViewById(R.id.message_box);
-                    viewHolder.contact_picture = view.findViewById(R.id.message_photo);
                     viewHolder.download_button = view.findViewById(R.id.download_button);
                     viewHolder.indicator = view.findViewById(R.id.security_indicator);
                     viewHolder.edit_indicator = view.findViewById(R.id.edit_indicator);
@@ -737,28 +742,26 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 }
             }
             return view;
-        } else {
-            AvatarWorkerTask.loadAvatar(message, viewHolder.contact_picture, R.dimen.avatar);
         }
 
         resetClickListener(viewHolder.message_box, viewHolder.messageBody);
 
-        viewHolder.contact_picture.setOnClickListener(v -> {
-            if (MessageAdapter.this.mOnContactPictureClickedListener != null) {
-                MessageAdapter.this.mOnContactPictureClickedListener
-                        .onContactPictureClicked(message);
-            }
-
-        });
-        viewHolder.contact_picture.setOnLongClickListener(v -> {
-            if (MessageAdapter.this.mOnContactPictureLongClickedListener != null) {
-                MessageAdapter.this.mOnContactPictureLongClickedListener
-                        .onContactPictureLongClicked(v, message);
-                return true;
-            } else {
-                return false;
-            }
-        });
+//        viewHolder.contact_picture.setOnClickListener(v -> {
+//            if (MessageAdapter.this.mOnContactPictureClickedListener != null) {
+//                MessageAdapter.this.mOnContactPictureClickedListener
+//                        .onContactPictureClicked(message);
+//            }
+//
+//        });
+//        viewHolder.contact_picture.setOnLongClickListener(v -> {
+//            if (MessageAdapter.this.mOnContactPictureLongClickedListener != null) {
+//                MessageAdapter.this.mOnContactPictureLongClickedListener
+//                        .onContactPictureLongClicked(v, message);
+//                return true;
+//            } else {
+//                return false;
+//            }
+//        });
 
         final Transferable transferable = message.getTransferable();
         final boolean unInitiatedButKnownSize = MessageUtils.unInitiatedButKnownSize(message);
@@ -831,6 +834,9 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         }
 
         if (type == RECEIVED) {
+            if (!isPrivateMessage){
+                AvatarWorkerTask.loadAvatar(message, viewHolder.contact_picture, R.dimen.avatar);
+            }
             if (isInValidSession) {
                 viewHolder.message_box.setBackgroundResource(activity.getThemeResource(R.attr.message_bubble_received_monochrome, R.drawable.message_bubble_received_white));
                 viewHolder.encryption.setVisibility(View.GONE);
