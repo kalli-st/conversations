@@ -602,7 +602,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
         binding.accountJid.setOnFocusChangeListener(this.mEditTextFocusListener);
         this.binding.accountPassword.addTextChangedListener(this.mTextWatcher);
 
-        this.binding.avater.setOnClickListener(this.mAvatarClickListener);
+        this.binding.avatar.setOnClickListener(this.mAvatarClickListener);
         this.binding.hostname.addTextChangedListener(mTextWatcher);
         this.binding.hostname.setOnFocusChangeListener(mEditTextFocusListener);
         this.binding.clearDevices.setOnClickListener(v -> showWipePepDialog());
@@ -633,7 +633,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
     }
 
     private void refreshAvatar() {
-        AvatarWorkerTask.loadAvatar(mAccount, binding.avater, R.dimen.avatar_on_details_screen_size);
+        AvatarWorkerTask.loadAvatar(mAccount, binding.avatar, R.dimen.avatar_on_details_screen_size);
     }
 
     @Override
@@ -713,7 +713,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
                 setTitle(getString(R.string.account_details));
                 configureActionBar(getSupportActionBar(), !openedFromNotification);
             } else {
-                this.binding.avater.setVisibility(View.GONE);
+                this.binding.avatar.setVisibility(View.GONE);
                 configureActionBar(getSupportActionBar(), !(init && Config.MAGIC_CREATE_DOMAIN == null));
                 if (mForceRegister != null) {
                     if (mForceRegister) {
@@ -990,10 +990,10 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
         this.binding.accountPassword.setEnabled(editPassword);
 
         if (!mInitMode) {
-            this.binding.avater.setVisibility(View.VISIBLE);
-            AvatarWorkerTask.loadAvatar(mAccount, binding.avater, R.dimen.avatar_on_details_screen_size);
+            this.binding.avatar.setVisibility(View.VISIBLE);
+            AvatarWorkerTask.loadAvatar(mAccount, binding.avatar, R.dimen.avatar_on_details_screen_size);
         } else {
-            this.binding.avater.setVisibility(View.GONE);
+            this.binding.avatar.setVisibility(View.GONE);
         }
         this.binding.accountRegisterNew.setChecked(this.mAccount.isOptionSet(Account.OPTION_REGISTER));
         if (this.mAccount.isOptionSet(Account.OPTION_MAGIC_CREATE)) {

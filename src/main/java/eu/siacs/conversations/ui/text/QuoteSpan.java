@@ -26,8 +26,10 @@ public class QuoteSpan extends CharacterStyle implements LeadingMarginSpan {
 	public QuoteSpan(int color, DisplayMetrics metrics) {
 		this.color = color;
 		this.width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, WIDTH_SP, metrics);
-		this.paddingLeft = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, PADDING_LEFT_SP, metrics);
-		this.paddingRight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, PADDING_RIGHT_SP, metrics);
+//		this.paddingLeft = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, PADDING_LEFT_SP, metrics);
+//		this.paddingRight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, PADDING_RIGHT_SP, metrics);
+		this.paddingLeft = 0;
+		this.paddingRight = 0;
 	}
 
 	@Override
@@ -43,13 +45,13 @@ public class QuoteSpan extends CharacterStyle implements LeadingMarginSpan {
 	@Override
 	public void drawLeadingMargin(Canvas c, Paint p, int x, int dir, int top, int baseline, int bottom,
 			CharSequence text, int start, int end, boolean first, Layout layout) {
-		Paint.Style style = p.getStyle();
-		int color = p.getColor();
-		p.setStyle(Paint.Style.FILL);
-		p.setColor(this.color);
-		c.drawRect(x + dir * paddingLeft, top, x + dir * (paddingLeft + width), bottom, p);
-		p.setStyle(style);
-		p.setColor(color);
+//		Paint.Style style = p.getStyle();
+//		int color = p.getColor();
+//		p.setStyle(Paint.Style.FILL);
+//		p.setColor(this.color);
+//		c.drawRect(x + dir * paddingLeft, top, x + dir * (paddingLeft + width), bottom, p);
+//		p.setStyle(style);
+//		p.setColor(color);
 	}
 
 	@ColorInt

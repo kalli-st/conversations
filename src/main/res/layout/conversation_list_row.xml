@@ -6,6 +6,7 @@
         android:layout_height="wrap_content"
         android:descendantFocusability="blocksDescendants">
 
+
         <FrameLayout
             android:id="@+id/frame"
             android:layout_width="fill_parent"

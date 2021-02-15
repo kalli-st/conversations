@@ -351,8 +351,9 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             body.insert(end, "\n");
             body.setSpan(new DividerSpan(false), end, end + 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
-        int color = darkBackground ? this.getMessageTextColor(darkBackground, false)
-                : ContextCompat.getColor(activity, R.color.orange700_desaturated);
+//        int color = darkBackground ? this.getMessageTextColor(darkBackground, false)
+//                : ContextCompat.getColor(activity, R.color.green400);
+        int color = ContextCompat.getColor(activity, R.color.green700);
         DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
         body.setSpan(new QuoteSpan(color, metrics), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
@@ -390,8 +391,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     lineTextStart = i;
                 }
                 if (current == '\n') {
-                    body.delete(lineStart, lineTextStart);
-                    i -= lineTextStart - lineStart;
+//                    body.delete(lineStart, lineTextStart);
+//                    i -= lineTextStart - lineStart;
                     if (i == lineStart) {
                         // Avoid empty lines because span over empty line can be hidden
                         body.insert(i++, " ");
@@ -613,7 +614,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         final Conversational conversation = message.getConversation();
         final Account account = conversation.getAccount();
         final int type = getItemViewType(position);
-        final boolean isPrivateMessage = conversation.getMode() == Conversational.MODE_SINGLE  || message.isPrivateMessage();
+//        final boolean isPrivateMessage = ( conversation.getMode() == Conversational.MODE_SINGLE ) || message.isPrivateMessage();
+//        final boolean mucMessage = conversation.getMode() == Conversation.MODE_MULTI || !message.isPrivateMessage();
         ViewHolder viewHolder;
         if (view == null) {
             viewHolder = new ViewHolder();
@@ -633,7 +635,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 case SENT:
                     view = activity.getLayoutInflater().inflate(R.layout.message_sent, parent, false);
                     viewHolder.message_box = view.findViewById(R.id.message_box);
-                    //viewHolder.contact_picture = view.findViewById(R.id.message_photo);
                     viewHolder.download_button = view.findViewById(R.id.download_button);
                     viewHolder.indicator = view.findViewById(R.id.security_indicator);
                     viewHolder.edit_indicator = view.findViewById(R.id.edit_indicator);
@@ -644,12 +645,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     viewHolder.audioPlayer = view.findViewById(R.id.audio_player);
                     break;
                 case RECEIVED:
-                    if (isPrivateMessage) {
-                        view = activity.getLayoutInflater().inflate(R.layout.message_received, parent, false);
-                    } else {
-                        view = activity.getLayoutInflater().inflate(R.layout.message_received_muc, parent, false);
-                        viewHolder.contact_picture = view.findViewById(R.id.message_photo);
-                    }
+                    view = activity.getLayoutInflater().inflate(R.layout.message_received_muc, parent, false);
+                    viewHolder.contact_picture = view.findViewById(R.id.message_photo);
                     viewHolder.message_box = view.findViewById(R.id.message_box);
                     viewHolder.download_button = view.findViewById(R.id.download_button);
                     viewHolder.indicator = view.findViewById(R.id.security_indicator);
@@ -746,22 +743,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
         resetClickListener(viewHolder.message_box, viewHolder.messageBody);
 
-//        viewHolder.contact_picture.setOnClickListener(v -> {
-//            if (MessageAdapter.this.mOnContactPictureClickedListener != null) {
-//                MessageAdapter.this.mOnContactPictureClickedListener
-//                        .onContactPictureClicked(message);
-//            }
-//
-//        });
-//        viewHolder.contact_picture.setOnLongClickListener(v -> {
-//            if (MessageAdapter.this.mOnContactPictureLongClickedListener != null) {
-//                MessageAdapter.this.mOnContactPictureLongClickedListener
-//                        .onContactPictureLongClicked(v, message);
-//                return true;
-//            } else {
-//                return false;
-//            }
-//        });
+
+
 
         final Transferable transferable = message.getTransferable();
         final boolean unInitiatedButKnownSize = MessageUtils.unInitiatedButKnownSize(message);
@@ -834,9 +817,24 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         }
 
         if (type == RECEIVED) {
-            if (!isPrivateMessage){
-                AvatarWorkerTask.loadAvatar(message, viewHolder.contact_picture, R.dimen.avatar);
-            }
+
+            viewHolder.contact_picture.setOnClickListener(v -> {
+                if (MessageAdapter.this.mOnContactPictureClickedListener != null) {
+                    MessageAdapter.this.mOnContactPictureClickedListener
+                            .onContactPictureClicked(message);
+                }
+            });
+            viewHolder.contact_picture.setOnLongClickListener(v -> {
+                if (MessageAdapter.this.mOnContactPictureLongClickedListener != null) {
+                    MessageAdapter.this.mOnContactPictureLongClickedListener
+                            .onContactPictureLongClicked(v, message);
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+            AvatarWorkerTask.loadAvatar(message, viewHolder.contact_picture, R.dimen.avatar);
+
             if (isInValidSession) {
                 viewHolder.message_box.setBackgroundResource(activity.getThemeResource(R.attr.message_bubble_received_monochrome, R.drawable.message_bubble_received_white));
                 viewHolder.encryption.setVisibility(View.GONE);

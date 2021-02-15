@@ -50,6 +50,7 @@
         android:orderInCategory="30"
         android:title="@string/attach_file"
         app:showAsAction="always">
+
         <menu>
 
             <item
