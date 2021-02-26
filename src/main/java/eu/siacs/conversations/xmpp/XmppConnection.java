@@ -634,10 +634,14 @@ public class XmppConnection implements Runnable {
                 if (Config.EXTENDED_SM_LOGGING) {
                     Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": server acknowledged stanza #" + mStanzaQueue.keyAt(i));
                 }
-                AbstractAcknowledgeableStanza stanza = mStanzaQueue.valueAt(i);
+                final AbstractAcknowledgeableStanza stanza = mStanzaQueue.valueAt(i);
                 if (stanza instanceof MessagePacket && acknowledgedListener != null) {
-                    MessagePacket packet = (MessagePacket) stanza;
-                    acknowledgedMessages |= acknowledgedListener.onMessageAcknowledged(account, packet.getId());
+                    final MessagePacket packet = (MessagePacket) stanza;
+                    final String id = packet.getId();
+                    final Jid to = packet.getTo();
+                    if (id != null && to != null) {
+                        acknowledgedMessages |= acknowledgedListener.onMessageAcknowledged(account, to, id);
+                    }
                 }
                 mStanzaQueue.removeAt(i);
                 i--;
@@ -796,7 +800,7 @@ public class XmppConnection implements Runnable {
         final InetAddress address = socket.getInetAddress();
         final SSLSocket sslSocket = (SSLSocket) tlsFactoryVerifier.factory.createSocket(socket, address.getHostAddress(), socket.getPort(), true);
         SSLSocketHelper.setSecurity(sslSocket);
-        SSLSocketHelper.setHostname(sslSocket, account.getServer());
+        SSLSocketHelper.setHostname(sslSocket, IDN.toASCII(account.getServer()));
         SSLSocketHelper.setApplicationProtocol(sslSocket, "xmpp-client");
         if (!tlsFactoryVerifier.verifier.verify(account.getServer(), this.verifiedHostname, sslSocket.getSession())) {
             Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": TLS certificate verification failed");

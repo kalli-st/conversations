@@ -1037,7 +1037,6 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
         messageListAdapter = new MessageAdapter((XmppActivity) getActivity(), this.messageList);
         messageListAdapter.setOnContactPictureClicked(this);
         messageListAdapter.setOnContactPictureLongClicked(this);
-        messageListAdapter.setOnQuoteListener(this::quoteText);
         binding.messagesView.setAdapter(messageListAdapter);
 
         registerForContextMenu(binding.messagesView);
@@ -1055,7 +1054,6 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
         Log.d(Config.LOGTAG, "ConversationFragment.onDestroyView()");
         messageListAdapter.setOnContactPictureClicked(null);
         messageListAdapter.setOnContactPictureLongClicked(null);
-        messageListAdapter.setOnQuoteListener(null);
     }
 
     private void quoteText(String text) {
@@ -1573,7 +1571,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
                 } else {
                     res = R.string.no_storage_permission;
                 }
-                Toast.makeText(getActivity(), res, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), getString(res, getString(R.string.app_name)), Toast.LENGTH_SHORT).show();
             }
         }
         if (writeGranted(grantResults, permissions)) {

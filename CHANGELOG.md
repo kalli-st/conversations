@@ -1,5 +1,12 @@
 # Changelog
 
+### Version 2.9.7
+
+* Ability to select incoming call ringtone
+* Fix OpenPGP key id discovery for OpenKeychain 5.6+
+* Properly verify punycode TLS certificates
+* Improve stability of RTP session establishment (calling)
+
 ### Version 2.9.6
 
 * Show call button for offline contacts if they previously announced support
@@ -12,6 +19,7 @@
 
 ### Version 2.9.4
 * minor stability improvements for A/V calls
+* Conversations releases from here on forward require Android 5
 
 ### Version 2.9.3
 

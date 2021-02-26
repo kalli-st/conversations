@@ -87,7 +87,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     private final DisplayMetrics metrics;
     private OnContactPictureClicked mOnContactPictureClickedListener;
     private OnContactPictureLongClicked mOnContactPictureLongClickedListener;
-    private OnQuoteListener onQuoteListener;
 
     public MessageAdapter(XmppActivity activity, List<Message> messages) {
         super(activity, 0, messages);
@@ -126,10 +125,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     public void setOnContactPictureLongClicked(
             OnContactPictureLongClicked listener) {
         this.mOnContactPictureLongClickedListener = listener;
-    }
-
-    public void setOnQuoteListener(OnQuoteListener listener) {
-        this.onQuoteListener = listener;
     }
 
     @Override
@@ -696,7 +691,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 } else if (rtpSessionStatus.successful) {
                     viewHolder.status_message.setText(R.string.incoming_call);
                 } else {
-                    viewHolder.status_message.setText(activity.getString(R.string.incoming_call_duration, UIHelper.readableTimeDifferenceFull(activity, message.getTimeSent())));
+                    viewHolder.status_message.setText(activity.getString(R.string.missed_call_timestamp, UIHelper.readableTimeDifferenceFull(activity, message.getTimeSent())));
                 }
             } else {
                 if (duration > 0) {
@@ -853,7 +848,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     private void promptOpenKeychainInstall(View view) {
         activity.showInstallPgpDialog();
     }
-    
+
     public FileBackend getFileBackend() {
         return activity.xmppConnectionService.getFileBackend();
     }

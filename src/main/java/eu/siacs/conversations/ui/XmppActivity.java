@@ -34,6 +34,7 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.text.Html;
 import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -50,6 +51,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AlertDialog.Builder;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.databinding.DataBindingUtil;
+
+import com.google.common.base.Strings;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -248,7 +251,7 @@ public abstract class XmppActivity extends ActionBarActivity {
         Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.openkeychain_required));
         builder.setIconAttribute(android.R.attr.alertDialogIcon);
-        builder.setMessage(getText(R.string.openkeychain_required_long));
+        builder.setMessage(Html.fromHtml(getString(R.string.openkeychain_required_long, getString(R.string.app_name))));
         builder.setNegativeButton(getString(R.string.cancel), null);
         builder.setNeutralButton(getString(R.string.restart),
                 (dialog, which) -> {
@@ -572,13 +575,7 @@ public abstract class XmppActivity extends ActionBarActivity {
         if (account.getPgpId() == 0) {
             choosePgpSignId(account);
         } else {
-            String status = null;
-            if (manuallyChangePresence()) {
-                status = account.getPresenceStatusMessage();
-            }
-            if (status == null) {
-                status = "";
-            }
+            final String status = Strings.nullToEmpty(account.getPresenceStatusMessage());
             xmppConnectionService.getPgpEngine().generateSignature(intent, account, status, new UiCallback<String>() {
 
                 @Override
