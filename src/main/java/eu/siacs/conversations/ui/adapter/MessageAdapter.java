@@ -645,7 +645,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     viewHolder.audioPlayer = view.findViewById(R.id.audio_player);
                     break;
                 case RECEIVED:
-                    view = activity.getLayoutInflater().inflate(R.layout.message_received_muc, parent, false);
+                    view = activity.getLayoutInflater().inflate(R.layout.message_received, parent, false);
                     viewHolder.contact_picture = view.findViewById(R.id.message_photo);
                     viewHolder.message_box = view.findViewById(R.id.message_box);
                     viewHolder.download_button = view.findViewById(R.id.download_button);
