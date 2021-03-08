@@ -238,8 +238,13 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 break;
             default:
                 if (multiReceived) {
-                    info = UIHelper.getMessageDisplayName(message);
-                }
+                    String nick = UIHelper.getMessageDisplayName(message);
+                    viewHolder.messageSender.setVisibility(View.VISIBLE);
+                    viewHolder.messageSender.setText(nick);
+                    viewHolder.messageSender.setTextColor(message.getAvatarBackgroundColor());
+                } else {
+                    viewHolder.messageSender.setVisibility(View.GONE);
+                };
                 break;
         }
         if (error && type == SENT) {
@@ -643,6 +648,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     viewHolder.time = view.findViewById(R.id.message_time);
                     viewHolder.indicatorReceived = view.findViewById(R.id.indicator_received);
                     viewHolder.audioPlayer = view.findViewById(R.id.audio_player);
+                    viewHolder.messageSender= view.findViewById(R.id.message_sender);
                     break;
                 case RECEIVED:
                     view = activity.getLayoutInflater().inflate(R.layout.message_received, parent, false);
@@ -657,6 +663,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     viewHolder.indicatorReceived = view.findViewById(R.id.indicator_received);
                     viewHolder.encryption = view.findViewById(R.id.message_encryption);
                     viewHolder.audioPlayer = view.findViewById(R.id.audio_player);
+                    viewHolder.messageSender= view.findViewById(R.id.message_sender);
                     break;
                 case STATUS:
                     view = activity.getLayoutInflater().inflate(R.layout.message_status, parent, false);
@@ -916,6 +923,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         public Button load_more_messages;
         public ImageView edit_indicator;
         public RelativeLayout audioPlayer;
+        public TextView messageSender;
         protected LinearLayout message_box;
         protected Button download_button;
         protected ImageView image;
