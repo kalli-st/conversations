@@ -11,17 +11,39 @@
 
 
     <LinearLayout
+        android:id="@+id/message_photo_box"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical">
+
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:id="@+id/message_photo"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:scaleType="fitXY"
+            app:riv_oval="true"
+            android:visibility="gone" />
+
+<!--        <View-->
+<!--            android:id="@+id/placeholder"-->
+<!--            android:layout_width="48dp"-->
+<!--            android:layout_height="3dp" />-->
+    </LinearLayout>
+
+
+    <LinearLayout
         android:id="@+id/message_box"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_marginLeft="-4dp"
+        android:layout_toLeftOf="@+id/message_photo_box"
         android:background="?attr/message_bubble_sent"
         android:longClickable="true"
-        android:minHeight="53dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true">
-
+        android:minHeight="53dp">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -48,6 +70,7 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginEnd="4sp"
                     android:layout_marginRight="4sp"
+                    android:accessibilityTraversalAfter="@id/message_photo"
                     android:accessibilityTraversalBefore="@id/message_content"
                     android:gravity="center_vertical"
                     android:text="@string/sending"

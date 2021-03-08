@@ -640,6 +640,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 case SENT:
                     view = activity.getLayoutInflater().inflate(R.layout.message_sent, parent, false);
                     viewHolder.message_box = view.findViewById(R.id.message_box);
+                    viewHolder.contact_picture = view.findViewById(R.id.message_photo);
                     viewHolder.download_button = view.findViewById(R.id.download_button);
                     viewHolder.indicator = view.findViewById(R.id.security_indicator);
                     viewHolder.edit_indicator = view.findViewById(R.id.edit_indicator);
@@ -746,6 +747,11 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 }
             }
             return view;
+        } else if (type == SENT) {
+            if (activity.showOwnAvatar()) {
+                AvatarWorkerTask.loadAvatar(message, viewHolder.contact_picture, R.dimen.avatar);
+                viewHolder.contact_picture.setVisibility(View.VISIBLE);
+            }
         }
 
         resetClickListener(viewHolder.message_box, viewHolder.messageBody);

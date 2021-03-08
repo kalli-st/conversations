@@ -18,6 +18,7 @@
     <string name="picture_compression">auto</string>
     <string name="quick_action">recent</string>
     <bool name="show_dynamic_tags">true</bool>
+    <bool name="show_own_avatar">true</bool>
     <bool name="btbv">true</bool>
     <integer name="automatic_message_deletion">0</integer>
     <bool name="dont_trust_system_cas">false</bool>

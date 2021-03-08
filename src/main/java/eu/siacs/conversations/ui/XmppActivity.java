@@ -418,6 +418,10 @@ public abstract class XmppActivity extends ActionBarActivity {
         return this.isCameraFeatureAvailable;
     }
 
+    public boolean showOwnAvatar(){
+        return getBooleanPreference("show_own_avatar", R.bool.show_own_avatar);
+    }
+
     public boolean isDarkTheme() {
         return ThemeHelper.isDark(mTheme);
     }
