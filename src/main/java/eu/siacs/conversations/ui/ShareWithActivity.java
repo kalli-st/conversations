@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -95,6 +96,9 @@ public class ShareWithActivity extends XmppActivity implements XmppConnectionSer
         RecyclerView mListView = findViewById(R.id.choose_conversation_list);
         mAdapter = new ConversationAdapter(this, this.mConversations);
         mListView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mListView.getContext(),
+                DividerItemDecoration.VERTICAL);
+        mListView.addItemDecoration(dividerItemDecoration);
         mListView.setAdapter(mAdapter);
         mAdapter.setConversationClickListener((view, conversation) -> share(conversation));
         this.share = new Share();
