@@ -380,17 +380,17 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_conversations, menu);
-        final MenuItem qrCodeScanMenuItem = menu.findItem(R.id.action_scan_qr_code);
-        if (qrCodeScanMenuItem != null) {
-            if (isCameraFeatureAvailable()) {
-                Fragment fragment = getFragmentManager().findFragmentById(R.id.main_fragment);
-                boolean visible = getResources().getBoolean(R.bool.show_qr_code_scan)
-                        && fragment instanceof ConversationsOverviewFragment;
-                qrCodeScanMenuItem.setVisible(visible);
-            } else {
-                qrCodeScanMenuItem.setVisible(false);
-            }
-        }
+//        final MenuItem qrCodeScanMenuItem = menu.findItem(R.id.action_scan_qr_code);
+//        if (qrCodeScanMenuItem != null) {
+//            if (isCameraFeatureAvailable()) {
+//                Fragment fragment = getFragmentManager().findFragmentById(R.id.main_fragment);
+//                boolean visible = getResources().getBoolean(R.bool.show_qr_code_scan)
+//                        && fragment instanceof ConversationsOverviewFragment;
+//                qrCodeScanMenuItem.setVisible(visible);
+//            } else {
+//                qrCodeScanMenuItem.setVisible(false);
+//            }
+//        }
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -485,9 +485,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                     return true;
                 }
                 break;
-            case R.id.action_scan_qr_code:
-                UriHandlerActivity.scan(this);
-                return true;
+//            case R.id.action_scan_qr_code:
+//                UriHandlerActivity.scan(this);
+//                return true;
             case R.id.action_search_all_conversations:
                 startActivity(new Intent(this, SearchActivity.class));
                 return true;
