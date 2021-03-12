@@ -564,7 +564,9 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             db.execSQL("ALTER TABLE " + Contact.TABLENAME + " ADD COLUMN " + Contact.PRESENCE_NAME + " TEXT");
         }
         if (oldVersion < 49 && newVersion >= 49) {
-            db.execSQL("ALTER TABLE " + Contact.TABLENAME + " ADD COLUMN " + Contact.RTP_CAPABILITY + " TEXT");
+            // dirty workaround for failed migration
+            db.execSQL("IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '" + Contact.TABLENAME + "' AND COLUMN_NAME = '" + Contact.RTP_CAPABILITY + "') THEN"
+		+ "ALTER TABLE " + Contact.TABLENAME + " ADD COLUMN " + Contact.RTP_CAPABILITY + " TEXT");
         }
     }
 
