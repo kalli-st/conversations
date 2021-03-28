@@ -20,3 +20,13 @@ script:
 
 before_install:
     - yes | sdkmanager "platforms;android-28"
+
+before_deploy:
+    - export TRAVIS_TAG=develop
+
+deploy:
+  skip_cleanup: true
+  provider: releases
+  file_glob: true
+  file:
+    - "build/outputs/apk/conversationsFreeSystem/release/*"
