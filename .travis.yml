@@ -22,8 +22,6 @@ deploy:
   skip_cleanup: true
   provider: releases
   file_glob: true
-  on:
-    tags: true
   draft: true
   overwrite: true
   file:
