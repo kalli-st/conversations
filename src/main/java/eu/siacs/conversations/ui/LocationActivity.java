@@ -31,8 +31,6 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.CopyrightOverlay;
 import org.osmdroid.views.overlay.Overlay;
 
-import java.io.IOException;
-
 import eu.siacs.conversations.BuildConfig;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
@@ -98,11 +96,7 @@ public abstract class LocationActivity extends ActionBarActivity implements Loca
 		config.load(ctx, getPreferences());
 		config.setUserAgentValue(BuildConfig.APPLICATION_ID + "/" + BuildConfig.VERSION_CODE);
 		if (QuickConversationsService.isConversations() && getBooleanPreference("use_tor", R.bool.use_tor)) {
-			try {
-				config.setHttpProxy(HttpConnectionManager.getProxy());
-			} catch (IOException e) {
-				throw new RuntimeException("Unable to configure proxy");
-			}
+			config.setHttpProxy(HttpConnectionManager.getProxy());
 		}
 	}
 

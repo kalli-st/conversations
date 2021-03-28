@@ -18,7 +18,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
-import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.system.Os;
@@ -30,6 +29,7 @@ import android.util.Log;
 import android.util.LruCache;
 
 import androidx.annotation.RequiresApi;
+import androidx.annotation.StringRes;
 import androidx.core.content.FileProvider;
 
 import java.io.ByteArrayOutputStream;
@@ -44,7 +44,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.URL;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -416,9 +415,9 @@ public class FileBackend {
         }
     }
 
-    public static void updateFileParams(Message message, URL url, long size) {
+    public static void updateFileParams(Message message, String url, long size) {
         final StringBuilder body = new StringBuilder();
-        body.append(url.toString()).append('|').append(size);
+        body.append(url).append('|').append(size);
         message.setBody(body.toString());
     }
 
@@ -648,12 +647,13 @@ public class FileBackend {
             } catch (IOException e) {
                 throw new FileWriterException();
             }
-        } catch (FileNotFoundException e) {
+        } catch (final FileNotFoundException e) {
             throw new FileCopyException(R.string.error_file_not_found);
-        } catch (FileWriterException e) {
+        } catch (final FileWriterException e) {
             throw new FileCopyException(R.string.error_unable_to_create_temporary_file);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (final SecurityException e) {
+            throw new FileCopyException(R.string.error_security_exception);
+        } catch (final IOException e) {
             throw new FileCopyException(R.string.error_io_exception);
         } finally {
             close(os);
@@ -1305,7 +1305,7 @@ public class FileBackend {
         updateFileParams(message, null);
     }
 
-    public void updateFileParams(Message message, URL url) {
+    public void updateFileParams(Message message, String url) {
         DownloadableFile file = getFile(message);
         final String mime = file.getMimeType();
         final boolean privateMessage = message.isPrivateMessage();
@@ -1315,7 +1315,7 @@ public class FileBackend {
         final boolean pdf = "application/pdf".equals(mime);
         final StringBuilder body = new StringBuilder();
         if (url != null) {
-            body.append(url.toString());
+            body.append(url);
         }
         body.append('|').append(file.getSize());
         if (image || video || (pdf && Compatibility.runsTwentyOne())) {
@@ -1464,11 +1464,11 @@ public class FileBackend {
     public static class FileCopyException extends Exception {
         private final int resId;
 
-        private FileCopyException(int resId) {
+        private FileCopyException(@StringRes int resId) {
             this.resId = resId;
         }
 
-        public int getResId() {
+        public @StringRes int getResId() {
             return resId;
         }
     }

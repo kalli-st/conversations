@@ -55,7 +55,6 @@ import org.openintents.openpgp.util.OpenPgpApi;
 import org.openintents.openpgp.util.OpenPgpServiceConnection;
 
 import java.io.File;
-import java.net.URL;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.security.cert.CertificateException;
@@ -104,7 +103,6 @@ import eu.siacs.conversations.generator.AbstractGenerator;
 import eu.siacs.conversations.generator.IqGenerator;
 import eu.siacs.conversations.generator.MessageGenerator;
 import eu.siacs.conversations.generator.PresenceGenerator;
-import eu.siacs.conversations.http.CustomURLStreamHandlerFactory;
 import eu.siacs.conversations.http.HttpConnectionManager;
 import eu.siacs.conversations.parser.AbstractParser;
 import eu.siacs.conversations.parser.IqParser;
@@ -182,10 +180,6 @@ public class XmppConnectionService extends Service {
     private static final String ACTION_POST_CONNECTIVITY_CHANGE = "eu.siacs.conversations.POST_CONNECTIVITY_CHANGE";
 
     private static final String SETTING_LAST_ACTIVITY_TS = "last_activity_timestamp";
-
-    static {
-        URL.setURLStreamHandlerFactory(new CustomURLStreamHandlerFactory());
-    }
 
     public final CountDownLatch restoredFromDatabaseLatch = new CountDownLatch(1);
     private final SerialSingleThreadExecutor mFileAddingExecutor = new SerialSingleThreadExecutor("FileAdding");
@@ -663,6 +657,7 @@ public class XmppConnectionService extends Service {
                         if (Config.RESET_ATTEMPT_COUNT_ON_NETWORK_CHANGE) {
                             resetAllAttemptCounts(true, false);
                         }
+                        Resolver.clearCache();
                     }
                     break;
                 case Intent.ACTION_SHUTDOWN:
@@ -999,7 +994,10 @@ public class XmppConnectionService extends Service {
 
     public boolean isScreenLocked() {
         final KeyguardManager keyguardManager = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
-        return keyguardManager != null && keyguardManager.inKeyguardRestrictedInputMode();
+        final PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        final boolean locked = keyguardManager != null && keyguardManager.isKeyguardLocked();
+        final boolean interactive = powerManager != null && powerManager.isInteractive();
+        return locked || !interactive;
     }
 
     private boolean isPhoneSilenced() {
@@ -1794,7 +1792,7 @@ public class XmppConnectionService extends Service {
             IqPacket request = mIqGenerator.deleteItem(Namespace.BOOKMARKS2, bookmark.getJid().asBareJid().toEscapedString());
             sendIqPacket(account, request, (a, response) -> {
                 if (response.getType() == IqPacket.TYPE.ERROR) {
-                    Log.d(Config.LOGTAG, a.getJid().asBareJid() + ": unable to delete bookmark " + response.getError());
+                    Log.d(Config.LOGTAG, a.getJid().asBareJid() + ": unable to delete bookmark " + response.getErrorCondition());
                 }
             });
         } else if (connection.getFeatures().bookmarksConversion()) {
@@ -2864,13 +2862,12 @@ public class XmppConnectionService extends Service {
                 }
 
                 @Override
-                public void onFetchFailed(final Conversation conversation, Element error) {
+                public void onFetchFailed(final Conversation conversation, final String errorCondition) {
                     if (conversation.getStatus() == Conversation.STATUS_ARCHIVED) {
                         Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": conversation (" + conversation.getJid() + ") got archived before IQ result");
-
                         return;
                     }
-                    if (error != null && "remote-server-not-found".equals(error.getName())) {
+                    if ("remote-server-not-found".equals(errorCondition)) {
                         synchronized (account.inProgressConferenceJoins) {
                             account.inProgressConferenceJoins.remove(conversation);
                         }
@@ -3236,7 +3233,7 @@ public class XmppConnectionService extends Service {
                     Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": received timeout waiting for conference configuration fetch");
                 } else {
                     if (callback != null) {
-                        callback.onFetchFailed(conversation, packet.getError());
+                        callback.onFetchFailed(conversation, packet.getErrorCondition());
                     }
                 }
             }
@@ -3531,7 +3528,7 @@ public class XmppConnectionService extends Service {
                     if (publicationResponse.getType() == IqPacket.TYPE.RESULT) {
                         callback.onAvatarPublicationSucceeded();
                     } else {
-                        Log.d(Config.LOGTAG, "failed to publish vcard " + publicationResponse.getError());
+                        Log.d(Config.LOGTAG, "failed to publish vcard " + publicationResponse.getErrorCondition());
                         callback.onAvatarPublicationFailed(R.string.error_publish_avatar_server_reject);
                     }
                 });
@@ -3964,7 +3961,9 @@ public class XmppConnectionService extends Service {
                 if (message.getServerMsgId() == null) {
                     message.setServerMsgId(serverMessageId);
                 }
-                if (message.getEncryption() == Message.ENCRYPTION_NONE && isBodyModified(message, body)) {
+                if (message.getEncryption() == Message.ENCRYPTION_NONE
+                        && message.isTypeText()
+                        && isBodyModified(message, body)) {
                     message.setBody(body.content);
                     if (body.count > 1) {
                         message.setBodyLanguage(body.language);
@@ -4346,7 +4345,7 @@ public class XmppConnectionService extends Service {
     }
 
     private void sendPresence(final Account account, final boolean includeIdleTimestamp) {
-        Presence.Status status;
+        final Presence.Status status;
         if (manuallyChangePresence()) {
             status = account.getPresenceStatus();
         } else {
@@ -4814,7 +4813,7 @@ public class XmppConnectionService extends Service {
     public interface OnConferenceConfigurationFetched {
         void onConferenceConfigurationFetched(Conversation conversation);
 
-        void onFetchFailed(Conversation conversation, Element error);
+        void onFetchFailed(Conversation conversation, String errorCondition);
     }
 
     public interface OnConferenceJoined {

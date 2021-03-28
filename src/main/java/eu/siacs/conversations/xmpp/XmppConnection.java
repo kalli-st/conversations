@@ -21,9 +21,7 @@ import java.net.ConnectException;
 import java.net.IDN;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
 import java.net.Socket;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -70,6 +68,7 @@ import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.entities.ServiceDiscoveryResult;
 import eu.siacs.conversations.generator.IqGenerator;
+import eu.siacs.conversations.http.HttpConnectionManager;
 import eu.siacs.conversations.persistance.FileBackend;
 import eu.siacs.conversations.services.MemorizingTrustManager;
 import eu.siacs.conversations.services.MessageArchiveService;
@@ -88,7 +87,6 @@ import eu.siacs.conversations.xml.Tag;
 import eu.siacs.conversations.xml.TagWriter;
 import eu.siacs.conversations.xml.XmlReader;
 import eu.siacs.conversations.xmpp.forms.Data;
-import eu.siacs.conversations.xmpp.forms.Field;
 import eu.siacs.conversations.xmpp.jingle.OnJinglePacketReceived;
 import eu.siacs.conversations.xmpp.jingle.stanzas.JinglePacket;
 import eu.siacs.conversations.xmpp.stanzas.AbstractAcknowledgeableStanza;
@@ -102,6 +100,7 @@ import eu.siacs.conversations.xmpp.stanzas.streammgmt.AckPacket;
 import eu.siacs.conversations.xmpp.stanzas.streammgmt.EnablePacket;
 import eu.siacs.conversations.xmpp.stanzas.streammgmt.RequestPacket;
 import eu.siacs.conversations.xmpp.stanzas.streammgmt.ResumePacket;
+import okhttp3.HttpUrl;
 
 public class XmppConnection implements Runnable {
 
@@ -172,7 +171,7 @@ public class XmppConnection implements Runnable {
     private OnBindListener bindListener = null;
     private OnMessageAcknowledged acknowledgedListener = null;
     private SaslMechanism saslMechanism;
-    private URL redirectionUrl = null;
+    private HttpUrl redirectionUrl = null;
     private String verifiedHostname = null;
     private volatile Thread mThread;
     private CountDownLatch mStreamCountDownLatch;
@@ -356,9 +355,7 @@ public class XmppConnection implements Runnable {
             this.changeStatus(Account.State.MISSING_INTERNET_PERMISSION);
         } catch (final StateChangingException e) {
             this.changeStatus(e.state);
-        } catch (final UnknownHostException | ConnectException e) {
-            this.changeStatus(Account.State.SERVER_NOT_FOUND);
-        } catch (final SocksSocketFactory.HostNotFoundException e) {
+        } catch (final UnknownHostException | ConnectException | SocksSocketFactory.HostNotFoundException e) {
             this.changeStatus(Account.State.SERVER_NOT_FOUND);
         } catch (final SocksSocketFactory.SocksProxyNotFoundException e) {
             this.changeStatus(Account.State.TOR_NOT_AVAILABLE);
@@ -471,13 +468,14 @@ public class XmppConnection implements Runnable {
                     if (failure.hasChild("account-disabled") && text != null) {
                         Matcher matcher = Patterns.AUTOLINK_WEB_URL.matcher(text);
                         if (matcher.find()) {
+                            final HttpUrl url;
                             try {
-                                URL url = new URL(text.substring(matcher.start(), matcher.end()));
-                                if (url.getProtocol().equals("https")) {
+                                url = HttpUrl.get(text.substring(matcher.start(), matcher.end()));
+                                if (url.isHttps()) {
                                     this.redirectionUrl = url;
                                     throw new StateChangingException(Account.State.PAYMENT_REQUIRED);
                                 }
-                            } catch (MalformedURLException e) {
+                            } catch (IllegalArgumentException e) {
                                 throw new StateChangingException(Account.State.UNAUTHORIZED);
                             }
                         }
@@ -903,7 +901,7 @@ public class XmppConnection implements Runnable {
                 if (response.getType() == IqPacket.TYPE.RESULT) {
                     sendRegistryRequest();
                 } else {
-                    final Element error = response.getError();
+                    final String error = response.getErrorCondition();
                     Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": failed to pre auth. " + error);
                     throw new StateChangingError(Account.State.REGISTRATION_INVALID_TOKEN);
                 }
@@ -947,11 +945,19 @@ public class XmppConnection implements Runnable {
                         is = null;
                     }
                 } else {
+                    final boolean useTor = mXmppConnectionService.useTorToConnect() || account.isOnion();
                     try {
-                        Field field = data.getFieldByName("url");
-                        URL url = field != null && field.getValue() != null ? new URL(field.getValue()) : null;
-                        is = url != null ? url.openStream() : null;
-                    } catch (IOException e) {
+                        final String url = data.getValue("url");
+                        final String fallbackUrl = data.getValue("captcha-fallback-url");
+                        if (url != null) {
+                            is = HttpConnectionManager.open(url, useTor);
+                        } else if (fallbackUrl != null) {
+                            is = HttpConnectionManager.open(fallbackUrl, useTor);
+                        } else {
+                            is = null;
+                        }
+                    } catch (final IOException e) {
+                        Log.d(Config.LOGTAG,account.getJid().asBareJid()+": unable to fetch captcha", e);
                         is = null;
                     }
                 }
@@ -974,7 +980,7 @@ public class XmppConnection implements Runnable {
                 if (url != null) {
                     setAccountCreationFailed(url);
                 } else if (instructions != null) {
-                    Matcher matcher = Patterns.AUTOLINK_WEB_URL.matcher(instructions);
+                    final Matcher matcher = Patterns.AUTOLINK_WEB_URL.matcher(instructions);
                     if (matcher.find()) {
                         setAccountCreationFailed(instructions.substring(matcher.start(), matcher.end()));
                     }
@@ -984,21 +990,16 @@ public class XmppConnection implements Runnable {
         }, true);
     }
 
-    private void setAccountCreationFailed(String url) {
-        if (url != null) {
-            try {
-                this.redirectionUrl = new URL(url);
-                if (this.redirectionUrl.getProtocol().equals("https")) {
-                    throw new StateChangingError(Account.State.REGISTRATION_WEB);
-                }
-            } catch (MalformedURLException e) {
-                //fall through
-            }
+    private void setAccountCreationFailed(final String url) {
+        final HttpUrl httpUrl = url == null ? null : HttpUrl.parse(url);
+        if (httpUrl != null && httpUrl.isHttps()) {
+            this.redirectionUrl = httpUrl;
+            throw new StateChangingError(Account.State.REGISTRATION_WEB);
         }
         throw new StateChangingError(Account.State.REGISTRATION_FAILED);
     }
 
-    public URL getRedirectionUrl() {
+    public HttpUrl getRedirectionUrl() {
         return this.redirectionUrl;
     }
 
@@ -1892,10 +1893,6 @@ public class XmppConnection implements Runnable {
 
         public void setBlockListRequested(boolean value) {
             this.blockListRequested = value;
-        }
-
-        public boolean p1S3FileTransfer() {
-            return hasDiscoFeature(account.getDomain(), Namespace.P1_S3_FILE_TRANSFER);
         }
 
         public boolean httpUpload(long filesize) {
