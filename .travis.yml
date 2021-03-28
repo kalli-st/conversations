@@ -1,29 +1,32 @@
 language: android
 jdk:
-  - oraclejdk8
+- oraclejdk8
 android:
   components:
-    - platform-tools
-    - tools
-    - build-tools-28.0.3
-    - extra-google-google_play_services
+  - platform-tools
+  - tools
+  - build-tools-28.0.3
+  - extra-google-google_play_services
   licenses:
-    - '.+'
+  - ".+"
 before_script:
-    - mkdir libs
-    - wget -O libs/libwebrtc-m87.aar https://gultsch.de/files/libwebrtc-m87.aar
+- mkdir libs
+- wget -O libs/libwebrtc-m87.aar https://gultsch.de/files/libwebrtc-m87.aar
 script:
-    - ./gradlew assembleConversationsFreeSystemRelease
-
+- "./gradlew assembleConversationsFreeSystemRelease"
 before_install:
-    - yes | sdkmanager "platforms;android-28"
-
+- yes | sdkmanager "platforms;android-28"
 before_deploy:
-    - export TRAVIS_TAG=develop
-
+- export TRAVIS_TAG=develop
 deploy:
   skip_cleanup: true
   provider: releases
   file_glob: true
+  on:
+    tags: true
+  draft: true
+  overwrite: true
   file:
-    - "build/outputs/apk/conversationsFreeSystem/release/*"
+  - build/outputs/apk/conversationsFreeSystem/release/*
+  api_key:
+    secure: gB8ABnsp8KPl8e1ZNPtJVisWpOxWBMQE6zOhsaZxa1kRiY50RvT06xDC1WMxhTCX+M6RKn0lCeYvZQQ2R8HRS+hincxc/UIUNqQj4phw1XjMWrcZX7fLoY6eQbv8sihw4u0oXaqFByVVU9+YlUrixcUe9nSZNjqeyS4t5RPyTn7+yL6TD3QlmTdFtcB5CmwwdkXxUtkAbZcUqOK553s6kItk4ZWf3UQA7AavtrIsdd2DPqGMvw1C1Za70ZifsSz/WyJeE2dRq5r7HAkZIM/7WEB+TJykDXPK8KSxEXu4Wo/muVBCd3XF/5b8VrkSgbN8AvE0zKEG8cCyP5pqrhMfd16VVeB128lZKnx9NDNgqnVfZKxAaclCSdhPpWqIh1KpkRKrRSplA2voZOl5kxyO/C6+26AArmC0G/P3Wi46lJvmLNPaQAuRMZpBxjt3KFtOOwbVyvbDKYRufpEn7296vI/4t8rHr10/Osy5jg2PyEbYkMA7eWiKdfDWzXjMzunFn/QOVcc9h/3OsWuTuq61R/HciXPGjjdITvUn3MVNQatfFpX1t8BlU/QhQzpnuCgPH9Apau9j/1WBq/ioy/tWj/RSk80BdqhdPJMEl+fBmOMTT4nvLy7rQI739Mh6MAkdoW5n8Xg1UOdnOUv6KOl40DYzZllFKoVmpsZWcqJRRxU=
