@@ -3,6 +3,10 @@
 <p align="center">A Jabber/XMPP chat client which is fair to the eyes</p>
 
 <p align="center">
+  <a href="https://travis-ci.com/kalli-st/conversations">
+    <img src="https://travis-ci.com/kalli-st/conversations.svg?branch=develop"
+     alt="Build Status">
+  </a>
   <a href="https://conversations.im/j/fnord@muc.kalli.st">
     <img src="https://inverse.chat/badge.svg?room=fnord@muc.kalli.st"
      alt="chat on our conference room">
