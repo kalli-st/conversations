@@ -22,7 +22,6 @@ deploy:
   skip_cleanup: true
   provider: releases
   file_glob: true
-  draft: true
   overwrite: true
   on:
     branch: develop
