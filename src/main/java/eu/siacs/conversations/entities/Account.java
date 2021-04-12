@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.SystemClock;
 import android.util.Log;
-import android.util.Pair;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -147,7 +146,7 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
     }
 
     public boolean httpUploadAvailable(long filesize) {
-        return xmppConnection != null && (xmppConnection.getFeatures().httpUpload(filesize) || xmppConnection.getFeatures().p1S3FileTransfer());
+        return xmppConnection != null && xmppConnection.getFeatures().httpUpload(filesize);
     }
 
     public boolean httpUploadAvailable() {

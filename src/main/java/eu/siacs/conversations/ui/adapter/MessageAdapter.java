@@ -31,7 +31,7 @@ import androidx.core.content.ContextCompat;
 
 import com.google.common.base.Strings;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -48,7 +48,6 @@ import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.entities.Message.FileParams;
 import eu.siacs.conversations.entities.RtpSessionStatus;
 import eu.siacs.conversations.entities.Transferable;
-import eu.siacs.conversations.http.P1S3UrlStreamHandler;
 import eu.siacs.conversations.persistance.FileBackend;
 import eu.siacs.conversations.services.MessageArchiveService;
 import eu.siacs.conversations.services.NotificationService;
@@ -797,21 +796,13 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 displayEmojiMessage(viewHolder, message.getBody().trim(), darkBackground);
             } else if (message.treatAsDownloadable()) {
                 try {
-                    URL url = new URL(message.getBody());
-                    if (P1S3UrlStreamHandler.PROTOCOL_NAME.equalsIgnoreCase(url.getProtocol())) {
-                        displayDownloadableMessage(viewHolder,
-                                message,
-                                activity.getString(R.string.check_x_filesize,
-                                        UIHelper.getFileDescriptionString(activity, message)),
-                                darkBackground);
-                    } else {
+                    final URI uri = new URI(message.getBody());
                         displayDownloadableMessage(viewHolder,
                                 message,
                                 activity.getString(R.string.check_x_filesize_on_host,
                                         UIHelper.getFileDescriptionString(activity, message),
-                                        url.getHost()),
+                                        uri.getHost()),
                                 darkBackground);
-                    }
                 } catch (Exception e) {
                     displayDownloadableMessage(viewHolder,
                             message,
@@ -905,10 +896,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
     public void setHighlightedTerm(List<String> terms) {
         this.highlightedTerm = terms == null ? null : StylingHelper.filterHighlightedWords(terms);
-    }
-
-    public interface OnQuoteListener {
-        void onQuote(String text);
     }
 
     public interface OnContactPictureClicked {

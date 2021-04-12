@@ -411,7 +411,7 @@
     <string name="reply">Ответить</string>
     <string name="mark_as_read">Прочитано</string>
     <string name="pref_input_options">Ввод</string>
-    <string name="pref_enter_is_send">Отправка по \\"Enter\\"</string>
+    <string name="pref_enter_is_send">Отправка по \"Enter\"</string>
     <string name="pref_enter_is_send_summary">Отправлять сообщения клавишей Enter. Даже если эта опция отключена, сообщение можно отправить, нажав Ctrl+Enter.</string>
     <string name="pref_display_enter_key">Показывать клавишу ввода</string>
     <string name="pref_display_enter_key_summary">Поменять кнопку смайликов на кнопку ввода</string>
@@ -985,4 +985,4 @@
     <string name="unable_to_parse_invite">Невозможно разобрать приглашение</string>
     <string name="server_does_not_support_easy_onboarding_invites">Сервер не поддерживает создание приглашений</string>
     <string name="no_active_accounts_support_this">Ни один активный аккаунт не поддерживает эту функцию</string>
-</resources>
+    </resources>
