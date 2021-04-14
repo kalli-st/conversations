@@ -17,7 +17,7 @@ script:
 before_install:
 - yes | sdkmanager "platforms;android-28"
 before_deploy:
-- export TRAVIS_TAG=develop
+- export TRAVIS_TAG=develop-$TRAVIS_BUILD_NUMBER
 deploy:
   skip_cleanup: true
   provider: releases
