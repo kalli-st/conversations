@@ -16,6 +16,7 @@ apply plugin: 'com.android.application'
 
 repositories {
     google()
+    jcenter()
     mavenCentral()
     jcenter()
 }
@@ -79,6 +80,7 @@ dependencies {
     implementation 'com.google.guava:guava:30.1.1-android'
     quicksyImplementation 'io.michaelrocks:libphonenumber-android:8.12.18'
     implementation fileTree(include: ['libwebrtc-m90.aar'], dir: 'libs')
+    implementation 'org.webrtc:google-webrtc:1.0.32006'
 }
 
 ext {
@@ -88,6 +90,14 @@ ext {
 }
 
 android {
+    signingConfigs {
+        fnord {
+            storeFile file('./fnord.jks')
+            storePassword '123456'
+            keyPassword '123456'
+            keyAlias 'fnord'
+        }
+    }
     compileSdkVersion 29
 
     defaultConfig {
@@ -96,19 +106,14 @@ android {
         versionCode 42015
         versionName "2.9.13"
         archivesBaseName += "-$versionName"
-        applicationId "eu.siacs.conversations"
+        applicationId 'st.kalli.conversations'
         resValue "string", "applicationId", applicationId
-        def appName = "Conversations"
-        resValue "string", "app_name", appName
-        buildConfigField "String", "APP_NAME", "\"$appName\"";
+        resValue "string", "app_name", "Fnord"
+        buildConfigField "String", "LOGTAG", "\"conver6ations\""
+        signingConfig signingConfigs.fnord
     }
 
-    splits {
-        abi {
-            universalApk true
-            enable true
-        }
-    }
+
 
     configurations {
         compile.exclude group: 'org.jetbrains' , module:'annotations'
@@ -136,6 +141,7 @@ android {
         quicksy {
             dimension "mode"
             applicationId = "im.quicksy.client"
+            resValue "string", "app_name", "Quicksy"
             resValue "string", "applicationId", applicationId
 
             def appName = "Quicksy"
@@ -149,19 +155,19 @@ android {
 
         playstore {
             dimension "distribution"
-            versionNameSuffix "+p"
+
         }
         free {
             dimension "distribution"
-            versionNameSuffix "+f"
+
         }
         system {
             dimension "emoji"
-            versionNameSuffix "s"
+
         }
         compat {
             dimension "emoji"
-            versionNameSuffix "c"
+
         }
     }
 
@@ -231,13 +237,13 @@ android {
             shrinkResources true
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            versionNameSuffix "r"
+
         }
         debug {
             shrinkResources true
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            versionNameSuffix "d"
+
         }
     }
 
@@ -258,7 +264,8 @@ android {
     }
 
     lintOptions {
-        disable 'MissingTranslation', 'InvalidPackage','AppCompatResource'
+        disable 'MissingTranslation', 'InvalidPackage', 'AppCompatResource'
+        abortOnError false
     }
 
     subprojects {

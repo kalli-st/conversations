@@ -1,0 +1,2 @@
+• improve logging of happy eyeball 
+• fix several NullPointer bugs

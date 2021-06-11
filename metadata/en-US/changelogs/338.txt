@@ -1,0 +1,3 @@
+• fixed connection issues over Tor
+• P2P file transfer (Jingle) now offers direct candidates
+• Support XEP-0396: Jingle Encrypted Transports - OMEMO

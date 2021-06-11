@@ -57,6 +57,7 @@ public class SettingsActivity extends XmppActivity implements
 	public static final String THEME = "theme";
 	public static final String SHOW_DYNAMIC_TAGS = "show_dynamic_tags";
 	public static final String OMEMO_SETTING = "omemo";
+	public static final String SHOW_OWN_AVATAR = "show_own_avatar";
 
 	public static final int REQUEST_CREATE_BACKUP = 0xbf8701;
 	private SettingsFragment mSettingsFragment;
@@ -368,7 +369,9 @@ public class SettingsActivity extends XmppActivity implements
 				TREAT_VIBRATE_AS_SILENT,
 				MANUALLY_CHANGE_PRESENCE,
 				BROADCAST_LAST_ACTIVITY);
-		if (name.equals(OMEMO_SETTING)) {
+		if (name.equals(SHOW_OWN_AVATAR)){
+
+		} else if (name.equals(OMEMO_SETTING)) {
 			OmemoSetting.load(this, preferences);
 			changeOmemoSettingSummary();
 		} else if (name.equals(KEEP_FOREGROUND_SERVICE)) {

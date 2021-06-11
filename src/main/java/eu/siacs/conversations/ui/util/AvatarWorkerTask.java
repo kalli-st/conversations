@@ -81,7 +81,7 @@ public class AvatarWorkerTask extends AsyncTask<AvatarService.Avatarable, Void, 
             if (activity == null) {
                 return;
             }
-            final Bitmap bm = activity.avatarService().get(avatarable, (int) activity.getResources().getDimension(size), true);
+            final Bitmap bm = activity.avatarService().get(avatarable, (int) activity.getResources().getDimension(size), false);
             setContentDescription(avatarable, imageView);
             if (bm != null) {
                 cancelPotentialWork(avatarable, imageView);

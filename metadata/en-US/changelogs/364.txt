@@ -1,0 +1,5 @@
+• Provide PDF preview on Android 5+
+• Use 12 byte IVs for OMEMO
+• Happy Eyeball: cacheing of addresses
+• Happy Eyeball: fix DNSSEC im special cases and NPE
+• Happy Eyeball: revert dns-server selection

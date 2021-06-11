@@ -1,0 +1,1 @@
+• Support automatic theme switching on Android 10 

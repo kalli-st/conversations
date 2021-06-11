@@ -2,17 +2,17 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="ConversationsTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">@color/green600</item>
-        <item name="colorPrimaryDark">@color/green800</item>
-        <item name="colorAccent">@color/blue_a400</item>
+        <item name="colorPrimary">@color/blue500</item>
+        <item name="colorPrimaryDark">@color/blue_a400</item>
+        <item name="colorAccent">@color/blue_a200</item>
         <item name="popupOverlayStyle">@style/ThemeOverlay.AppCompat.Light</item>
 
         <item name="color_background_primary">@color/grey50</item>
         <item name="color_background_secondary">@color/grey200</item>
-        <item name="color_background_tertiary">@color/grey300</item>
+        <item name="color_background_tertiary">@color/grey50</item>
         <item name="color_background_overlay">@color/black12</item>
         <item name="color_warning">@color/red_a700</item>
-        <item name="TextColorOnline">@color/green600</item>
+        <item name="TextColorOnline">@color/green500</item>
         <item name="TextColorError">@color/red800</item>
         <item name="edit_text_color">@color/black87</item>
         <item name="icon_tint">@color/black54</item>
@@ -70,9 +70,9 @@
             @drawable/message_bubble_received
         </item>
 
-        <item name="unread_count">@color/green700_desaturated</item>
+        <item name="unread_count">@color/orange700_desaturated</item>
 
-        <item name="conversations_overview_background">@color/green700</item>
+        <item name="conversations_overview_background">@color/red700</item>
 
         <item name="icon_alpha" type="float">0.54</item>
         <item name="delete_icon_alpha" type="float">0.70</item>
@@ -149,16 +149,16 @@
     </style>
 
     <style name="ConversationsTheme.Dark" parent="Theme.AppCompat.NoActionBar">
-        <item name="colorPrimary">@color/green800</item>
-        <item name="colorPrimaryDark">@color/green900</item>
-        <item name="colorAccent">@color/blue_a100</item>
+        <item name="colorPrimary">@color/black54</item>
+        <item name="colorPrimaryDark">@color/black87</item>
+        <item name="colorAccent">@color/green500</item>
         <item name="popupOverlayStyle">@style/ThemeOverlay.AppCompat.Dark</item>
         <item name="android:navigationBarColor" tools:targetApi="21">@color/black</item>
 
-        <item name="color_background_primary">@color/grey800</item>
-        <item name="color_background_secondary">@color/grey900</item>
-        <item name="color_background_tertiary">@color/grey700</item>
-        <item name="color_background_overlay">@color/black26</item>
+        <item name="color_background_primary">@color/grey900</item>
+        <item name="color_background_secondary">@color/black</item>
+        <item name="color_background_tertiary">@color/grey900</item>
+        <item name="color_background_overlay">@color/grey700</item>
         <item name="activity_background_search">@drawable/search_background_dark</item>
         <item name="activity_background_no_results">@drawable/no_results_background_dark</item>
         <item name="activity_primary_background_no_results">
@@ -226,9 +226,9 @@
             @drawable/message_bubble_received_dark
         </item>
 
-        <item name="unread_count">@color/green900_desaturated</item>
+        <item name="unread_count">@color/orange900_desaturated</item>
 
-        <item name="conversations_overview_background">@color/green900</item>
+        <item name="conversations_overview_background">@color/red700</item>
 
         <item name="icon_alpha" type="float">0.7</item>
         <item name="delete_icon_alpha" type="float">0.7</item>
@@ -353,8 +353,8 @@
     </style>
 
     <style name="ConversationsTheme.FullScreen" parent="@style/Theme.AppCompat.Light">
-        <item name="colorPrimary">@color/green600</item>
-        <item name="colorPrimaryDark">@color/green700</item>
+        <item name="colorPrimary">@color/orange600</item>
+        <item name="colorPrimaryDark">@color/orange700</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowActionBar">false</item>
         <item name="android:windowFullscreen">true</item>
@@ -369,9 +369,9 @@
     </style>
 
     <style name="ConversationsTheme.Dialog" parent="@style/Theme.AppCompat.Light.Dialog">
-        <item name="colorPrimary">@color/green600</item>
-        <item name="colorPrimaryDark">@color/green700</item>
-        <item name="colorAccent">@color/blue_a400</item>
+        <item name="colorPrimary">@color/blue500</item>
+        <item name="colorPrimaryDark">@color/blue_a400</item>
+        <item name="colorAccent">@color/blue_a200</item>
         <item name="color_background_primary">@color/grey50</item>
         <item name="divider">@color/black12</item>
         <item name="TextSizeTitle">18sp</item>
@@ -381,10 +381,10 @@
     </style>
 
     <style name="ConversationsTheme.Dark.Dialog" parent="@style/Theme.AppCompat.Dialog">
-        <item name="colorPrimary">@color/green800</item>
-        <item name="colorPrimaryDark">@color/green900</item>
-        <item name="colorAccent">@color/blue_a100</item>
-        <item name="color_background_primary">@color/grey800</item>
+        <item name="colorPrimary">@color/grey900</item>
+        <item name="colorPrimaryDark">@color/black</item>
+        <item name="colorAccent">@color/green500</item>
+        <item name="color_background_primary">@color/grey900</item>
         <item name="divider">@color/white12</item>
         <item name="TextSizeBody2">14sp</item>
         <item name="TextSizeDisplay2">45sp</item>

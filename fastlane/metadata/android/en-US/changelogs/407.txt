@@ -1,3 +1,0 @@
-* Show call button for offline contacts if they previously announced support
-* Back button no longer ends call when call is connected
-* bug fixes

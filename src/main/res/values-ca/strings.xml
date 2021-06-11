@@ -522,7 +522,7 @@
     <string name="share_uri_with">Comparteix l\'URI amb…</string>
     <string name="welcome_text_quicksy"><![CDATA[Quicksy és un spin off del popular client XMPP Conversations amb descobriment automàtic de contactes.<br><br>Si es registra amb el seu número de telèfon i Quicksy,--basant-se en els números de telèfon de la seva agenda--li suggereix automàticament possibles contactes.<br><br>En inscriure\'s, accepta nostra <a href="https://quicksy.im/#privacy">política de privacitat</a>.]]></string>
     <string name="agree_and_continue">Acceptar i continuar</string>
-    <string name="magic_create_text">S\'ha establert una guia per a la creació de comptes en conversations.im.¹\nEn triar conversations.im com a proveïdor podràs comunicar-te amb usuaris d\'altres proveïdors donant-los la teva adreça XMPP completa.</string>
+    <string name="magic_create_text">S\'ha establert una guia per a la creació de comptes en chat.sum7.eu.\nEn triar chat.sum7.eu com a proveïdor podràs comunicar-te amb usuaris d\'altres proveïdors donant-los la teva adreça XMPP completa.</string>
     <string name="your_full_jid_will_be">La seva adreça XMPP completa serà: %s</string>
     <string name="create_account">Crear compte</string>
     <string name="use_own_provider">Utilitza el meu propi proveïdor</string>
@@ -664,6 +664,7 @@
     <string name="private_messages_are_disabled">Els missatges privats estan desactivats</string>
     <string name="huawei_protected_apps">Aplicacions protegides</string>
     <string name="huawei_protected_apps_summary">Per continuar rebent notificacions, fins i tot quan la pantalla està apagada, heu 
+>>>>>>> 2.9.7
 d\'afegir Converses a la llista d\'aplicacions protegides.</string>
     <string name="mtm_accept_cert">Voleu acceptar un certificat desconegut?</string>
     <string name="mtm_trust_anchor">El certificat del servidor no està signat per una autoritat de certificació coneguda.</string>

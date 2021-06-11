@@ -1,0 +1,1 @@
+• Various bug fixes around Tor support

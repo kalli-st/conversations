@@ -1,1 +1,0 @@
-* minor stability improvements for A/V calls

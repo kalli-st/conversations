@@ -86,14 +86,12 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     private final DisplayMetrics metrics;
     private OnContactPictureClicked mOnContactPictureClickedListener;
     private OnContactPictureLongClicked mOnContactPictureLongClickedListener;
-    private boolean mUseGreenBackground = false;
 
     public MessageAdapter(XmppActivity activity, List<Message> messages) {
         super(activity, 0, messages);
         this.audioPlayer = new AudioPlayer(this);
         this.activity = activity;
         metrics = getContext().getResources().getDisplayMetrics();
-        updatePreferences();
     }
 
 
@@ -234,8 +232,13 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 break;
             default:
                 if (multiReceived) {
-                    info = UIHelper.getMessageDisplayName(message);
-                }
+                    String nick = UIHelper.getMessageDisplayName(message);
+                    viewHolder.messageSender.setVisibility(View.VISIBLE);
+                    viewHolder.messageSender.setText(nick);
+                    viewHolder.messageSender.setTextColor(message.getAvatarBackgroundColor());
+                } else {
+                    viewHolder.messageSender.setVisibility(View.GONE);
+                };
                 break;
         }
         if (error && type == SENT) {
@@ -347,8 +350,9 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             body.insert(end, "\n");
             body.setSpan(new DividerSpan(false), end, end + 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
-        int color = darkBackground ? this.getMessageTextColor(darkBackground, false)
-                : ContextCompat.getColor(activity, R.color.green700_desaturated);
+//        int color = darkBackground ? this.getMessageTextColor(darkBackground, false)
+//                : ContextCompat.getColor(activity, R.color.green400);
+        int color = ContextCompat.getColor(activity, R.color.green700);
         DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
         body.setSpan(new QuoteSpan(color, metrics), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
@@ -386,8 +390,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     lineTextStart = i;
                 }
                 if (current == '\n') {
-                    body.delete(lineStart, lineTextStart);
-                    i -= lineTextStart - lineStart;
+//                    body.delete(lineStart, lineTextStart);
+//                    i -= lineTextStart - lineStart;
                     if (i == lineStart) {
                         // Avoid empty lines because span over empty line can be hidden
                         body.insert(i++, " ");
@@ -417,7 +421,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             viewHolder.messageBody.setTextAppearance(getContext(), R.style.TextAppearance_Conversations_Body1);
         }
         viewHolder.messageBody.setHighlightColor(ContextCompat.getColor(activity, darkBackground
-                ? (type == SENT || !mUseGreenBackground ? R.color.black26 : R.color.grey800) : R.color.grey500));
+                ? (type == SENT ? R.color.black26 : R.color.grey800) : R.color.grey500));
         viewHolder.messageBody.setTypeface(null, Typeface.NORMAL);
 
         if (message.getBody() != null) {
@@ -609,6 +613,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         final Conversational conversation = message.getConversation();
         final Account account = conversation.getAccount();
         final int type = getItemViewType(position);
+//        final boolean isPrivateMessage = ( conversation.getMode() == Conversational.MODE_SINGLE ) || message.isPrivateMessage();
+//        final boolean mucMessage = conversation.getMode() == Conversation.MODE_MULTI || !message.isPrivateMessage();
         ViewHolder viewHolder;
         if (view == null) {
             viewHolder = new ViewHolder();
@@ -637,11 +643,12 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     viewHolder.time = view.findViewById(R.id.message_time);
                     viewHolder.indicatorReceived = view.findViewById(R.id.indicator_received);
                     viewHolder.audioPlayer = view.findViewById(R.id.audio_player);
+                    viewHolder.messageSender= view.findViewById(R.id.message_sender);
                     break;
                 case RECEIVED:
                     view = activity.getLayoutInflater().inflate(R.layout.message_received, parent, false);
-                    viewHolder.message_box = view.findViewById(R.id.message_box);
                     viewHolder.contact_picture = view.findViewById(R.id.message_photo);
+                    viewHolder.message_box = view.findViewById(R.id.message_box);
                     viewHolder.download_button = view.findViewById(R.id.download_button);
                     viewHolder.indicator = view.findViewById(R.id.security_indicator);
                     viewHolder.edit_indicator = view.findViewById(R.id.edit_indicator);
@@ -651,6 +658,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     viewHolder.indicatorReceived = view.findViewById(R.id.indicator_received);
                     viewHolder.encryption = view.findViewById(R.id.message_encryption);
                     viewHolder.audioPlayer = view.findViewById(R.id.audio_player);
+                    viewHolder.messageSender= view.findViewById(R.id.message_sender);
                     break;
                 case STATUS:
                     view = activity.getLayoutInflater().inflate(R.layout.message_status, parent, false);
@@ -669,7 +677,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             }
         }
 
-        boolean darkBackground = type == RECEIVED && (!isInValidSession || mUseGreenBackground) || activity.isDarkTheme();
+        boolean darkBackground = type == RECEIVED && !isInValidSession || activity.isDarkTheme();
 
         if (type == DATE_SEPARATOR) {
             if (UIHelper.today(message.getTimeSent())) {
@@ -733,28 +741,17 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 }
             }
             return view;
-        } else {
-            AvatarWorkerTask.loadAvatar(message, viewHolder.contact_picture, R.dimen.avatar);
+        } else if (type == SENT) {
+            if (activity.showOwnAvatar()) {
+                AvatarWorkerTask.loadAvatar(message, viewHolder.contact_picture, R.dimen.avatar);
+                viewHolder.contact_picture.setVisibility(View.VISIBLE);
+            }
         }
 
         resetClickListener(viewHolder.message_box, viewHolder.messageBody);
 
-        viewHolder.contact_picture.setOnClickListener(v -> {
-            if (MessageAdapter.this.mOnContactPictureClickedListener != null) {
-                MessageAdapter.this.mOnContactPictureClickedListener
-                        .onContactPictureClicked(message);
-            }
 
-        });
-        viewHolder.contact_picture.setOnLongClickListener(v -> {
-            if (MessageAdapter.this.mOnContactPictureLongClickedListener != null) {
-                MessageAdapter.this.mOnContactPictureLongClickedListener
-                        .onContactPictureLongClicked(v, message);
-                return true;
-            } else {
-                return false;
-            }
-        });
+
 
         final Transferable transferable = message.getTransferable();
         final boolean unInitiatedButKnownSize = MessageUtils.unInitiatedButKnownSize(message);
@@ -819,14 +816,26 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         }
 
         if (type == RECEIVED) {
-            if (isInValidSession) {
-                int bubble;
-                if (!mUseGreenBackground) {
-                    bubble = activity.getThemeResource(R.attr.message_bubble_received_monochrome, R.drawable.message_bubble_received_white);
-                } else {
-                    bubble = activity.getThemeResource(R.attr.message_bubble_received_green, R.drawable.message_bubble_received);
+
+            viewHolder.contact_picture.setOnClickListener(v -> {
+                if (MessageAdapter.this.mOnContactPictureClickedListener != null) {
+                    MessageAdapter.this.mOnContactPictureClickedListener
+                            .onContactPictureClicked(message);
                 }
-                viewHolder.message_box.setBackgroundResource(bubble);
+            });
+            viewHolder.contact_picture.setOnLongClickListener(v -> {
+                if (MessageAdapter.this.mOnContactPictureLongClickedListener != null) {
+                    MessageAdapter.this.mOnContactPictureLongClickedListener
+                            .onContactPictureLongClicked(v, message);
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+            AvatarWorkerTask.loadAvatar(message, viewHolder.contact_picture, R.dimen.avatar);
+
+            if (isInValidSession) {
+                viewHolder.message_box.setBackgroundResource(activity.getThemeResource(R.attr.message_bubble_received_monochrome, R.drawable.message_bubble_received_white));
                 viewHolder.encryption.setVisibility(View.GONE);
             } else {
                 viewHolder.message_box.setBackgroundResource(R.drawable.message_bubble_received_warning);
@@ -884,11 +893,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         Toast.makeText(activity, R.string.no_application_found_to_display_location, Toast.LENGTH_SHORT).show();
     }
 
-    public void updatePreferences() {
-        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(activity);
-        this.mUseGreenBackground = p.getBoolean("use_green_background", activity.getResources().getBoolean(R.bool.use_green_background));
-    }
-
 
     public void setHighlightedTerm(List<String> terms) {
         this.highlightedTerm = terms == null ? null : StylingHelper.filterHighlightedWords(terms);
@@ -907,6 +911,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         public Button load_more_messages;
         public ImageView edit_indicator;
         public RelativeLayout audioPlayer;
+        public TextView messageSender;
         protected LinearLayout message_box;
         protected Button download_button;
         protected ImageView image;

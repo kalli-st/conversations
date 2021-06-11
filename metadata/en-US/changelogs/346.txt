@@ -1,0 +1,3 @@
+• rename app 'Conversations with IPv6' to 'Conv6ations for Sum7'
+• Jingle file transfer fixes
+• Fixed OMEMO self healing (after backup restore) on servers w/o MAM

@@ -39,18 +39,18 @@
                         android:padding="@dimen/card_padding_regular">
 
                         <com.makeramen.roundedimageview.RoundedImageView
-                            android:id="@+id/avater"
+                            android:id="@+id/avatar"
                             android:layout_width="@dimen/avatar_on_details_screen_size"
                             android:layout_height="@dimen/avatar_on_details_screen_size"
                             android:layout_alignParentTop="true"
                             android:layout_marginRight="@dimen/avatar_item_distance"
                             android:contentDescription="@string/account_image_description"
-                            app:riv_corner_radius="2dp"/>
+                            app:riv_oval="true"/>
 
                         <LinearLayout
                             android:layout_width="fill_parent"
                             android:layout_height="wrap_content"
-                            android:layout_toRightOf="@+id/avater"
+                            android:layout_toRightOf="@+id/avatar"
                             android:orientation="vertical">
 
                             <com.google.android.material.textfield.TextInputLayout

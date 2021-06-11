@@ -537,7 +537,7 @@
     <string name="share_uri_with">Compartir URI con...</string>
     <string name="welcome_text_quicksy"><![CDATA[Quicksy é un derivado do popular cliente XMPP Conversations con descubrimento automático de contactos.<br><br>Podes rexistrarte co teu número de teléfono e Quicksy suxerirache automáticamente —tomando os números da túa libreta de enderezos como referencia—  posibles contactos para ti.<br><br>Ao rexistrarte aceptas a nosa <a href="https://quicksy.im/#privacy">política de privacidade</a>.]]></string>
     <string name="agree_and_continue">Aceptar e continuar</string>
-    <string name="magic_create_text">Tes unha guía para crear unha conta en conversations.im¹\nAo escoller conversations.im como provedor poderás comunicarte con outras usuarias de outros provedores con só darlles o teu enderezo XMPP completo.</string>
+    <string name="magic_create_text">Tes unha guía para crear unha conta en chat.sum7.eu\nAo escoller chat.sum7.eu como provedor poderás comunicarte con outras usuarias de outros provedores con só darlles o teu enderezo XMPP completo.</string>
     <string name="your_full_jid_will_be">O seu enderezo XMPP completo será: %s</string>
     <string name="create_account">Crear conta</string>
     <string name="use_own_provider">Utilizar o meu propio proveedor</string>

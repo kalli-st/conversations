@@ -158,15 +158,15 @@
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_ui_options">
         <CheckBoxPreference
-            android:defaultValue="@bool/use_green_background"
-            android:key="use_green_background"
-            android:summary="@string/pref_use_green_background_summary"
-            android:title="@string/pref_use_green_background" />
-        <CheckBoxPreference
             android:defaultValue="@bool/show_dynamic_tags"
             android:key="show_dynamic_tags"
             android:summary="@string/pref_show_dynamic_tags_summary"
             android:title="@string/pref_show_dynamic_tags" />
+        <CheckBoxPreference
+            android:defaultValue="@bool/show_own_avatar"
+            android:key="show_own_avatar"
+            android:summary="@string/pref_show_own_avatar_summary"
+            android:title="@string/pref_show_own_avatar" />
         <ListPreference
             android:defaultValue="@string/theme"
             android:entries="@array/themes"

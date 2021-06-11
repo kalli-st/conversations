@@ -30,7 +30,7 @@
 
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:drawable="@color/grey900"/>
+    <item android:drawable="@color/black"/>
 
     <item>
         <bitmap

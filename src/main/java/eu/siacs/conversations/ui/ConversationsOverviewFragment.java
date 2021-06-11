@@ -46,6 +46,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.databinding.DataBindingUtil;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -299,6 +300,9 @@ public class ConversationsOverviewFragment extends XmppFragment {
 		});
 		this.binding.list.setAdapter(this.conversationsAdapter);
 		this.binding.list.setLayoutManager(new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false));
+		DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this.binding.list.getContext(),
+				DividerItemDecoration.VERTICAL);
+		this.binding.list.addItemDecoration(dividerItemDecoration);
 		this.touchHelper = new ItemTouchHelper(this.callback);
 		this.touchHelper.attachToRecyclerView(this.binding.list);
 		return binding.getRoot();

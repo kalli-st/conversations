@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="pick_a_server">Pilih XMPP server anda</string>
-    <string name="use_conversations.im">Gunakan conversations.im</string>
+    <string name="use_chat.sum7.eu">Gunakan chat.sum7.eu</string>
     <string name="create_new_account">Buat akun baru</string>
     <string name="do_you_have_an_account">Anda sudah memiliki akun XMPP? Ini mungkin terjadi jika Anda sudah menggunakan aplikasi XMPP yang berbeda atau pernah menggunakan Conversations sebelumnya. Jika tidak, Anda dapat membuat akun XMPP baru. \ NPetunjuk: Beberapa penyedia layanan email juga menyediakan akun XMPP.</string>
     <string name="server_select_text">XMPP adalah jaringan penyedia pesan instan independen. Anda dapat menggunakan aplikasi ini dengan server XMPP pilihan Anda. \ NNamun demi kenyamanan Anda, kami permudah untuk membuat akun di Conversations.im¹; provider yang sangat cocok digunakan dengan Conversations.</string>

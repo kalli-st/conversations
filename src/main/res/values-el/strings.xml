@@ -532,7 +532,7 @@
     <string name="share_uri_with">Διαμοιρασμός της διεύθυνσης URI με...</string>
     <string name="welcome_text_quicksy"><![CDATA[Το Quicksy είναι ένα παρακλάδι του δημοφιλούς προγράμματος XMPP Conversations με αυτόματη εύρεση επαφών.<br><br>Εγγράφεστε με τον τηλεφωνικό σας αριθμό και το Quicksy αυτόματα — με βάση τους τηλεφωνικούς αριθμούς στο βιβλίο διευθύνσεών σας — προτείνει πιθανές επαφές για εσάς.<br><br>Με την εγγραφή σας συμφωνείτε με την <a href="https://quicksy.im/#privacy">πολιτική απορρήτου</a> μας.]]></string>
     <string name="agree_and_continue">Συμφωνώ και προχωρήστε</string>
-    <string name="magic_create_text">Θα καθοδηγηθείτε στη διαδικασία δημιουργίας ενός λογαριασμού στο conversations.im.¹\nΕπιλέγοντας το conversations.im ως πάροχο θα μπορείτε να επικοινωνείτε με χρήστες άλλων παρόχων δίνοντάς τους την πλήρη διεύθυνση XMPP σας.</string>
+    <string name="magic_create_text">Θα καθοδηγηθείτε στη διαδικασία δημιουργίας ενός λογαριασμού στο chat.sum7.eu\nΕπιλέγοντας το chat.sum7.eu ως πάροχο θα μπορείτε να επικοινωνείτε με χρήστες άλλων παρόχων δίνοντάς τους την πλήρη διεύθυνση XMPP σας.</string>
     <string name="your_full_jid_will_be">Η πλήρης ταυτότητα XMPP σας θα είναι: %s</string>
     <string name="create_account">Δημιουργία λογαριασμού</string>
     <string name="use_own_provider">Χρήση του δικού μου παρόχου</string>

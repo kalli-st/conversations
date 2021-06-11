@@ -4,9 +4,7 @@
     <bool name="portrait_only">true</bool>
     <bool name="enter_is_send">false</bool>
     <bool name="notifications_from_strangers">true</bool>
-    <bool name="headsup_notifications">false</bool>
-    <bool name="dnd_on_silent_mode">false</bool>
-    <bool name="treat_vibrate_as_silent">false</bool>
+    <bool name="headsup_notifications">true</bool>
     <bool name="confirm_messages">true</bool>
     <bool name="chat_states">true</bool>
     <bool name="last_activity">false</bool>
@@ -18,9 +16,9 @@
     <integer name="grace_period">144</integer>
     <integer name="auto_accept_filesize">524288</integer>
     <string name="picture_compression">auto</string>
-    <bool name="use_green_background">true</bool>
     <string name="quick_action">recent</string>
-    <bool name="show_dynamic_tags">false</bool>
+    <bool name="show_dynamic_tags">true</bool>
+    <bool name="show_own_avatar">true</bool>
     <bool name="btbv">true</bool>
     <integer name="automatic_message_deletion">0</integer>
     <bool name="dont_trust_system_cas">false</bool>
@@ -29,7 +27,9 @@
     <bool name="show_connection_options">false</bool>
     <bool name="display_enter_key">false</bool>
     <bool name="manually_change_presence">false</bool>
-    <bool name="away_when_screen_off">false</bool>
+    <bool name="away_when_screen_off">true</bool>
+    <bool name="dnd_on_silent_mode">true</bool>
+    <bool name="treat_vibrate_as_silent">true</bool>
     <bool name="autojoin">true</bool>
     <bool name="enable_foreground_service">true</bool>
     <bool name="never_send">false</bool>

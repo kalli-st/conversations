@@ -1,0 +1,4 @@
+• support for ?register and ?register;preauth XMPP uri parameters
+• let users set their own nick name
+• resume download of OMEMO encrypted files
+• channels now use '#' as symbol in avatar

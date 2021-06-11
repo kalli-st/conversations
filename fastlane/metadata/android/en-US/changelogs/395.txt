@@ -1,3 +1,0 @@
-* add 'Return to chat' to audio call screen
-* Improve keyboard shortcuts
-* bug fixes

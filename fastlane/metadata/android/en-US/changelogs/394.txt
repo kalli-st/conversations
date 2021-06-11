@@ -1,2 +1,0 @@
-* Fixed notifications not showing up under certain conditions
-* Fixed compatibility issues and crashes related to A/V calls

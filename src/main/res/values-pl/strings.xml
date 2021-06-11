@@ -545,7 +545,7 @@
     <string name="share_uri_with">Udostępnij URI za pomocą...</string>
     <string name="welcome_text_quicksy"><![CDATA[Quicksy to modyfikacja popularnego klienta XMPP Conversations, z automatycznym wykrywaniem kontaktów.<br><br>Zapisujesz się przy użyciu numeru telefonu i Quicksy automatycznie - na podstawie numerów telefonów w książce adresowej - zasugeruje potencjalne kontakty dla ciebie.<br><br>Zapisując się zgadzasz się na naszą <a href="https://quicksy.im/#privacy">politykę prywatności</a>.]]></string>
     <string name="agree_and_continue">Zgoda i kontynuuj</string>
-    <string name="magic_create_text">Poprowadzimy ciebie przez proces tworzenia konta na conversations.im.¹\nKiedy wybierzesz conversations.im jako dostawcę będziesz mógł komunikować się z innymi osobami jeśli podasz im swój pełen adres XMPP.</string>
+    <string name="magic_create_text">Poprowadzimy ciebie przez proces tworzenia konta na chat.sum7.eu.\nKiedy wybierzesz chat.sum7.eu jako dostawcę będziesz mógł komunikować się z innymi osobami jeśli podasz im swój pełen adres XMPP.</string>
     <string name="your_full_jid_will_be">Twój pełen adres XMPP to: %s</string>
     <string name="create_account">Utwórz konto</string>
     <string name="use_own_provider">Użyj innego serwera</string>

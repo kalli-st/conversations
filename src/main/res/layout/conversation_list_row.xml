@@ -6,6 +6,7 @@
         android:layout_height="wrap_content"
         android:descendantFocusability="blocksDescendants">
 
+
         <FrameLayout
             android:id="@+id/frame"
             android:layout_width="fill_parent"
@@ -25,7 +26,7 @@
                     android:layout_height="56dp"
                     android:layout_alignParentLeft="true"
                     android:scaleType="centerCrop"
-                    app:riv_corner_radius="2dp" />
+                    app:riv_oval="true" />
 
                 <RelativeLayout
                     android:layout_width="fill_parent"

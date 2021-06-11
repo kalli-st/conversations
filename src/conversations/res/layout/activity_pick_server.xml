@@ -56,7 +56,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="right"
-                        android:text="@string/use_conversations.im"
+                        android:text="@string/use_chat.sum7.eu"
                         android:textColor="?colorAccent" />
 
                     <Button
@@ -84,18 +84,6 @@
                         android:padding="8dp"
                         android:src="@drawable/main_logo" />
                 </RelativeLayout>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentBottom="true"
-                    android:layout_centerHorizontal="true"
-                    android:maxLines="1"
-                    android:paddingLeft="8dp"
-                    android:paddingRight="8dp"
-                    android:text="@string/free_for_six_month"
-                    android:textColor="?android:attr/textColorSecondary"
-                    android:textSize="@dimen/fineprint_size" />
             </RelativeLayout>
         </ScrollView>
     </LinearLayout>

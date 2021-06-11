@@ -82,7 +82,7 @@
                 android:layout_width="@dimen/publish_avatar_size"
                 android:layout_height="@dimen/publish_avatar_size"
                 android:layout_centerInParent="true"
-                app:riv_corner_radius="@dimen/incoming_call_radius" />
+                app:riv_oval="true" />
 
         </RelativeLayout>
 
@@ -174,7 +174,7 @@
                     android:layout_margin="16dp"
                     android:src="@drawable/ic_call_white_48dp"
                     android:visibility="gone"
-                    app:backgroundTint="@color/green700"
+                    app:backgroundTint="@color/green500"
                     app:elevation="4dp"
                     app:fabCustomSize="72dp"
                     app:maxImageSize="36dp"

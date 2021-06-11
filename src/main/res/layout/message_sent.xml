@@ -24,12 +24,13 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:scaleType="fitXY"
-            app:riv_corner_radius="2dp" />
+            app:riv_oval="true"
+            android:visibility="gone" />
 
-        <View
-            android:id="@+id/placeholder"
-            android:layout_width="48dp"
-            android:layout_height="3dp" />
+<!--        <View-->
+<!--            android:id="@+id/placeholder"-->
+<!--            android:layout_width="48dp"-->
+<!--            android:layout_height="3dp" />-->
     </LinearLayout>
 
 
