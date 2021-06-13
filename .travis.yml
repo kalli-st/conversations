@@ -23,7 +23,7 @@ deploy:
   file_glob: true
   overwrite: true
   on:
-    branch: green
+    branch: develop
   file:
   - build/outputs/apk/conversationsFreeSystem/release/*
   api_key:
