@@ -1,4 +1,4 @@
-<h1 align="center">Fnord is a fork of <a href="https://github.com/iNPUTmice/Conversations">https://github.com/iNPUTmice/Conversations</a></h1>
+<h1 align="center">Fnord is a fork of <a href="https://github.com/iNPUTmice/Conversations">Conversations</a></h1>
 
 <p align="center">A Jabber/XMPP chat client which is fair to the eyes</p>
 
