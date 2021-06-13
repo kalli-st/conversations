@@ -46,13 +46,18 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.databinding.DataBindingUtil;
+
+import com.makeramen.roundedimageview.RoundedImageView;
 
 import org.openintents.openpgp.util.OpenPgpApi;
 
@@ -67,12 +72,14 @@ import eu.siacs.conversations.databinding.ActivityConversationsBinding;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.services.XmppConnectionService;
+import eu.siacs.conversations.ui.adapter.MessageAdapter;
 import eu.siacs.conversations.ui.interfaces.OnBackendConnected;
 import eu.siacs.conversations.ui.interfaces.OnConversationArchived;
 import eu.siacs.conversations.ui.interfaces.OnConversationRead;
 import eu.siacs.conversations.ui.interfaces.OnConversationSelected;
 import eu.siacs.conversations.ui.interfaces.OnConversationsListItemUpdated;
 import eu.siacs.conversations.ui.util.ActivityResult;
+import eu.siacs.conversations.ui.util.AvatarWorkerTask;
 import eu.siacs.conversations.ui.util.ConversationMenuConfigurator;
 import eu.siacs.conversations.ui.util.MenuDoubleTabUtil;
 import eu.siacs.conversations.ui.util.PendingItem;
@@ -453,6 +460,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             refreshFragment(R.id.main_fragment);
         } else {
             invalidateActionBarTitle();
+
         }
     }
 
@@ -599,6 +607,21 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         transaction.commit();
     }
 
+    private void loadAvatar() {
+        final ActionBar actionBar = getSupportActionBar();
+        View focus = getCurrentFocus();
+        if (focus != null) {
+            View view = focus.getRootView();
+            Fragment mainFragment = getFragmentManager().findFragmentById(R.id.main_fragment);
+            final Conversation conversation = ((ConversationFragment) mainFragment).getConversation();
+            RoundedImageView avatarView = new RoundedImageView(this);
+            avatarView.setOval(true);
+            AvatarWorkerTask.loadAvatar(conversation, avatarView, R.dimen.avatar_on_toolbar);
+            actionBar.setLogo(avatarView.getDrawable());
+            actionBar.setDisplayUseLogoEnabled(true);
+        }
+    }
+
     private void invalidateActionBarTitle() {
         final ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -608,11 +631,13 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 if (conversation != null) {
                     actionBar.setTitle(EmojiWrapper.transform(conversation.getName()));
                     actionBar.setDisplayHomeAsUpEnabled(true);
+                    this.loadAvatar();
                     return;
                 }
             }
             actionBar.setTitle(R.string.app_name);
             actionBar.setDisplayHomeAsUpEnabled(false);
+            actionBar.setDisplayUseLogoEnabled(false);
         }
     }
 

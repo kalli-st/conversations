@@ -42,8 +42,7 @@ public final class Config {
     public static final Uri HELP = Uri.parse("https://sum7.eu/chat");
 
     public static final String DOMAIN_LOCK = null; //only allow account creation for this domain
-    public static final String MAGIC_CREATE_DOMAIN = "chat.sum7.eu";
-    public static final Jid QUICKSY_DOMAIN = Jid.of("quicksy.im");
+    public static final String MAGIC_CREATE_DOMAIN = null;
 
     public static final String CHANNEL_DISCOVERY = "https://search.jabber.network";
 
