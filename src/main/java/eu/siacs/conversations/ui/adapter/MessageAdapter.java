@@ -741,6 +741,13 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 }
             }
             return view;
+        } else if (type == RECEIVED) {
+            if (conversation.getMode() != Conversation.MODE_SINGLE){
+                AvatarWorkerTask.loadAvatar(message, viewHolder.contact_picture, R.dimen.avatar);
+                viewHolder.contact_picture.setVisibility(View.VISIBLE);
+            } else {
+                viewHolder.contact_picture.setVisibility(View.GONE);
+            }
         } else if (type == SENT) {
             if (activity.showOwnAvatar()) {
                 AvatarWorkerTask.loadAvatar(message, viewHolder.contact_picture, R.dimen.avatar);
@@ -749,9 +756,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         }
 
         resetClickListener(viewHolder.message_box, viewHolder.messageBody);
-
-
-
 
         final Transferable transferable = message.getTransferable();
         final boolean unInitiatedButKnownSize = MessageUtils.unInitiatedButKnownSize(message);
@@ -816,23 +820,24 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         }
 
         if (type == RECEIVED) {
-
-            viewHolder.contact_picture.setOnClickListener(v -> {
-                if (MessageAdapter.this.mOnContactPictureClickedListener != null) {
-                    MessageAdapter.this.mOnContactPictureClickedListener
-                            .onContactPictureClicked(message);
-                }
-            });
-            viewHolder.contact_picture.setOnLongClickListener(v -> {
-                if (MessageAdapter.this.mOnContactPictureLongClickedListener != null) {
-                    MessageAdapter.this.mOnContactPictureLongClickedListener
-                            .onContactPictureLongClicked(v, message);
-                    return true;
-                } else {
-                    return false;
-                }
-            });
-            AvatarWorkerTask.loadAvatar(message, viewHolder.contact_picture, R.dimen.avatar);
+            if  (conversation.getMode() != Conversation.MODE_SINGLE) {
+                viewHolder.contact_picture.setOnClickListener(v -> {
+                    if (MessageAdapter.this.mOnContactPictureClickedListener != null) {
+                        MessageAdapter.this.mOnContactPictureClickedListener
+                                .onContactPictureClicked(message);
+                    }
+                });
+                viewHolder.contact_picture.setOnLongClickListener(v -> {
+                    if (MessageAdapter.this.mOnContactPictureLongClickedListener != null) {
+                        MessageAdapter.this.mOnContactPictureLongClickedListener
+                                .onContactPictureLongClicked(v, message);
+                        return true;
+                    } else {
+                        return false;
+                    }
+                });
+                AvatarWorkerTask.loadAvatar(message, viewHolder.contact_picture, R.dimen.avatar);
+            }
 
             if (isInValidSession) {
                 viewHolder.message_box.setBackgroundResource(activity.getThemeResource(R.attr.message_bubble_received_monochrome, R.drawable.message_bubble_received_white));
