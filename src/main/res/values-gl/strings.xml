@@ -115,7 +115,7 @@
     <string name="pref_general">Xeral</string>
     <string name="pref_accept_files">Aceptar ficheiros</string>
     <string name="pref_accept_files_summary">De forma automática aceptar ficheiros menores de…</string>
-    <string name="pref_attachments">Engadidos</string>
+    <string name="pref_attachments">Complementos</string>
     <string name="pref_notification_settings">Notificación</string>
     <string name="pref_vibrate">Vibrar</string>
     <string name="pref_vibrate_summary">Vibra cando chega unha nova mensaxe</string>
@@ -150,6 +150,7 @@
     <string name="error_file_not_found">Arquivo non atopado</string>
     <string name="error_io_exception">Erro xeral de I/O. ¿Quedaches sen espazo no disco?</string>
     <string name="error_security_exception_during_image_copy">A app utilizada para escoller esta imaxe non deu permisos suficientes para ler o ficheiro.\n\n<small>Usa un xestor de ficheiros diferente para escoller a imaxe</small></string>
+    <string name="error_security_exception">A app que usaches para compartir este ficheiro non concedeu os permisos suficientes.</string>
     <string name="account_status_unknown">Descoñecido</string>
     <string name="account_status_disabled">Desactivado temporalmente</string>
     <string name="account_status_online">Conectado</string>
@@ -164,6 +165,7 @@
     <string name="account_status_regis_not_sup">O servidor non permite o rexistro</string>
     <string name="account_status_regis_invalid_token">O testemuño de rexistro non é válido</string>
     <string name="account_status_tls_error">Fallo a negociación TLS</string>
+    <string name="account_status_tls_error_domain">Dominio non verificable</string>
     <string name="account_status_policy_violation">Violación da política</string>
     <string name="account_status_incompatible_server">Servidor incompatible</string>
     <string name="account_status_stream_error">Erro de fluxo</string>
@@ -269,7 +271,7 @@
     <string name="account_already_exists">Esta conta xa existe</string>
     <string name="next">Seguinte</string>
     <string name="server_info_session_established">Sesión establecida</string>
-    <string name="skip">Saltar</string>
+    <string name="skip">Omitir</string>
     <string name="disable_notifications">Desactivar notificacións</string>
     <string name="enable">Habilitar</string>
     <string name="conference_requires_password">A conversa en grupo require contrasinal</string>
@@ -402,7 +404,7 @@
     <string name="never">Nunca</string>
     <string name="until_further_notice">Ate novo aviso</string>
     <string name="snooze">Pospor</string>
-    <string name="reply">Respostar</string>
+    <string name="reply">Responder</string>
     <string name="mark_as_read">Marcar como lido</string>
     <string name="pref_input_options">Entrada</string>
     <string name="pref_enter_is_send">Enter envía</string>
@@ -730,8 +732,8 @@
     <string name="search_messages">Buscar mensaxes</string>
     <string name="gif">GIF</string>
     <string name="view_conversation">Ver conversa</string>
-    <string name="pref_use_share_location_plugin">Engadido para Compartir Localización</string>
-    <string name="pref_use_share_location_plugin_summary">Utilice o Engadido de Compartir Localización no lugar do mapa incluíndo</string>
+    <string name="pref_use_share_location_plugin">Complemento para Compartir Localización</string>
+    <string name="pref_use_share_location_plugin_summary">Utiliza o Complemento para Compartir Localización no lugar do mapa incluído</string>
     <string name="copy_link">Copiar a dirección web</string>
     <string name="copy_jabber_id">Copiar enderezo XMPP</string>
     <string name="p1_s3_filetransfer">Compartición de ficheiro HTTP para S3</string>
@@ -959,4 +961,6 @@
     <string name="unable_to_parse_invite">Non se puido enviar o convite</string>
     <string name="server_does_not_support_easy_onboarding_invites">O servidor non soporta a creación de convites</string>
     <string name="no_active_accounts_support_this">Ningunha conta activa soporta esta función</string>
-    </resources>
+    <string name="backup_started_message">Comezou a creación da copia de apoio. Recibirás unha notificación cando remate.</string>
+    <string name="unable_to_enable_video">Non se puido activar o vídeo.</string>
+</resources>

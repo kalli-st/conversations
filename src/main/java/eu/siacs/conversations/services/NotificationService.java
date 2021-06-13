@@ -397,7 +397,7 @@ public class NotificationService {
         notify(DELIVERY_FAILED_NOTIFICATION_ID, summaryNotification);
     }
 
-    public void startRinging(final AbstractJingleConnection.Id id, final Set<Media> media) {
+    public synchronized void startRinging(final AbstractJingleConnection.Id id, final Set<Media> media) {
         showIncomingCallNotification(id, media);
         final NotificationManager notificationManager = (NotificationManager) mXmppConnectionService.getSystemService(Context.NOTIFICATION_SERVICE);
         final int currentInterruptionFilter;
@@ -410,12 +410,16 @@ public class NotificationService {
             Log.d(Config.LOGTAG,"do not ring or vibrate because interruption filter has been set to "+currentInterruptionFilter);
             return;
         }
+        final ScheduledFuture<?> currentVibrationFuture = this.vibrationFuture;
         this.vibrationFuture = SCHEDULED_EXECUTOR_SERVICE.scheduleAtFixedRate(
                 new VibrationRunnable(),
                 0,
                 3,
                 TimeUnit.SECONDS
         );
+        if (currentVibrationFuture != null) {
+            currentVibrationFuture.cancel(true);
+        }
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mXmppConnectionService);
         final Resources resources = mXmppConnectionService.getResources();
         final String ringtonePreference = preferences.getString("call_ringtone", resources.getString(R.string.incoming_call_ringtone));
@@ -425,6 +429,10 @@ public class NotificationService {
         }
         final Uri uri = Uri.parse(ringtonePreference);
         this.currentlyPlayingRingtone = RingtoneManager.getRingtone(mXmppConnectionService, uri);
+        if (this.currentlyPlayingRingtone == null) {
+            Log.d(Config.LOGTAG,"unable to find ringtone for uri "+uri);
+            return;
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             this.currentlyPlayingRingtone.setLooping(true);
         }

@@ -5,10 +5,10 @@ import com.android.build.OutputFile
 buildscript {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.1.3'
+        classpath 'com.android.tools.build:gradle:4.2.1'
     }
 }
 
@@ -35,15 +35,6 @@ configurations {
 dependencies {
     implementation 'androidx.viewpager:viewpager:1.0.0'
 
-    playstoreImplementation('com.google.firebase:firebase-messaging:21.0.1') {
-        exclude group: 'com.google.firebase', module: 'firebase-core'
-        exclude group: 'com.google.firebase', module: 'firebase-analytics'
-        exclude group: 'com.google.firebase', module: 'firebase-measurement-connector'
-    }
-    conversationsPlaystoreCompatImplementation("com.android.installreferrer:installreferrer:2.2")
-    conversationsPlaystoreSystemImplementation("com.android.installreferrer:installreferrer:2.2")
-    quicksyPlaystoreCompatImplementation 'com.google.android.gms:play-services-auth-api-phone:17.5.0'
-    quicksyPlaystoreSystemImplementation 'com.google.android.gms:play-services-auth-api-phone:17.5.0'
     implementation 'org.sufficientlysecure:openpgp-api:10.0'
     implementation 'com.theartofdev.edmodo:android-image-cropper:2.8.0'
     implementation 'androidx.appcompat:appcompat:1.2.0'
@@ -54,7 +45,6 @@ dependencies {
     implementation 'com.google.android.material:material:1.3.0'
     compatImplementation 'androidx.emoji:emoji-appcompat:1.1.0'
     conversationsFreeCompatImplementation 'androidx.emoji:emoji-bundled:1.1.0'
-    quicksyFreeCompatImplementation 'androidx.emoji:emoji-bundled:1.1.0'
     implementation 'org.bouncycastle:bcmail-jdk15on:1.64'
     //zxing stopped supporting Java 7 so we have to stick with 3.3.3
     //https://github.com/zxing/zxing/issues/1170
@@ -65,19 +55,19 @@ dependencies {
     implementation 'com.makeramen:roundedimageview:2.3.0'
     implementation "com.wefika:flowlayout:0.4.1"
     implementation 'net.ypresto.androidtranscoder:android-transcoder:0.3.0'
-    implementation 'org.jxmpp:jxmpp-jid:0.6.4'
+    implementation 'org.jxmpp:jxmpp-jid:1.0.1'
     implementation 'org.osmdroid:osmdroid-android:6.1.10'
     implementation 'org.hsluv:hsluv:0.2'
-    implementation 'org.conscrypt:conscrypt-android:2.2.1'
+    implementation 'org.conscrypt:conscrypt-android:2.5.2'
     implementation 'me.drakeet.support:toastcompat:1.1.0'
     implementation "com.leinardi.android:speed-dial:2.0.1"
+
     implementation "com.squareup.retrofit2:retrofit:2.9.0"
     implementation "com.squareup.retrofit2:converter-gson:2.9.0"
     implementation "com.squareup.okhttp3:okhttp:4.9.1"
 
-    implementation 'com.google.guava:guava:30.1-android'
-    quicksyImplementation 'io.michaelrocks:libphonenumber-android:8.12.18'
-    // implementation fileTree(include: ['libwebrtc-m89.aar'], dir: 'libs')
+    implementation 'com.google.guava:guava:30.1.1-android'
+    implementation fileTree(include: ['libwebrtc-m90.aar'], dir: 'libs')
     implementation 'org.webrtc:google-webrtc:1.0.32006'
 }
 
@@ -101,15 +91,19 @@ android {
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 42010
-        versionName "2.9.9"
+        versionCode 42015
+        versionName "2.9.13"
         archivesBaseName += "-$versionName"
         applicationId 'st.kalli.conversations'
         resValue "string", "applicationId", applicationId
         resValue "string", "app_name", "Fnord"
-        buildConfigField "String", "LOGTAG", "\"conver6ations\""
+        buildConfigField "String", "LOGTAG", "\"fnord\""
+        def appName = "Fnord"
+        resValue "string", "app_name", appName
+        buildConfigField "String", "APP_NAME", "\"$appName\"";
         signingConfig signingConfigs.fnord
     }
+
 
 
     configurations {
@@ -135,26 +129,17 @@ android {
 
     productFlavors {
 
-        quicksy {
-            dimension "mode"
-            applicationId = "im.quicksy.client"
-            resValue "string", "app_name", "Quicksy"
-            resValue "string", "applicationId", applicationId
-            buildConfigField "String", "LOGTAG", "\"quicksy\""
-        }
-
         conversations {
             dimension "mode"
         }
 
-        playstore {
-            dimension "distribution"
-        }
         free {
             dimension "distribution"
         }
+
         system {
             dimension "emoji"
+
         }
         compat {
             dimension "emoji"
@@ -162,35 +147,6 @@ android {
     }
 
     sourceSets {
-        quicksyFreeSystem {
-            java {
-                srcDir 'src/quicksyFree/java'
-            }
-        }
-        quicksyFreeCompat {
-            java {
-                srcDir 'src/freeCompat/java'
-                srcDir 'src/quicksyFree/java'
-            }
-        }
-        quicksyPlaystoreCompat {
-            java {
-                srcDir 'src/playstoreCompat/java'
-                srcDir 'src/quicksyPlaystore/java'
-            }
-            res {
-                srcDir 'src/playstoreCompat/res'
-                srcDir 'src/quicksyPlaystore/res'
-            }
-        }
-        quicksyPlaystoreSystem {
-            java {
-                srcDir 'src/quicksyPlaystore/java'
-            }
-            res {
-                srcDir 'src/quicksyPlaystore/res'
-            }
-        }
         conversationsFreeCompat {
             java {
                 srcDir 'src/freeCompat/java'
@@ -202,24 +158,6 @@ android {
                 srcDir 'src/conversationsFree/java'
             }
         }
-        conversationsPlaystoreCompat {
-            java {
-                srcDir 'src/playstoreCompat/java'
-                srcDir 'src/conversationsPlaystore/java'
-            }
-            res {
-                srcDir 'src/playstoreCompat/res'
-                srcDir 'src/conversationsPlaystore/res'
-            }
-        }
-        conversationsPlaystoreSystem {
-            java {
-                srcDir 'src/conversationsPlaystore/java'
-            }
-            res {
-                srcDir 'src/conversationsPlaystore/res'
-            }
-        }
     }
 
     buildTypes {
@@ -227,6 +165,7 @@ android {
             shrinkResources true
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
         }
         debug {
             shrinkResources true

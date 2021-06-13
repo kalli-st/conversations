@@ -83,7 +83,7 @@ public class HttpDownloadConnection implements Transferable {
             final Message.FileParams fileParams = message.getFileParams();
             if (message.hasFileOnRemoteHost()) {
                 mUrl = AesGcmURL.of(fileParams.url);
-            } else if (message.isOOb() && fileParams.url != null && fileParams.size > 0) {
+            } else if (message.isOOb() && fileParams.url != null && fileParams.size != null) {
                 mUrl = AesGcmURL.of(fileParams.url);
             } else {
                 mUrl = AesGcmURL.of(message.getBody().split("\n")[0]);
@@ -106,8 +106,9 @@ public class HttpDownloadConnection implements Transferable {
                 this.message.setEncryption(Message.ENCRYPTION_NONE);
             }
             //TODO add auth tag size to knownFileSize
-            final long knownFileSize = message.getFileParams().size;
-            if (knownFileSize > 0 && interactive) {
+            final Long knownFileSize = message.getFileParams().size;
+            Log.d(Config.LOGTAG,"knownFileSize: "+knownFileSize+", body="+message.getBody());
+            if (knownFileSize != null && interactive) {
                 this.file.setExpectedSize(knownFileSize);
                 download(true);
             } else {
@@ -130,6 +131,7 @@ public class HttpDownloadConnection implements Transferable {
     }
 
     private void download(final boolean interactive) {
+        Log.d(Config.LOGTAG,"download()",new Exception());
         EXECUTOR.execute(new FileDownloader(interactive));
     }
 
@@ -234,11 +236,11 @@ public class HttpDownloadConnection implements Transferable {
     }
 
     @Override
-    public long getFileSize() {
+    public Long getFileSize() {
         if (this.file != null) {
             return this.file.getExpectedSize();
         } else {
-            return 0;
+            return null;
         }
     }
 
@@ -318,6 +320,7 @@ public class HttpDownloadConnection implements Transferable {
             mostRecentCall = client.newCall(request);
             try {
                 final Response response = mostRecentCall.execute();
+                throwOnInvalidCode(response);
                 final String contentLength = response.header("Content-Length");
                 final String contentType = response.header("Content-Type");
                 final AbstractConnectionManager.Extension extension = AbstractConnectionManager.Extension.of(mUrl.encodedPath());
@@ -332,7 +335,11 @@ public class HttpDownloadConnection implements Transferable {
                 if (Strings.isNullOrEmpty(contentLength)) {
                     throw new IOException("no content-length found in HEAD response");
                 }
-                return Long.parseLong(contentLength, 10);
+                final long size = Long.parseLong(contentLength, 10);
+                if (size < 0) {
+                    throw new IOException("Server reported negative file size");
+                }
+                return size;
             } catch (IOException e) {
                 Log.d(Config.LOGTAG, "io exception during HEAD " + e.getMessage());
                 throw e;
@@ -395,45 +402,41 @@ public class HttpDownloadConnection implements Transferable {
             final Request request = requestBuilder.build();
             mostRecentCall = client.newCall(request);
             final Response response = mostRecentCall.execute();
-            final int code = response.code();
-            if (code >= 200 && code <= 299) {
-                final String contentRange = response.header("Content-Range");
-                final boolean serverResumed = tryResume && contentRange != null && contentRange.startsWith("bytes " + resumeSize + "-");
-                final InputStream inputStream = response.body().byteStream();
-                final OutputStream outputStream;
-                long transmitted = 0;
-                if (tryResume && serverResumed) {
-                    Log.d(Config.LOGTAG, "server resumed");
-                    transmitted = file.getSize();
-                    updateProgress(Math.round(((double) transmitted / expected) * 100));
-                    outputStream = AbstractConnectionManager.createOutputStream(file, true, false);
-                } else {
-                    final String contentLength = response.header("Content-Length");
-                    final long size = Strings.isNullOrEmpty(contentLength) ? 0 : Longs.tryParse(contentLength);
-                    if (expected != size) {
-                        Log.d(Config.LOGTAG, "content-length reported on GET (" + size + ") did not match Content-Length reported on HEAD (" + expected + ")");
-                    }
-                    file.getParentFile().mkdirs();
-                    if (!file.exists() && !file.createNewFile()) {
-                        throw new FileWriterException();
-                    }
-                    outputStream = AbstractConnectionManager.createOutputStream(file, false, false);
-                }
-                int count;
-                final byte[] buffer = new byte[4096];
-                while ((count = inputStream.read(buffer)) != -1) {
-                    transmitted += count;
-                    try {
-                        outputStream.write(buffer, 0, count);
-                    } catch (IOException e) {
-                        throw new FileWriterException();
-                    }
-                    updateProgress(Math.round(((double) transmitted / expected) * 100));
-                }
-                outputStream.flush();
+            throwOnInvalidCode(response);
+            final String contentRange = response.header("Content-Range");
+            final boolean serverResumed = tryResume && contentRange != null && contentRange.startsWith("bytes " + resumeSize + "-");
+            final InputStream inputStream = response.body().byteStream();
+            final OutputStream outputStream;
+            long transmitted = 0;
+            if (tryResume && serverResumed) {
+                Log.d(Config.LOGTAG, "server resumed");
+                transmitted = file.getSize();
+                updateProgress(Math.round(((double) transmitted / expected) * 100));
+                outputStream = AbstractConnectionManager.createOutputStream(file, true, false);
             } else {
-                throw new IOException(String.format(Locale.ENGLISH, "HTTP Status code was %d", code));
+                final String contentLength = response.header("Content-Length");
+                final long size = Strings.isNullOrEmpty(contentLength) ? 0 : Longs.tryParse(contentLength);
+                if (expected != size) {
+                    Log.d(Config.LOGTAG, "content-length reported on GET (" + size + ") did not match Content-Length reported on HEAD (" + expected + ")");
+                }
+                file.getParentFile().mkdirs();
+                if (!file.exists() && !file.createNewFile()) {
+                    throw new FileWriterException();
+                }
+                outputStream = AbstractConnectionManager.createOutputStream(file, false, false);
             }
+            int count;
+            final byte[] buffer = new byte[4096];
+            while ((count = inputStream.read(buffer)) != -1) {
+                transmitted += count;
+                try {
+                    outputStream.write(buffer, 0, count);
+                } catch (IOException e) {
+                    throw new FileWriterException();
+                }
+                updateProgress(Math.round(((double) transmitted / expected) * 100));
+            }
+            outputStream.flush();
         }
 
         private void updateImageBounds() {
@@ -450,5 +453,12 @@ public class HttpDownloadConnection implements Transferable {
             mXmppConnectionService.updateMessage(message);
         }
 
+    }
+
+    private static void throwOnInvalidCode(final Response response) throws IOException {
+        final int code = response.code();
+        if (code < 200 || code >= 300) {
+            throw new IOException(String.format(Locale.ENGLISH, "HTTP Status code was %d", code));
+        }
     }
 }

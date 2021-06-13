@@ -122,9 +122,18 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
         setSupportActionBar(binding.toolbar);
         configureActionBar(getSupportActionBar(), false);
         binding.registerNewAccount.setOnClickListener(v -> {
-            final Intent intent = new Intent(this, PickServerActivity.class);
-            addInviteUri(intent);
-            startActivity(intent);
+                List<Account> accounts = xmppConnectionService.getAccounts();
+                Intent intent = new Intent(WelcomeActivity.this, EditAccountActivity.class);
+                intent.putExtra(EditAccountActivity.EXTRA_FORCE_REGISTER, true);
+                if (accounts.size() == 1) {
+                    intent.putExtra("jid", accounts.get(0).getJid().asBareJid().toString());
+                    intent.putExtra("init", true);
+                } else if (accounts.size() >= 1) {
+                    intent = new Intent(this, ManageAccountActivity.class);
+                }
+                addInviteUri(intent);
+                startActivity(intent);
+
         });
         binding.useExisting.setOnClickListener(v -> {
             final List<Account> accounts = xmppConnectionService.getAccounts();
@@ -139,7 +148,6 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
             addInviteUri(intent);
             startActivity(intent);
         });
-
     }
 
     @Override

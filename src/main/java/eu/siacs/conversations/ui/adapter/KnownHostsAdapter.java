@@ -27,12 +27,8 @@ public class KnownHostsAdapter extends ArrayAdapter<String> {
             final String[] split = constraint == null ? new String[0] : constraint.toString().split("@");
             if (split.length == 1) {
                 final String local = split[0].toLowerCase(Locale.ENGLISH);
-                if (Config.QUICKSY_DOMAIN != null && E164_PATTERN.matcher(local).matches()) {
-                    suggestions.add(local + '@' + Config.QUICKSY_DOMAIN.toEscapedString());
-                } else {
-                    for (String domain : domains) {
-                        suggestions.add(local + '@' + domain);
-                    }
+                for (String domain : domains) {
+                    suggestions.add(local + '@' + domain);
                 }
             } else if (split.length == 2) {
                 final String localPart = split[0].toLowerCase(Locale.ENGLISH);

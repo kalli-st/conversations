@@ -1,8 +1,25 @@
 # Changelog
 
+### Version 2.9.13
+
+* minor A/V improvements
+
+### Version 2.9.12
+
+* Always verify domain name. No user overwrite
+* Support roster pre authentication
+
+### Version 2.9.11
+
+* Fixed 'No Connectivity' issues on Android 7.1
+
+### Version 2.9.10
+* fix HTTP up/download for users that don’t trust system CAs
+
 ### Version 2.9.9
 
 * Various bug fixes around Tor support
+* Improve call compatibility with Dino
 
 ### Version 2.9.8
 

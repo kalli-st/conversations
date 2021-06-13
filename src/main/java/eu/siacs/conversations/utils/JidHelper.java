@@ -59,9 +59,4 @@ public class JidHelper {
             return InvalidJid.of(jid, true);
         }
     }
-
-    public static boolean isQuicksyDomain(final Jid jid) {
-        return Config.QUICKSY_DOMAIN != null && Config.QUICKSY_DOMAIN.equals(jid.getDomain());
-    }
-
 }

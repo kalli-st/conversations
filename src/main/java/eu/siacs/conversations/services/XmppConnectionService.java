@@ -20,6 +20,8 @@ import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Binder;
@@ -1075,11 +1077,20 @@ public class XmppConnectionService extends Service {
     }
 
     public boolean hasInternetConnection() {
-        final ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        final ConnectivityManager cm = ContextCompat.getSystemService(this, ConnectivityManager.class);
+        if (cm == null) {
+            return true; //if internet connection can not be checked it is probably best to just try
+        }
         try {
-            final NetworkInfo activeNetwork = cm == null ? null : cm.getActiveNetworkInfo();
-            return activeNetwork != null && (activeNetwork.isConnected() || activeNetwork.getType() == ConnectivityManager.TYPE_ETHERNET);
-        } catch (RuntimeException e) {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                final Network activeNetwork = cm.getActiveNetwork();
+                final NetworkCapabilities capabilities = activeNetwork == null ? null : cm.getNetworkCapabilities(activeNetwork);
+                return capabilities != null && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
+            } else {
+                final NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+                return networkInfo != null && (networkInfo.isConnected() || networkInfo.getType() == ConnectivityManager.TYPE_ETHERNET);
+            }
+        } catch (final RuntimeException e) {
             Log.d(Config.LOGTAG, "unable to check for internet connection", e);
             return true; //if internet connection can not be checked it is probably best to just try
         }
@@ -3437,15 +3448,23 @@ public class XmppConnectionService extends Service {
         }
     }
 
-    public void createContact(Contact contact, boolean autoGrant) {
+    public void createContact(final Contact contact, final boolean autoGrant) {
+        createContact(contact, autoGrant, null);
+    }
+
+    public void createContact(final Contact contact, final boolean autoGrant, final String preAuth) {
         if (autoGrant) {
             contact.setOption(Contact.Options.PREEMPTIVE_GRANT);
             contact.setOption(Contact.Options.ASKING);
         }
-        pushContactToServer(contact);
+        pushContactToServer(contact, preAuth);
     }
 
     public void pushContactToServer(final Contact contact) {
+        pushContactToServer(contact, null);
+    }
+
+    private void pushContactToServer(final Contact contact, final String preAuth) {
         contact.resetOption(Contact.Options.DIRTY_DELETE);
         contact.setOption(Contact.Options.DIRTY_PUSH);
         final Account account = contact.getAccount();
@@ -3461,7 +3480,7 @@ public class XmppConnectionService extends Service {
                 sendPresencePacket(account, mPresenceGenerator.sendPresenceUpdatesTo(contact));
             }
             if (ask) {
-                sendPresencePacket(account, mPresenceGenerator.requestPresenceUpdatesFrom(contact));
+                sendPresencePacket(account, mPresenceGenerator.requestPresenceUpdatesFrom(contact, preAuth));
             }
         } else {
             syncRoster(contact.getAccount());
@@ -4279,9 +4298,6 @@ public class XmppConnectionService extends Service {
                     }
                 }
             }
-        }
-        if (Config.QUICKSY_DOMAIN != null) {
-            hosts.remove(Config.QUICKSY_DOMAIN.toEscapedString()); //we only want to show this when we type a e164 number
         }
         if (Config.DOMAIN_LOCK != null) {
             hosts.add(Config.DOMAIN_LOCK);

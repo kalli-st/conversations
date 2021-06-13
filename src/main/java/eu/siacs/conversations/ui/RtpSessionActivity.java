@@ -35,6 +35,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
+import org.webrtc.RendererCommon;
 import org.webrtc.SurfaceViewRenderer;
 import org.webrtc.VideoTrack;
 
@@ -81,6 +82,7 @@ public class RtpSessionActivity extends XmppActivity implements XmppConnectionSe
 
     private static final List<RtpEndUserState> END_CARD = Arrays.asList(
             RtpEndUserState.APPLICATION_ERROR,
+            RtpEndUserState.SECURITY_ERROR,
             RtpEndUserState.DECLINED_OR_BUSY,
             RtpEndUserState.CONNECTIVITY_ERROR,
             RtpEndUserState.CONNECTIVITY_LOST_ERROR,
@@ -88,7 +90,8 @@ public class RtpSessionActivity extends XmppActivity implements XmppConnectionSe
     );
     private static final List<RtpEndUserState> STATES_SHOWING_HELP_BUTTON = Arrays.asList(
             RtpEndUserState.APPLICATION_ERROR,
-            RtpEndUserState.CONNECTIVITY_ERROR
+            RtpEndUserState.CONNECTIVITY_ERROR,
+            RtpEndUserState.SECURITY_ERROR
     );
     private static final List<RtpEndUserState> STATES_SHOWING_SWITCH_TO_CHAT = Arrays.asList(
             RtpEndUserState.CONNECTING,
@@ -668,6 +671,9 @@ public class RtpSessionActivity extends XmppActivity implements XmppConnectionSe
             case APPLICATION_ERROR:
                 setTitle(R.string.rtp_state_application_failure);
                 break;
+            case SECURITY_ERROR:
+                setTitle(R.string.rtp_state_security_error);
+                break;
             case ENDED:
                 throw new IllegalStateException("Activity should have called finishAndReleaseWakeLock();");
             default:
@@ -743,7 +749,8 @@ public class RtpSessionActivity extends XmppActivity implements XmppConnectionSe
                 RtpEndUserState.CONNECTIVITY_ERROR,
                 RtpEndUserState.CONNECTIVITY_LOST_ERROR,
                 RtpEndUserState.APPLICATION_ERROR,
-                RtpEndUserState.RETRACTED
+                RtpEndUserState.RETRACTED,
+                RtpEndUserState.SECURITY_ERROR
         ).contains(state)) {
             this.binding.rejectCall.setContentDescription(getString(R.string.exit));
             this.binding.rejectCall.setOnClickListener(this::exit);
@@ -922,13 +929,17 @@ public class RtpSessionActivity extends XmppActivity implements XmppConnectionSe
         if (END_CARD.contains(state) || state == RtpEndUserState.ENDING_CALL) {
             binding.localVideo.setVisibility(View.GONE);
             binding.localVideo.release();
-            binding.remoteVideo.setVisibility(View.GONE);
+            binding.remoteVideoWrapper.setVisibility(View.GONE);
             binding.remoteVideo.release();
             binding.pipLocalMicOffIndicator.setVisibility(View.GONE);
             if (isPictureInPicture()) {
                 binding.appBarLayout.setVisibility(View.GONE);
                 binding.pipPlaceholder.setVisibility(View.VISIBLE);
-                if (state == RtpEndUserState.APPLICATION_ERROR || state == RtpEndUserState.CONNECTIVITY_ERROR) {
+                if (Arrays.asList(
+                        RtpEndUserState.APPLICATION_ERROR,
+                        RtpEndUserState.CONNECTIVITY_ERROR,
+                        RtpEndUserState.SECURITY_ERROR)
+                        .contains(state)) {
                     binding.pipWarning.setVisibility(View.VISIBLE);
                     binding.pipWaiting.setVisibility(View.GONE);
                 } else {
@@ -944,7 +955,7 @@ public class RtpSessionActivity extends XmppActivity implements XmppConnectionSe
         }
         if (isPictureInPicture() && (state == RtpEndUserState.CONNECTING || state == RtpEndUserState.ACCEPTING_CALL)) {
             binding.localVideo.setVisibility(View.GONE);
-            binding.remoteVideo.setVisibility(View.GONE);
+            binding.remoteVideoWrapper.setVisibility(View.GONE);
             binding.appBarLayout.setVisibility(View.GONE);
             binding.pipPlaceholder.setVisibility(View.VISIBLE);
             binding.pipWarning.setVisibility(View.GONE);
@@ -966,12 +977,17 @@ public class RtpSessionActivity extends XmppActivity implements XmppConnectionSe
         if (remoteVideoTrack.isPresent()) {
             ensureSurfaceViewRendererIsSetup(binding.remoteVideo);
             addSink(remoteVideoTrack.get(), binding.remoteVideo);
+            binding.remoteVideo.setScalingType(
+                    RendererCommon.ScalingType.SCALE_ASPECT_FILL,
+                    RendererCommon.ScalingType.SCALE_ASPECT_FIT
+            );
             if (state == RtpEndUserState.CONNECTED) {
                 binding.appBarLayout.setVisibility(View.GONE);
                 getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                binding.remoteVideoWrapper.setVisibility(View.VISIBLE);
             } else {
                 getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-                binding.remoteVideo.setVisibility(View.GONE);
+                binding.remoteVideoWrapper.setVisibility(View.GONE);
             }
             if (isPictureInPicture() && !requireRtpConnection().isMicrophoneEnabled()) {
                 binding.pipLocalMicOffIndicator.setVisibility(View.VISIBLE);
@@ -980,7 +996,7 @@ public class RtpSessionActivity extends XmppActivity implements XmppConnectionSe
             }
         } else {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            binding.remoteVideo.setVisibility(View.GONE);
+            binding.remoteVideoWrapper.setVisibility(View.GONE);
             binding.pipLocalMicOffIndicator.setVisibility(View.GONE);
         }
     }

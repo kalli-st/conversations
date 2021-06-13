@@ -783,10 +783,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
             updateAccountInformation(init);
         }
 
-
-        if (Config.MAGIC_CREATE_DOMAIN == null && this.xmppConnectionService.getAccounts().size() == 0) {
-            this.binding.cancelButton.setEnabled(false);
-        }
         if (mUsernameMode) {
             this.binding.accountJidLayout.setHint(getString(R.string.username_hint));
             this.binding.accountJid.setHint(R.string.username_hint);

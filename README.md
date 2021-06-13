@@ -1,4 +1,4 @@
-<h1 align="center">Fnord is a fork of <a href="https://f-droid.org/packages/eu.sum7.conversations/">Conv6ations</a></h1>
+<h1 align="center">Fnord is a fork of <a href="https://github.com/iNPUTmice/Conversations">Conversations</a></h1>
 
 <p align="center">A Jabber/XMPP chat client which is fair to the eyes</p>
 
@@ -22,16 +22,18 @@
 </p>
 
 
+
 ## Changes to origin:
 * add a lot of UI enhancements.
 * rebrands it as st.kalli.conversations (to run both version together)
+
 
 
 ## Features
 
 * End-to-end encryption with [OMEMO](http://conversations.im/omemo/) or [OpenPGP](http://openpgp.org/about/)
 * Send and receive images as well as other kind of files
-* Encrypted audio and video calls (DTLS-SRTP)
+* [Encrypted audio and video calls (DTLS-SRTP)](https://help.conversations.im)
 * Share your location
 * Send voice messages
 * Indication when your contact has read your message
@@ -73,4 +75,6 @@ run your own XMPP server for you and your friends. These XEP's are:
   withholding unimportant packages.
 * [XEP-0363: HTTP File Upload](http://xmpp.org/extensions/xep-0363.html) allows you to share files in conferences
   and with offline contacts.
+
+
 
